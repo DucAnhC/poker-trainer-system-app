@@ -1,9 +1,13 @@
+"use client";
+
+import type { ReactNode } from "react";
+
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { PackSummaryCard } from "@/components/trainer/PackSummaryCard";
-import { difficultyLabels } from "@/lib/poker/labels";
-import { getConceptLabel } from "@/lib/training/concepts";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { StatusPill } from "@/components/ui/StatusPill";
+import { getConceptLabel } from "@/lib/training/concepts";
 import type {
   ContentPack,
   Difficulty,
@@ -32,6 +36,33 @@ type TrainerSessionSetupCardProps = {
   persistenceError?: string | null;
 };
 
+function SupportSection({
+  title,
+  description,
+  defaultOpen = false,
+  children,
+}: {
+  title: string;
+  description: string;
+  defaultOpen?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <details
+      open={defaultOpen}
+      className="group rounded-3xl border border-border/70 bg-muted/14"
+    >
+      <summary className="flex cursor-pointer list-none flex-col gap-1 px-4 py-4">
+        <span className="text-sm font-semibold text-foreground">{title}</span>
+        <span className="text-sm leading-6 text-muted-foreground">
+          {description}
+        </span>
+      </summary>
+      <div className="border-t border-border/60 px-4 py-4">{children}</div>
+    </details>
+  );
+}
+
 export function TrainerSessionSetupCard({
   packTitle,
   packSummary,
@@ -50,40 +81,64 @@ export function TrainerSessionSetupCard({
   isPersisting = false,
   persistenceError = null,
 }: TrainerSessionSetupCardProps) {
+  const copy = useUiCopy();
   const visibleRetryItems = retryItems.slice(0, 3);
-  const hasRetryItems = visibleRetryItems.length > 0;
+  const selectedPack = availableContentPacks.find(
+    (contentPack) => contentPack.id === selectedContentPackId,
+  );
 
   return (
-    <SurfaceCard className="space-y-4">
+    <SurfaceCard className="space-y-4 xl:sticky xl:top-6">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-          Session planner
+          {copy.trainer.shared.setupEyebrow}
         </p>
-        <h2 className="text-2xl font-semibold text-foreground">{packTitle}</h2>
-        <p className="text-sm leading-6 text-muted-foreground">{packSummary}</p>
+        <h2 className="text-2xl font-semibold text-foreground">
+          {copy.trainer.shared.setupTitle}
+        </h2>
+        <p className="text-sm leading-6 text-muted-foreground">
+          {copy.trainer.shared.setupDescription}
+        </p>
       </div>
 
-      {packHighlights.length > 0 ? (
-        <div className="flex flex-wrap gap-2">
-          {packHighlights.slice(0, 3).map((highlight) => (
-            <StatusPill key={`${packTitle}-${highlight}`}>{highlight}</StatusPill>
-          ))}
+      <div className="rounded-3xl border border-border/70 bg-muted/16 p-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <StatusPill tone="accent">{packTitle}</StatusPill>
+          <StatusPill>{copy.trainer.queueModeLabels[queueMode]}</StatusPill>
+          <StatusPill tone={storageMode === "account" ? "success" : "accent"}>
+            {storageMode === "account"
+              ? copy.trainer.shared.accountAutosave
+              : copy.trainer.shared.localAutosave}
+          </StatusPill>
+          {visibleRetryItems.length > 0 ? (
+            <StatusPill tone="gold">
+              {copy.trainer.shared.weakConceptCount(visibleRetryItems.length)}
+            </StatusPill>
+          ) : null}
+          {isPersisting ? (
+            <StatusPill tone="gold">{copy.trainer.shared.saving}</StatusPill>
+          ) : null}
+          {persistenceError ? (
+            <StatusPill tone="danger">{copy.trainer.shared.syncIssue}</StatusPill>
+          ) : null}
         </div>
-      ) : null}
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
+          {packSummary}
+        </p>
+        {packHighlights.length > 0 ? (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {packHighlights.slice(0, 3).map((highlight) => (
+              <StatusPill key={`${packTitle}-${highlight}`}>{highlight}</StatusPill>
+            ))}
+          </div>
+        ) : null}
+      </div>
 
       {availableContentPacks.length > 1 ? (
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-              Concept packs
-            </p>
-            <p className="text-sm leading-6 text-muted-foreground">
-              Choose the slice of the module you want to train. Packs keep the
-              session focused on one family of ideas instead of mixing every
-              concept together.
-            </p>
-          </div>
-
+        <SupportSection
+          title={copy.trainer.shared.packSection}
+          description={copy.trainer.shared.packSectionHint}
+        >
           <div className="space-y-3">
             {availableContentPacks.map((contentPack) => (
               <PackSummaryCard
@@ -95,13 +150,14 @@ export function TrainerSessionSetupCard({
               />
             ))}
           </div>
-        </div>
+        </SupportSection>
       ) : null}
 
-      <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Difficulty filter
-        </p>
+      <SupportSection
+        title={copy.trainer.shared.difficultySection}
+        description={copy.trainer.shared.difficultySectionHint}
+        defaultOpen
+      >
         <div className="flex flex-wrap gap-2">
           <button
             type="button"
@@ -112,7 +168,7 @@ export function TrainerSessionSetupCard({
                 : "border-border bg-white text-foreground hover:border-accent/40 hover:text-accent-strong"
             }`}
           >
-            All levels
+            {copy.trainer.shared.allLevels}
           </button>
           {availableDifficulties.map((difficulty) => (
             <button
@@ -125,112 +181,104 @@ export function TrainerSessionSetupCard({
                   : "border-border bg-white text-foreground hover:border-accent/40 hover:text-accent-strong"
               }`}
             >
-              {difficultyLabels[difficulty]}
+              {copy.trainer.difficultyLabels[difficulty]}
             </button>
           ))}
         </div>
-      </div>
 
-      <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Pack concept anchors
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {availableContentPacks
-            .find((contentPack) => contentPack.id === selectedContentPackId)
-            ?.conceptTags.slice(0, 4)
-            .map((conceptTag) => (
-              <StatusPill key={`${selectedContentPackId}-${conceptTag}`}>
-                {getConceptLabel(conceptTag)}
-              </StatusPill>
+        {selectedPack?.conceptTags.length ? (
+          <div className="mt-4 space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              {copy.trainer.shared.packAnchors}
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {selectedPack.conceptTags.slice(0, 4).map((conceptTag) => (
+                <StatusPill key={`${selectedPack.id}-${conceptTag}`}>
+                  {getConceptLabel(conceptTag)}
+                </StatusPill>
+              ))}
+            </div>
+          </div>
+        ) : null}
+
+        <div className="mt-4 space-y-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            {copy.trainer.shared.packLevels}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {availableDifficulties.map((difficulty) => (
+              <DifficultyBadge key={`${selectedPack?.id}-${difficulty}`} difficulty={difficulty} />
             ))}
+          </div>
         </div>
-      </div>
+      </SupportSection>
 
-      <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Available pack levels
-        </p>
+      <SupportSection
+        title={copy.trainer.shared.orderSection}
+        description={copy.trainer.shared.orderSectionHint}
+      >
         <div className="flex flex-wrap gap-2">
-          {availableDifficulties.map((difficulty) => (
-            <DifficultyBadge key={`${selectedContentPackId}-${difficulty}`} difficulty={difficulty} />
+          {(["adaptive", "default"] as const).map((mode) => (
+            <button
+              key={mode}
+              type="button"
+              onClick={() => onSelectQueueMode(mode)}
+              className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
+                queueMode === mode
+                  ? "border-accent/30 bg-accent/10 text-accent-strong"
+                  : "border-border bg-white text-foreground hover:border-accent/40 hover:text-accent-strong"
+              }`}
+            >
+              {copy.trainer.queueModeLabels[mode]}
+            </button>
           ))}
         </div>
-      </div>
 
-      <div className="space-y-3">
-        <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-          Review weak concepts
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={() => onSelectQueueMode("adaptive")}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-              queueMode === "adaptive"
-                ? "border-accent/30 bg-accent/10 text-accent-strong"
-                : "border-border bg-white text-foreground hover:border-accent/40 hover:text-accent-strong"
-            }`}
-          >
-            Adaptive order
-          </button>
-          <button
-            type="button"
-            onClick={() => onSelectQueueMode("default")}
-            className={`rounded-full border px-4 py-2 text-sm font-semibold transition ${
-              queueMode === "default"
-                ? "border-accent/30 bg-accent/10 text-accent-strong"
-                : "border-border bg-white text-foreground hover:border-accent/40 hover:text-accent-strong"
-            }`}
-          >
-            Original order
-          </button>
-        </div>
-      </div>
-
-      {hasRetryItems ? (
-        <div className="space-y-3 rounded-2xl border border-accent/15 bg-accent/5 p-4">
-          <div className="flex flex-wrap items-center gap-2">
-            <StatusPill tone="gold">Suggested retry</StatusPill>
-            <StatusPill>{visibleRetryItems.length} weak concepts</StatusPill>
+        {visibleRetryItems.length > 0 ? (
+          <div className="mt-4 rounded-2xl border border-gold/25 bg-gold/10 p-4">
+            <div className="flex flex-wrap items-center gap-2">
+              <StatusPill tone="gold">{copy.trainer.shared.suggestedRetry}</StatusPill>
+              <StatusPill>{copy.trainer.shared.weakConceptCount(visibleRetryItems.length)}</StatusPill>
+            </div>
+            <ul className="mt-3 space-y-2 text-sm leading-6 text-muted-foreground">
+              {visibleRetryItems.map((retryItem) => (
+                <li key={retryItem.scenarioId}>- {retryItem.reason}</li>
+              ))}
+            </ul>
           </div>
-          <p className="text-sm leading-6 text-muted-foreground">
-            You missed similar spots recently, so adaptive order will bring those
-            concepts forward sooner.
+        ) : (
+          <p className="mt-4 text-sm leading-6 text-muted-foreground">
+            {copy.trainer.shared.noWeakConcepts}
           </p>
-          <ul className="space-y-2 text-sm leading-6 text-muted-foreground">
-            {visibleRetryItems.map((retryItem) => (
-              <li key={retryItem.scenarioId}>- {retryItem.title}: {retryItem.reason}</li>
-            ))}
-          </ul>
-        </div>
-      ) : (
-        <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-4 text-sm leading-6 text-muted-foreground">
-          No repeat weak concepts have built up strongly in this pack yet, so
-          original order and adaptive order will feel similar for now.
-        </div>
-      )}
+        )}
+      </SupportSection>
 
       <div
-        className={`space-y-3 rounded-2xl border p-4 ${
+        className={`rounded-3xl border p-4 ${
           persistenceError
             ? "border-amber-200 bg-amber-50/80"
-            : "border-border/70 bg-muted/20"
+            : "border-border/70 bg-muted/18"
         }`}
       >
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill tone={storageMode === "account" ? "success" : "accent"}>
-            {storageMode === "account" ? "Account autosave" : "Local autosave"}
+            {storageMode === "account"
+              ? copy.trainer.shared.accountAutosave
+              : copy.trainer.shared.localAutosave}
           </StatusPill>
-          {isPersisting ? <StatusPill tone="gold">Saving</StatusPill> : null}
-          {persistenceError ? <StatusPill tone="danger">Sync issue</StatusPill> : null}
+          {isPersisting ? (
+            <StatusPill tone="gold">{copy.trainer.shared.saving}</StatusPill>
+          ) : null}
+          {persistenceError ? (
+            <StatusPill tone="danger">{copy.trainer.shared.syncIssue}</StatusPill>
+          ) : null}
         </div>
-        <p className="text-sm leading-6 text-muted-foreground">
+        <p className="mt-3 text-sm leading-6 text-muted-foreground">
           {persistenceError
             ? persistenceError
             : storageMode === "account"
-              ? "Submitted answers and session summaries are saved to the signed-in account automatically."
-              : "Submitted answers and session summaries are saved locally in this browser automatically."}
+              ? copy.trainer.shared.accountAutosaveDescription
+              : copy.trainer.shared.localAutosaveDescription}
         </p>
       </div>
     </SurfaceCard>

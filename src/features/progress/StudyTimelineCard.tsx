@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { LeakTagBadge } from "@/components/ui/LeakTagBadge";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { StatusPill } from "@/components/ui/StatusPill";
@@ -24,21 +27,22 @@ export function StudyTimelineCard({
   storageMode,
   limit = 6,
 }: StudyTimelineCardProps) {
+  const copy = useUiCopy();
   const timelineEntries = getStudyTimelineEntries({ sessions, notes, limit });
 
   return (
     <SurfaceCard className="space-y-4">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-          Study timeline
+          {copy.studyTimeline.eyebrow}
         </p>
         <h2 className="text-2xl font-semibold text-foreground">
-          Recent training and review history
+          {copy.studyTimeline.title}
         </h2>
         <p className="text-sm leading-6 text-muted-foreground">
           {storageMode === "account"
-            ? "This timeline blends account-backed sessions and structured review notes so it is easier to see how the recent study block actually unfolded."
-            : "This timeline blends local sessions and structured review notes so recent study flow is easier to read without opening several separate cards."}
+            ? copy.studyTimeline.descriptionAccount
+            : copy.studyTimeline.descriptionLocal}
         </p>
       </div>
 
@@ -83,8 +87,8 @@ export function StudyTimelineCard({
                 ) : (
                   <StatusPill tone="success">
                     {entry.kind === "session"
-                      ? "No repeat leak tags surfaced"
-                      : "No manual leak tags assigned"}
+                      ? copy.studyTimeline.noRepeatLeakTags
+                      : copy.studyTimeline.noManualLeakTags}
                   </StatusPill>
                 )}
               </div>
@@ -94,8 +98,8 @@ export function StudyTimelineCard({
       ) : (
         <div className="rounded-2xl border border-dashed border-border/80 bg-muted/10 p-5 text-sm leading-6 text-muted-foreground">
           {storageMode === "account"
-            ? "No account-backed study history is saved yet. Finish a training run or add a review note and the timeline will begin filling in here."
-            : "No local study history is saved yet. Finish a module run or add a review note and the timeline will begin filling in here."}
+            ? copy.studyTimeline.emptyAccount
+            : copy.studyTimeline.emptyLocal}
         </div>
       )}
     </SurfaceCard>

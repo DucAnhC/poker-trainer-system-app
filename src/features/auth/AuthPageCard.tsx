@@ -4,6 +4,7 @@ import { useState } from "react";
 import { signIn, useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { StatusPill } from "@/components/ui/StatusPill";
 
@@ -18,6 +19,7 @@ const inputClassName =
   "w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground focus:border-accent/40 focus:ring-2 focus:ring-accent/10";
 
 export function AuthPageCard() {
+  const copy = useUiCopy();
   const router = useRouter();
   const { status } = useSession();
   const [mode, setMode] = useState<AuthMode>("sign-in");
@@ -35,7 +37,7 @@ export function AuthPageCard() {
     if (!normalizedEmail || !password) {
       setMessage({
         tone: "danger",
-        text: "Enter both email and password.",
+        text: copy.authPage.missingCredentials,
       });
       return;
     }
@@ -64,7 +66,7 @@ export function AuthPageCard() {
 
         if (!registerResponse.ok) {
           throw new Error(
-            registerPayload?.message ?? "Failed to create the account.",
+            registerPayload?.message ?? copy.authPage.createAccountFailed,
           );
         }
       }
@@ -76,15 +78,15 @@ export function AuthPageCard() {
       });
 
       if (!signInResult || signInResult.error) {
-        throw new Error("Sign-in failed. Check your email and password.");
+        throw new Error(copy.authPage.signInFailed);
       }
 
       setMessage({
         tone: "success",
         text:
           mode === "create-account"
-            ? "Account created and signed in successfully."
-            : "Signed in successfully.",
+            ? copy.authPage.accountCreated
+            : copy.authPage.signedInSuccess,
       });
       router.push("/dashboard");
       router.refresh();
@@ -94,7 +96,7 @@ export function AuthPageCard() {
         text:
           error instanceof Error
             ? error.message
-            : "Authentication failed.",
+            : copy.authPage.authenticationFailed,
       });
     } finally {
       setIsSubmitting(false);
@@ -106,16 +108,13 @@ export function AuthPageCard() {
       <SurfaceCard className="space-y-4">
         <div className="space-y-2">
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-            Account mode
+            {copy.authPage.accountModeEyebrow}
           </p>
           <h2 className="text-2xl font-semibold text-foreground">
-            You are already signed in
+            {copy.authPage.alreadySignedInTitle}
           </h2>
           <p className="text-sm leading-6 text-muted-foreground">
-            Your training progress, session history, and review entries can now
-            sync to the local database instead of staying browser-only. If this
-            browser still has separate local data, the dashboard tools can merge
-            it into the account without deleting the local copy.
+            {copy.authPage.alreadySignedInDescription}
           </p>
         </div>
 
@@ -125,14 +124,14 @@ export function AuthPageCard() {
             onClick={() => router.push("/dashboard")}
             className="rounded-full bg-accent-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent"
           >
-            Return to dashboard
+            {copy.authPage.backToDashboard}
           </button>
           <button
             type="button"
             onClick={() => router.push("/settings")}
             className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
           >
-            Open settings
+            {copy.authPage.openSettings}
           </button>
         </div>
       </SurfaceCard>
@@ -143,16 +142,15 @@ export function AuthPageCard() {
     <SurfaceCard className="space-y-5">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-          Account access
+          {copy.authPage.accessEyebrow}
         </p>
         <h2 className="text-2xl font-semibold text-foreground">
-          {mode === "sign-in" ? "Sign in" : "Create an account"}
+          {mode === "sign-in"
+            ? copy.authPage.signInTitle
+            : copy.authPage.createAccountTitle}
         </h2>
         <p className="text-sm leading-6 text-muted-foreground">
-          Local mode remains available, but signing in lets progress, sessions,
-          and hand reviews sync into the app&apos;s database with clearer
-          dashboard and settings state, recent study history, and a safer
-          manual local-to-account import path.
+          {copy.authPage.intro}
         </p>
       </div>
 
@@ -166,7 +164,7 @@ export function AuthPageCard() {
               : "border-border bg-white text-foreground hover:border-accent/40 hover:text-accent-strong"
           }`}
         >
-          Sign in
+          {copy.authPage.signInTab}
         </button>
         <button
           type="button"
@@ -177,7 +175,7 @@ export function AuthPageCard() {
               : "border-border bg-white text-foreground hover:border-accent/40 hover:text-accent-strong"
           }`}
         >
-          Create account
+          {copy.authPage.createAccountTab}
         </button>
       </div>
 
@@ -185,21 +183,23 @@ export function AuthPageCard() {
         {mode === "create-account" ? (
           <label className="block space-y-2">
             <span className="text-sm font-semibold text-foreground">
-              Display name
+              {copy.authPage.displayName}
             </span>
             <input
               type="text"
               value={name}
               onChange={(event) => setName(event.target.value)}
               className={inputClassName}
-              placeholder="Optional"
+              placeholder={copy.authPage.optional}
               autoComplete="name"
             />
           </label>
         ) : null}
 
         <label className="block space-y-2">
-          <span className="text-sm font-semibold text-foreground">Email</span>
+          <span className="text-sm font-semibold text-foreground">
+            {copy.authPage.email}
+          </span>
           <input
             type="email"
             value={email}
@@ -211,13 +211,15 @@ export function AuthPageCard() {
         </label>
 
         <label className="block space-y-2">
-          <span className="text-sm font-semibold text-foreground">Password</span>
+          <span className="text-sm font-semibold text-foreground">
+            {copy.authPage.password}
+          </span>
           <input
             type="password"
             value={password}
             onChange={(event) => setPassword(event.target.value)}
             className={inputClassName}
-            placeholder="Minimum 8 characters"
+            placeholder={copy.authPage.passwordHint}
             autoComplete={
               mode === "create-account" ? "new-password" : "current-password"
             }
@@ -230,22 +232,30 @@ export function AuthPageCard() {
           className="rounded-full bg-accent-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70"
         >
           {isSubmitting
-            ? "Working..."
+            ? copy.authPage.submitWorking
             : mode === "sign-in"
-              ? "Sign in"
-              : "Create account"}
+              ? copy.authPage.signInTitle
+              : copy.authPage.createAccountTitle}
         </button>
       </form>
 
       <div className="flex flex-wrap gap-2">
-        <StatusPill tone="success">Account sync available</StatusPill>
-        <StatusPill>Local mode still supported</StatusPill>
-        <StatusPill tone="gold">Manual merge keeps local copy</StatusPill>
+        <StatusPill tone="success">{copy.authPage.syncAvailable}</StatusPill>
+        <StatusPill>{copy.authPage.localModeSupported}</StatusPill>
+        <StatusPill tone="gold">{copy.authPage.manualMerge}</StatusPill>
       </div>
 
       {message ? (
         <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
-          <StatusPill tone={message.tone}>{message.tone}</StatusPill>
+          <StatusPill tone={message.tone}>
+            {message.tone === "success"
+              ? copy.locale === "vi-VN"
+                ? "Ổn"
+                : "OK"
+              : copy.locale === "vi-VN"
+                ? "Lỗi"
+                : "Error"}
+          </StatusPill>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             {message.text}
           </p>

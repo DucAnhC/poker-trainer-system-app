@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { StatusPill } from "@/components/ui/StatusPill";
 import type { FollowUpSuggestion } from "@/types/training";
@@ -8,16 +11,19 @@ type FollowUpSuggestionsPanelProps = {
   suggestions: FollowUpSuggestion[];
 };
 
-function getToneLabel(tone: FollowUpSuggestion["tone"]) {
+function getToneLabel(
+  tone: FollowUpSuggestion["tone"],
+  copy: ReturnType<typeof useUiCopy>,
+) {
   if (tone === "review") {
-    return "Review next";
+    return copy.trainer.shared.followUpToneReview;
   }
 
   if (tone === "advance") {
-    return "Step up";
+    return copy.trainer.shared.followUpToneAdvance;
   }
 
-  return "Related concept";
+  return copy.trainer.shared.followUpToneRelated;
 }
 
 function getToneStyle(tone: FollowUpSuggestion["tone"]) {
@@ -35,6 +41,8 @@ function getToneStyle(tone: FollowUpSuggestion["tone"]) {
 export function FollowUpSuggestionsPanel({
   suggestions,
 }: FollowUpSuggestionsPanelProps) {
+  const copy = useUiCopy();
+
   if (suggestions.length === 0) {
     return null;
   }
@@ -43,15 +51,13 @@ export function FollowUpSuggestionsPanel({
     <SurfaceCard className="space-y-4">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-          Suggested next study step
+          {copy.trainer.shared.followUpEyebrow}
         </p>
         <h3 className="text-xl font-semibold text-foreground">
-          Keep the concept chain moving
+          {copy.trainer.shared.followUpTitle}
         </h3>
         <p className="text-sm leading-6 text-muted-foreground">
-          These follow-up suggestions are lightweight and rule-based. They connect
-          the current spot to a sensible next drill instead of treating every miss
-          or correct answer the same way.
+          {copy.trainer.shared.followUpDescription}
         </p>
       </div>
 
@@ -63,7 +69,7 @@ export function FollowUpSuggestionsPanel({
           >
             <div className="flex flex-wrap items-center gap-2">
               <StatusPill tone={getToneStyle(suggestion.tone)}>
-                {getToneLabel(suggestion.tone)}
+                {getToneLabel(suggestion.tone, copy)}
               </StatusPill>
             </div>
             <h4 className="mt-3 text-lg font-semibold text-foreground">
@@ -76,7 +82,7 @@ export function FollowUpSuggestionsPanel({
               href={suggestion.route}
               className="mt-4 inline-flex rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
             >
-              Open pack
+              {copy.trainer.shared.openPack}
             </Link>
           </div>
         ))}

@@ -1,3 +1,6 @@
+"use client";
+
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { DifficultyBadge } from "@/components/ui/DifficultyBadge";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { getConceptLabel } from "@/lib/training/concepts";
@@ -17,6 +20,8 @@ export function PackSummaryCard({
   onSelect,
   scenarioCount,
 }: PackSummaryCardProps) {
+  const copy = useUiCopy();
+
   return (
     <button
       type="button"
@@ -31,10 +36,14 @@ export function PackSummaryCard({
       <div className="space-y-3">
         <div className="flex flex-wrap items-center gap-2">
           <StatusPill tone={isSelected ? "accent" : "neutral"}>
-            {isSelected ? "Selected pack" : "Available pack"}
+            {isSelected
+              ? copy.trainer.shared.selectedPack
+              : copy.trainer.shared.availablePack}
           </StatusPill>
           <StatusPill>{contentPack.focusLabel}</StatusPill>
-          <StatusPill tone="gold">{scenarioCount} scenarios</StatusPill>
+          <StatusPill tone="gold">
+            {copy.trainer.shared.scenarios(scenarioCount)}
+          </StatusPill>
         </div>
 
         <div className="space-y-2">

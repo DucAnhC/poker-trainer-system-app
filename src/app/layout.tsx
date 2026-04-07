@@ -5,6 +5,7 @@ import "@/app/globals.css";
 import { getServerSession } from "next-auth";
 import { AppShell } from "@/components/layout/AppShell";
 import { AuthSessionProvider } from "@/components/auth/AuthSessionProvider";
+import { UiLanguageProvider } from "@/components/i18n/UiLanguageProvider";
 import { authOptions } from "@/auth";
 
 export const metadata: Metadata = {
@@ -21,10 +22,12 @@ export default async function RootLayout({ children }: RootLayoutProps) {
   const session = await getServerSession(authOptions);
 
   return (
-    <html lang="en">
+    <html lang="vi">
       <body>
         <AuthSessionProvider session={session}>
-          <AppShell>{children}</AppShell>
+          <UiLanguageProvider>
+            <AppShell>{children}</AppShell>
+          </UiLanguageProvider>
         </AuthSessionProvider>
       </body>
     </html>

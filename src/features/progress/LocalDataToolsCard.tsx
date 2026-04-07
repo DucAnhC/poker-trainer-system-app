@@ -2,6 +2,7 @@
 
 import { type ChangeEvent, useRef, useState } from "react";
 
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { mergeLocalSnapshotIntoCloud } from "@/lib/persistence/cloud-app-data";
@@ -52,6 +53,7 @@ export function LocalDataToolsCard({
   snapshotStats,
   localBackupStats,
 }: LocalDataToolsCardProps) {
+  const copy = useUiCopy();
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [message, setMessage] = useState<ToolMessage | null>(null);
   const [isImportingToAccount, setIsImportingToAccount] = useState(false);
@@ -63,7 +65,7 @@ export function LocalDataToolsCard({
     if (!hasLocalBackupData) {
       setMessage({
         tone: "neutral",
-        text: "There is no saved local browser data to export yet.",
+        text: copy.localDataTools.noLocalDataToExport,
       });
       return;
     }
@@ -74,7 +76,11 @@ export function LocalDataToolsCard({
     );
     setMessage({
       tone: "success",
-      text: `Local browser backup exported as JSON with ${localBackupStats.attemptCount} attempts, ${localBackupStats.sessionCount} sessions, and ${localBackupStats.reviewNoteCount} review notes.`,
+      text: copy.localDataTools.exportedBackup(
+        localBackupStats.attemptCount,
+        localBackupStats.sessionCount,
+        localBackupStats.reviewNoteCount,
+      ),
     });
   }
 
@@ -108,13 +114,20 @@ export function LocalDataToolsCard({
 
       if (typeof window !== "undefined") {
         const shouldImport = window.confirm(
-          `Import this JSON backup and replace the current browser snapshot?\n\nImported file: ${importStats.attemptCount} attempts, ${importStats.sessionCount} sessions, ${importStats.reviewNoteCount} review notes.\nCurrent browser data: ${localBackupStats.attemptCount} attempts, ${localBackupStats.sessionCount} sessions, ${localBackupStats.reviewNoteCount} review notes.`,
+          copy.localDataTools.localImportConfirm(
+            importStats.attemptCount,
+            importStats.sessionCount,
+            importStats.reviewNoteCount,
+            localBackupStats.attemptCount,
+            localBackupStats.sessionCount,
+            localBackupStats.reviewNoteCount,
+          ),
         );
 
         if (!shouldImport) {
           setMessage({
             tone: "neutral",
-            text: "Import canceled. Current local progress was not changed.",
+            text: copy.localDataTools.importCanceled,
           });
           return;
         }
@@ -124,12 +137,16 @@ export function LocalDataToolsCard({
       onDataChanged();
       setMessage({
         tone: "success",
-        text: `Local browser backup imported successfully. This browser now has ${parsedResult.data.progress.attempts.length} attempts, ${parsedResult.data.progress.sessions.length} sessions, and ${parsedResult.data.handReviewNotes.length} review notes.`,
+        text: copy.localDataTools.importApplied(
+          parsedResult.data.progress.attempts.length,
+          parsedResult.data.progress.sessions.length,
+          parsedResult.data.handReviewNotes.length,
+        ),
       });
     } catch {
       setMessage({
         tone: "danger",
-        text: "Import failed while reading the selected file.",
+        text: copy.localDataTools.importReadFailed,
       });
     }
   }
@@ -138,20 +155,20 @@ export function LocalDataToolsCard({
     if (!hasLocalBackupData) {
       setMessage({
         tone: "neutral",
-        text: "No local browser data was found to import into the signed-in account.",
+        text: copy.localDataTools.noLocalDataToAccount,
       });
       return;
     }
 
     if (typeof window !== "undefined") {
       const shouldImport = window.confirm(
-        "Merge this browser's local progress and review notes into the signed-in account? Existing account data will be kept, matching items merge by id, and the local browser copy will stay in place.",
+        copy.localDataTools.accountImportConfirm,
       );
 
       if (!shouldImport) {
         setMessage({
           tone: "neutral",
-          text: "Account import canceled. Local browser data was not changed.",
+          text: copy.localDataTools.accountImportCanceled,
         });
         return;
       }
@@ -165,7 +182,11 @@ export function LocalDataToolsCard({
       onDataChanged();
       setMessage({
         tone: "success",
-        text: `${result.message} The account now shows ${result.snapshot.progress.attempts.length} attempts, ${result.snapshot.progress.sessions.length} sessions, and ${result.snapshot.handReviewNotes.length} review notes.`,
+        text: copy.localDataTools.accountImportDone(
+          result.snapshot.progress.attempts.length,
+          result.snapshot.progress.sessions.length,
+          result.snapshot.handReviewNotes.length,
+        ),
       });
     } catch (error) {
       setMessage({
@@ -173,7 +194,7 @@ export function LocalDataToolsCard({
         text:
           error instanceof Error
             ? error.message
-            : "Failed to import local data into the signed-in account.",
+            : copy.localDataTools.accountImportFailed,
       });
     } finally {
       setIsImportingToAccount(false);
@@ -184,20 +205,24 @@ export function LocalDataToolsCard({
     if (!hasLocalBackupData) {
       setMessage({
         tone: "neutral",
-        text: "There is no local browser data to reset right now.",
+        text: copy.localDataTools.noLocalDataToReset,
       });
       return;
     }
 
     if (typeof window !== "undefined") {
       const shouldReset = window.confirm(
-        `Reset all local training progress, sessions, and review notes in this browser?\n\nThis will remove ${localBackupStats.attemptCount} attempts, ${localBackupStats.sessionCount} sessions, and ${localBackupStats.reviewNoteCount} review notes from this browser only.`,
+        copy.localDataTools.resetConfirm(
+          localBackupStats.attemptCount,
+          localBackupStats.sessionCount,
+          localBackupStats.reviewNoteCount,
+        ),
       );
 
       if (!shouldReset) {
         setMessage({
           tone: "neutral",
-          text: "Reset canceled. Current local data was kept.",
+          text: copy.localDataTools.resetCanceled,
         });
         return;
       }
@@ -207,7 +232,7 @@ export function LocalDataToolsCard({
     onDataChanged();
     setMessage({
       tone: "success",
-      text: "All local training progress and review notes were reset in this browser. Account-backed data, if any, was not touched.",
+      text: copy.localDataTools.resetDone,
     });
   }
 
@@ -215,47 +240,59 @@ export function LocalDataToolsCard({
     <SurfaceCard className="space-y-4">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-          Local data tools
+          {copy.localDataTools.eyebrow}
         </p>
         <h2 className="text-2xl font-semibold text-foreground">
-          Export, import, or reset safely
+          {copy.localDataTools.title}
         </h2>
         <p className="text-sm leading-6 text-muted-foreground">
           {storageMode === "account"
-            ? "These tools manage browser-local backups alongside account sync. Export and reset only affect this browser. The import-to-account action performs a merge and keeps the current local copy in place."
-            : "These tools only affect this browser&apos;s local data. Import replaces the current local snapshot, and reset clears progress plus saved review notes after confirmation."}
+            ? copy.localDataTools.descriptionAccount
+            : copy.localDataTools.descriptionLocal}
         </p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Local browser backup
+            {copy.localDataTools.localBrowserBackup}
           </p>
           <p className="mt-2 text-lg font-semibold text-foreground">
-            {hasLocalBackupData ? "Ready for backup or merge" : "No local data saved"}
+            {hasLocalBackupData
+              ? copy.localDataTools.readyForBackup
+              : copy.localDataTools.noLocalDataSaved}
           </p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            {localBackupStats.attemptCount} attempts, {localBackupStats.sessionCount} sessions,
-            and {localBackupStats.reviewNoteCount} review notes currently live in this browser.
+            {copy.localDataTools.localBackupSummary(
+              localBackupStats.attemptCount,
+              localBackupStats.sessionCount,
+              localBackupStats.reviewNoteCount,
+            )}
           </p>
         </div>
 
         <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            {storageMode === "account" ? "Signed-in account" : "Import behavior"}
+            {storageMode === "account"
+              ? copy.localDataTools.signedInAccount
+              : copy.localDataTools.importBehavior}
           </p>
           <p className="mt-2 text-lg font-semibold text-foreground">
             {storageMode === "account"
               ? hasAccountData
-                ? "Account data already exists"
-                : "Account is ready for its first import"
-              : "Local import replaces this browser snapshot"}
+                ? copy.localDataTools.accountDataExists
+                : copy.localDataTools.accountReadyFirstImport
+              : copy.localDataTools.localImportReplacesSnapshot}
           </p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             {storageMode === "account"
-              ? `${snapshotStats.attemptCount} attempts, ${snapshotStats.sessionCount} sessions, and ${snapshotStats.reviewNoteCount} review notes are currently saved for ${userEmail ?? "the signed-in account"}.`
-              : "JSON imports replace the local browser snapshot only after confirmation. Reset also stays local and never touches account data."}
+              ? copy.localDataTools.accountSummary(
+                  snapshotStats.attemptCount,
+                  snapshotStats.sessionCount,
+                  snapshotStats.reviewNoteCount,
+                  userEmail ?? copy.localDataTools.signedInAccount,
+                )
+              : copy.localDataTools.localImportHelp}
           </p>
         </div>
       </div>
@@ -263,12 +300,14 @@ export function LocalDataToolsCard({
       {storageMode === "account" ? (
         <div className="rounded-2xl border border-emerald-200/80 bg-emerald-50/70 p-4">
           <div className="flex flex-wrap gap-2">
-            <StatusPill tone="success">Merge by stable ids</StatusPill>
-            <StatusPill tone="accent">Local copy stays in place</StatusPill>
-            {hasAccountData ? <StatusPill tone="gold">Existing account data is kept</StatusPill> : null}
+            <StatusPill tone="success">{copy.localDataTools.mergeByStableIds}</StatusPill>
+            <StatusPill tone="accent">{copy.localDataTools.localCopyStays}</StatusPill>
+            {hasAccountData ? (
+              <StatusPill tone="gold">{copy.localDataTools.existingAccountDataKept}</StatusPill>
+            ) : null}
           </div>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
-            Importing local data into the account is additive and merge-oriented. This app does not silently wipe either side, and it does not try to do advanced conflict resolution.
+            {copy.localDataTools.mergeExplanation}
           </p>
         </div>
       ) : null}
@@ -280,14 +319,16 @@ export function LocalDataToolsCard({
           disabled={!hasLocalBackupData}
           className="rounded-full bg-accent-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {hasLocalBackupData ? "Export JSON backup" : "No local data to export"}
+          {hasLocalBackupData
+            ? copy.localDataTools.exportJson
+            : copy.localDataTools.noLocalDataExportButton}
         </button>
         <button
           type="button"
           onClick={() => fileInputRef.current?.click()}
           className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
         >
-          Import JSON backup
+          {copy.localDataTools.importJson}
         </button>
         <button
           type="button"
@@ -295,7 +336,9 @@ export function LocalDataToolsCard({
           disabled={!hasLocalBackupData}
           className="rounded-full border border-rose-200 bg-rose-50 px-4 py-2 text-sm font-semibold text-rose-700 transition hover:border-rose-300 hover:bg-rose-100 disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {hasLocalBackupData ? "Reset local data" : "No local data to reset"}
+          {hasLocalBackupData
+            ? copy.localDataTools.resetLocalData
+            : copy.localDataTools.noLocalDataResetButton}
         </button>
         {storageMode === "account" ? (
           <button
@@ -305,10 +348,10 @@ export function LocalDataToolsCard({
             className="rounded-full border border-emerald-200 bg-emerald-50 px-4 py-2 text-sm font-semibold text-emerald-700 transition hover:border-emerald-300 hover:bg-emerald-100 disabled:cursor-not-allowed disabled:opacity-70"
           >
             {isImportingToAccount
-              ? "Importing..."
+              ? copy.localDataTools.importing
               : hasLocalBackupData
-                ? "Import local data to account"
-                : "No local data to import"}
+                ? copy.localDataTools.importLocalToAccount
+                : copy.localDataTools.noLocalDataImportButton}
           </button>
         ) : null}
       </div>
@@ -322,19 +365,25 @@ export function LocalDataToolsCard({
       />
 
       <div className="flex flex-wrap gap-2">
-        <StatusPill tone="accent">{storageMode === "account" ? "Local backup tools" : "Local only"}</StatusPill>
+        <StatusPill tone="accent">
+          {storageMode === "account"
+            ? copy.localDataTools.localBackupTools
+            : copy.localDataTools.localOnly}
+        </StatusPill>
         {storageMode === "account" ? (
           <StatusPill tone="success">
-            Syncing to {userEmail ?? "account"}
+            {copy.localDataTools.syncingTo(userEmail ?? copy.settings.accountValue)}
           </StatusPill>
         ) : null}
-        <StatusPill>JSON validation on import</StatusPill>
-        <StatusPill tone="danger">Reset requires confirmation</StatusPill>
+        <StatusPill>{copy.localDataTools.jsonValidation}</StatusPill>
+        <StatusPill tone="danger">{copy.localDataTools.resetRequiresConfirm}</StatusPill>
       </div>
 
       {message ? (
         <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
-          <StatusPill tone={message.tone}>{message.tone}</StatusPill>
+          <StatusPill tone={message.tone}>
+            {copy.localDataTools[message.tone]}
+          </StatusPill>
           <p className="mt-3 text-sm leading-6 text-muted-foreground">
             {message.text}
           </p>

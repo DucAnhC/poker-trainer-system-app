@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { signOut } from "next-auth/react";
 
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { StatusPill } from "@/components/ui/StatusPill";
 import {
@@ -29,75 +30,84 @@ export function AccountControlsCard({
   isRefreshing,
   onRefresh,
 }: AccountControlsCardProps) {
+  const copy = useUiCopy();
   const hasLocalBackupWaiting =
     storageMode === "account" && hasAppSnapshotData(localBackupStats);
+  const signedInLabel = userEmail ?? copy.accountControls.signedInAccount;
 
   return (
     <SurfaceCard className="space-y-4">
       <div className="space-y-2">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-          Account controls
+          {copy.accountControls.eyebrow}
         </p>
         <h2 className="text-2xl font-semibold text-foreground">
           {storageMode === "account"
-            ? "Manage synced study data"
-            : "Move between local and account modes"}
+            ? copy.accountControls.titleAccount
+            : copy.accountControls.titleLocal}
         </h2>
         <p className="text-sm leading-6 text-muted-foreground">
           {storageMode === "account"
-            ? `You are signed in as ${userEmail ?? "the current account"}. Use these controls to refresh the current snapshot, manage sign-out, and jump back into the study flow without hunting through the dashboard.`
-            : "Local mode stays fully usable. When you want account-backed progress later, sign in without losing the current browser workflow."}
+            ? copy.accountControls.descriptionAccount(signedInLabel)
+            : copy.accountControls.descriptionLocal}
         </p>
       </div>
 
       <div className="grid gap-3 sm:grid-cols-2">
         <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Current snapshot
+            {copy.accountControls.currentSnapshot}
           </p>
           <p className="mt-2 text-lg font-semibold text-foreground">
-            {storageMode === "account" ? "Account-backed data" : "Browser-local data"}
+            {storageMode === "account"
+              ? copy.accountControls.accountBackedData
+              : copy.accountControls.browserLocalData}
           </p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
-            Last saved activity:{" "}
+            {copy.accountControls.lastSavedActivity}:{" "}
             {snapshotStats.lastActivityAt
               ? formatDateTimeLabel(snapshotStats.lastActivityAt)
-              : "No saved activity yet"}
+              : copy.accountControls.noSavedActivity}
           </p>
         </div>
 
         <div className="rounded-2xl border border-border/70 bg-muted/20 p-4">
           <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
-            Next safe action
+            {copy.accountControls.nextSafeAction}
           </p>
           <p className="mt-2 text-lg font-semibold text-foreground">
             {storageMode === "account"
               ? hasLocalBackupWaiting
-                ? "Review local-to-account import tools below"
-                : "Keep training or refresh account data"
-              : "Keep training locally or create an account"}
+                ? copy.accountControls.importToolsBelow
+                : copy.accountControls.keepTrainingOrRefresh
+              : copy.accountControls.keepTrainingLocal}
           </p>
           <p className="mt-2 text-sm leading-6 text-muted-foreground">
             {storageMode === "account"
               ? hasLocalBackupWaiting
-                ? `This browser still has ${localBackupStats.attemptCount} local attempts and ${localBackupStats.reviewNoteCount} local review notes available for manual merge.`
-                : "No separate browser-only study data is waiting for merge right now."
-              : "Sign in only when you want account-backed persistence. Nothing about the local trainer flow breaks if you keep using the app anonymously."}
+                ? copy.accountControls.localBackupWaiting(
+                    localBackupStats.attemptCount,
+                    localBackupStats.reviewNoteCount,
+                  )
+                : copy.accountControls.noSeparateLocalData
+              : copy.accountControls.localModeHelp}
           </p>
         </div>
       </div>
 
       <div className="flex flex-wrap gap-2">
         <StatusPill tone={storageMode === "account" ? "success" : "accent"}>
-          {storageMode === "account" ? "Signed-in mode" : "Local mode"}
+          {storageMode === "account"
+            ? copy.accountControls.signedInMode
+            : copy.accountControls.localMode}
         </StatusPill>
         {storageMode === "account" ? (
-          <StatusPill>{userEmail ?? "Signed-in account"}</StatusPill>
+          <StatusPill>{signedInLabel}</StatusPill>
         ) : (
-          <StatusPill tone="gold">Account sync is optional</StatusPill>
+          <StatusPill tone="gold">{copy.accountControls.accountSyncOptional}</StatusPill>
         )}
         {hasLocalBackupWaiting ? (
-          <StatusPill tone="gold">Local backup waiting</StatusPill>
+          <StatusPill tone="gold">{copy.accountControls.localBackupWaitingPill}</StatusPill>
         ) : null}
       </div>
 
@@ -108,7 +118,9 @@ export function AccountControlsCard({
           disabled={isRefreshing}
           className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isRefreshing ? "Refreshing..." : "Refresh saved data"}
+          {isRefreshing
+            ? copy.accountControls.refreshing
+            : copy.accountControls.refreshSavedData}
         </button>
 
         {storageMode === "account" ? (
@@ -117,14 +129,14 @@ export function AccountControlsCard({
             onClick={() => signOut({ callbackUrl: "/settings" })}
             className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
           >
-            Sign out
+            {copy.accountControls.signOut}
           </button>
         ) : (
           <Link
             href="/auth"
             className="rounded-full bg-accent-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent"
           >
-            Sign in or create account
+            {copy.accountControls.signInOrCreate}
           </Link>
         )}
 
@@ -132,14 +144,14 @@ export function AccountControlsCard({
           href="/dashboard"
           className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
         >
-          Open dashboard
+          {copy.accountControls.openDashboard}
         </Link>
 
         <Link
           href="/review"
           className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
         >
-          Open hand review
+          {copy.accountControls.openHandReview}
         </Link>
       </div>
     </SurfaceCard>

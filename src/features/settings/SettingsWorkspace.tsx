@@ -3,6 +3,7 @@
 import Link from "next/link";
 
 import { PageHeader } from "@/components/trainer/PageHeader";
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { ProgressSummaryCard } from "@/components/trainer/ProgressSummaryCard";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { StatusPill } from "@/components/ui/StatusPill";
@@ -18,6 +19,7 @@ import { usePersistedProgressSummary } from "@/features/progress/usePersistedPro
 import { formatDateTimeLabel, formatPercent } from "@/lib/utils";
 
 export function SettingsWorkspace() {
+  const copy = useUiCopy();
   const {
     hasLoaded,
     isAuthenticated,
@@ -38,24 +40,24 @@ export function SettingsWorkspace() {
     return (
       <div className="grid gap-6 lg:grid-cols-4">
         <ProgressSummaryCard
-          title="Loading"
+          title={copy.settings.loadingTitle}
           value="..."
-          description="Reading current account or local mode."
+          description={copy.settings.loadingDescription}
         />
         <ProgressSummaryCard
-          title="Loading"
+          title={copy.settings.loadingTitle}
           value="..."
-          description="Reading recent study history."
+          description={copy.settings.loadingDescription}
         />
         <ProgressSummaryCard
-          title="Loading"
+          title={copy.settings.loadingTitle}
           value="..."
-          description="Preparing account controls and data tools."
+          description={copy.settings.loadingDescription}
         />
         <ProgressSummaryCard
-          title="Loading"
+          title={copy.settings.loadingTitle}
           value="..."
-          description="Preparing settings and progress management."
+          description={copy.settings.loadingDescription}
         />
       </div>
     );
@@ -64,47 +66,55 @@ export function SettingsWorkspace() {
   return (
     <div className="space-y-8">
       <PageHeader
-        eyebrow="Settings"
-        title="Manage account mode, study data, and recent history in one place"
-        description="Settings stays intentionally lightweight in Phase 10: clearer account controls, safer local/cloud data tools, readable study history, and deploy-friendly account guidance."
+        eyebrow={copy.settings.eyebrow}
+        title={copy.settings.title}
+        description={copy.settings.description}
         aside={
           <>
-            <StatusPill tone="success">Phase 10 live</StatusPill>
+            <StatusPill tone="success">{copy.settings.eyebrow}</StatusPill>
             <StatusPill>
-              {storageMode === "account" ? "Cloud-backed mode" : "Local mode"}
+              {storageMode === "account"
+                ? copy.settings.cloudMode
+                : copy.settings.localMode}
             </StatusPill>
-            {isRefreshing ? <StatusPill tone="gold">Refreshing</StatusPill> : null}
+            {isRefreshing ? (
+              <StatusPill tone="gold">{copy.settings.refreshing}</StatusPill>
+            ) : null}
           </>
         }
       />
 
       <div className="grid gap-6 lg:grid-cols-2 xl:grid-cols-4">
         <ProgressSummaryCard
-          title="Persistence mode"
-          value={storageMode === "account" ? "Account" : "Local"}
+          title={copy.settings.persistenceMode}
+          value={
+            storageMode === "account"
+              ? copy.settings.accountValue
+              : copy.settings.localValue
+          }
           description={
             storageMode === "account"
-              ? `Signed in as ${userEmail ?? "the current account"}.`
-              : "Progress and review notes are still fully usable without signing in."
+              ? copy.settings.signedInAs(userEmail ?? copy.settings.accountValue)
+              : copy.settings.localDescription
           }
           tone="accent"
         />
         <ProgressSummaryCard
-          title="Total attempts"
+          title={copy.settings.totalAttempts}
           value={`${progressSummary.totalAttempts}`}
-          description="Saved quiz answers across the current persistence mode."
+          description={copy.settings.savedAnswersDescription}
           tone="success"
         />
         <ProgressSummaryCard
-          title="Overall accuracy"
+          title={copy.settings.overallAccuracy}
           value={formatPercent(progressSummary.overallAccuracy)}
-          description="A practical study signal, not solver-style analytics."
+          description={copy.settings.overallAccuracyNote}
           tone="gold"
         />
         <ProgressSummaryCard
-          title="Last saved activity"
+          title={copy.settings.lastSavedActivity}
           value={formatDateTimeLabel(snapshotStats.lastActivityAt)}
-          description="Most recent persisted session or review update."
+          description={copy.settings.lastSavedActivityNote}
         />
       </div>
 
@@ -127,14 +137,14 @@ export function SettingsWorkspace() {
 
       {loadError ? (
         <SurfaceCard className="space-y-3 border border-amber-200 bg-amber-50/80">
-          <StatusPill tone="danger">Load issue</StatusPill>
+          <StatusPill tone="danger">{copy.settings.loadIssue}</StatusPill>
           <p className="text-sm leading-6 text-muted-foreground">{loadError}</p>
           <button
             type="button"
             onClick={() => void refreshProgressSummary()}
             className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
           >
-            Retry loading saved data
+            {copy.settings.retryLoading}
           </button>
         </SurfaceCard>
       ) : null}
@@ -143,15 +153,15 @@ export function SettingsWorkspace() {
         <SurfaceCard className="space-y-5">
           <div className="space-y-2">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-              Getting started
+              {copy.settings.gettingStartedEyebrow}
             </p>
             <h2 className="text-2xl font-semibold text-foreground">
-              No saved study data yet
+              {copy.settings.noDataTitle}
             </h2>
             <p className="text-sm leading-6 text-muted-foreground">
               {isAuthenticated
-                ? "Your account is ready. Start a module, add a review note, or import local browser data and this settings page will begin showing timeline history and safer data-management context."
-                : "You can stay local or sign in later. Start a module or add a review note first, then this page will begin showing saved study history and data controls that matter."}
+                ? copy.settings.noDataSignedIn
+                : copy.settings.noDataSignedOut}
             </p>
           </div>
 
@@ -160,20 +170,20 @@ export function SettingsWorkspace() {
               href="/dashboard"
               className="rounded-full bg-accent-strong px-4 py-2 text-sm font-semibold text-white transition hover:bg-accent"
             >
-              Open dashboard
+              {copy.settings.openDashboard}
             </Link>
             <Link
               href="/review"
               className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
             >
-              Add a review note
+              {copy.settings.addReview}
             </Link>
             {!isAuthenticated ? (
               <Link
                 href="/auth"
                 className="rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
-              >
-                Sign in later for sync
+                >
+                {copy.settings.signInLater}
               </Link>
             ) : null}
           </div>
