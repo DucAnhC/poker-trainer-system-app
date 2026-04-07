@@ -45,7 +45,9 @@ export function PreflopDecisionPanel({
     ? isLastScenario
       ? copy.finishSessionLabel
       : copy.nextSpotLabel
-    : copy.submitLabel;
+    : selectedActionLabel
+      ? `${copy.submitLabel} ${selectedActionLabel}`
+      : copy.submitLabel;
 
   return (
     <aside className="rounded-[32px] border border-slate-900/70 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel xl:sticky xl:top-6">
@@ -53,7 +55,7 @@ export function PreflopDecisionPanel({
         <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
           {copy.decisionEyebrow}
         </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-white">
+        <h2 className="text-[1.85rem] font-semibold tracking-tight text-white">
           {copy.decisionTitle}
         </h2>
         <p className="text-sm leading-6 text-slate-300">
@@ -84,7 +86,7 @@ export function PreflopDecisionPanel({
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
             {copy.selectedLineLabel}
           </p>
-          <p className="text-lg font-semibold text-white">
+          <p className="text-xl font-semibold text-white">
             {selectedActionLabel ?? copy.noLineSelected}
           </p>
         </div>
@@ -95,10 +97,10 @@ export function PreflopDecisionPanel({
             onClick={hasSubmitted ? onNext : onSubmit}
             disabled={!hasSubmitted && !canSubmit}
             className={cn(
-              "w-full rounded-full px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] transition",
+              "w-full rounded-full px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] transition active:scale-[0.99]",
               !hasSubmitted && !canSubmit
                 ? "cursor-not-allowed bg-slate-600/60 text-slate-300"
-                : "bg-[linear-gradient(135deg,rgba(34,197,94,0.96),rgba(13,148,136,0.96))] text-white hover:brightness-105",
+                : "bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] text-white shadow-[0_18px_42px_-22px_rgba(34,197,94,0.7)] hover:brightness-105",
             )}
           >
             {primaryButtonLabel}

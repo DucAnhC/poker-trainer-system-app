@@ -42,20 +42,20 @@ export function PreflopActionButton({
       disabled={isLocked}
       aria-pressed={isSelected}
       className={cn(
-        "group w-full rounded-[28px] border px-4 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70",
-        "bg-white/[0.04] text-white/92 shadow-[0_14px_34px_-24px_rgba(15,23,42,0.85)]",
-        !isLocked && "hover:border-white/25 hover:bg-white/[0.08]",
+        "group w-full rounded-[28px] border px-4 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 active:scale-[0.99]",
+        "min-h-[96px] bg-white/[0.04] text-white/92 shadow-[0_14px_34px_-24px_rgba(15,23,42,0.85)]",
+        !isLocked && "hover:-translate-y-px hover:border-white/25 hover:bg-white/[0.08]",
         !isSelected && !showSubmittedState && "border-white/10",
         isSelected &&
           !isLocked &&
-          "border-cyan-300/70 bg-cyan-300/[0.16] shadow-[0_20px_44px_-22px_rgba(103,232,249,0.5)]",
+          "border-cyan-300/70 bg-[linear-gradient(135deg,rgba(8,47,73,0.95),rgba(8,145,178,0.26))] shadow-[0_20px_44px_-22px_rgba(103,232,249,0.5)]",
         isLocked &&
           isRecommended &&
-          "border-emerald-300/65 bg-emerald-300/[0.16] shadow-[0_18px_44px_-24px_rgba(52,211,153,0.55)]",
+          "border-emerald-300/65 bg-[linear-gradient(135deg,rgba(6,78,59,0.95),rgba(52,211,153,0.24))] shadow-[0_18px_44px_-24px_rgba(52,211,153,0.55)]",
         isLocked &&
           !isRecommended &&
           isSubmittedChoice &&
-          "border-rose-300/60 bg-rose-300/[0.13] shadow-[0_18px_44px_-24px_rgba(251,113,133,0.45)]",
+          "border-rose-300/60 bg-[linear-gradient(135deg,rgba(76,5,25,0.96),rgba(251,113,133,0.18))] shadow-[0_18px_44px_-24px_rgba(251,113,133,0.45)]",
         isLocked && !isRecommended && !isSubmittedChoice && "border-white/10 opacity-75",
       )}
     >
@@ -72,12 +72,14 @@ export function PreflopActionButton({
             {numberLabel}
           </div>
 
-          <div className="min-w-0">
-            <p className="text-xl font-semibold tracking-[0.03em] text-white">
+          <div className="min-w-0 flex-1">
+            <p className="text-2xl font-semibold tracking-[0.03em] text-white">
               {display.primary}
             </p>
             {display.secondary ? (
-              <p className="mt-1 text-sm text-slate-300">{display.secondary}</p>
+              <p className="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-cyan-100/85">
+                {display.secondary}
+              </p>
             ) : null}
             {action.feedbackHint && isLocked && !isRecommended && isSubmittedChoice ? (
               <p className="mt-3 text-sm leading-5 text-rose-100/90">
@@ -100,7 +102,7 @@ export function PreflopActionButton({
           ) : null}
           {!isRecommended && !isSubmittedChoice && !isLocked ? (
             <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-              {language === "vi" ? "Chọn" : "Select"}
+              {language === "vi" ? "Chốt" : "Lock"}
             </span>
           ) : null}
         </div>

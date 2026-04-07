@@ -56,8 +56,8 @@ export function PreflopFeedbackPanel({
           </h2>
         </div>
 
-        <div className="mt-5 grid gap-3 lg:grid-cols-3">
-          {[copy.resultLabel, copy.recommendedLineLabel, copy.learnLabel].map((label) => (
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
+          {[copy.resultLabel, copy.recommendedLineLabel, copy.whyLabel, copy.learnLabel].map((label) => (
             <div
               key={label}
               className="rounded-[24px] border border-border/70 bg-muted/18 px-4 py-5"
@@ -93,6 +93,12 @@ export function PreflopFeedbackPanel({
     .map((leakTagId) => leakTags.find((leakTag) => leakTag.id === leakTagId)?.label ?? null)
     .filter((value): value is string => value !== null)
     .slice(0, 2);
+  const shortWhy =
+    whyBlocks[0]?.body ?? answerBlock?.body ?? scenario.learningGoal;
+  const lessonText =
+    weakerLineBlock?.body ??
+    surfacedLeakTags[0] ??
+    getPreflopConceptLabel(scenario.keyConcepts[0] ?? "preflop", language);
 
   return (
     <section className="rounded-[32px] border border-border/70 bg-surface/90 p-5 shadow-panel sm:p-6">
@@ -118,7 +124,7 @@ export function PreflopFeedbackPanel({
         </span>
       </div>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)_minmax(0,0.9fr)]">
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <ReviewCard
           label={copy.resultLabel}
           className={cn(
@@ -140,57 +146,31 @@ export function PreflopFeedbackPanel({
           </p>
         </ReviewCard>
 
+        <ReviewCard label={copy.recommendedLineLabel} className="border-accent/20 bg-accent/5">
+          <p className="text-2xl font-semibold tracking-tight text-accent-strong">
+            {getPreflopActionSummaryLabel(feedback.recommendedAction)}
+          </p>
+          <p className="text-sm leading-6 text-muted-foreground">
+            {answerBlock?.body ?? scenario.learningGoal}
+          </p>
+        </ReviewCard>
+
         <ReviewCard label={copy.whyLabel} className="border-border/70 bg-muted/12">
-          {answerBlock ? (
-            <div className="rounded-[22px] border border-border/70 bg-white/85 p-4">
-              <p className="text-sm font-semibold text-foreground">{answerBlock.title}</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {answerBlock.body}
-              </p>
-            </div>
-          ) : null}
-
-          {whyBlocks.map((block) => (
-            <div
-              key={block.id}
-              className="rounded-[22px] border border-border/70 bg-white/85 p-4"
-            >
-              <p className="text-sm font-semibold text-foreground">{block.title}</p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {block.body}
-              </p>
-            </div>
-          ))}
-
-          {!answerBlock && whyBlocks.length === 0 ? (
-            <p className="text-sm leading-6 text-muted-foreground">
-              {scenario.learningGoal}
-            </p>
-          ) : null}
+          <p className="text-sm leading-6 text-muted-foreground">{shortWhy}</p>
         </ReviewCard>
 
         <ReviewCard label={copy.learnLabel} className="border-border/70 bg-muted/12">
           <div className="flex flex-wrap gap-2">
             {scenario.keyConcepts.map((conceptId) => (
-                <span
-                  key={`${scenario.id}-${conceptId}`}
-                  className="rounded-full border border-accent/15 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent-strong"
-                >
-                  {getPreflopConceptLabel(conceptId, language)}
-                </span>
+              <span
+                key={`${scenario.id}-${conceptId}`}
+                className="rounded-full border border-accent/15 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent-strong"
+              >
+                {getPreflopConceptLabel(conceptId, language)}
+              </span>
             ))}
           </div>
-
-          {weakerLineBlock ? (
-            <div className="rounded-[22px] border border-border/70 bg-white/85 p-4">
-              <p className="text-sm font-semibold text-foreground">
-                {weakerLineBlock.title}
-              </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                {weakerLineBlock.body}
-              </p>
-            </div>
-          ) : null}
+          <p className="text-sm leading-6 text-muted-foreground">{lessonText}</p>
 
           {surfacedLeakTags.length > 0 && !isCorrect ? (
             <div className="flex flex-wrap gap-2">

@@ -241,7 +241,6 @@ export function formatPreflopHistoryStep(
 type PreflopDrillCopy = {
   pageEyebrow: string;
   pageTitle: string;
-  pageSubtitle: string;
   sessionLabel: string;
   sessionProgress: string;
   sessionAccuracy: string;
@@ -256,6 +255,8 @@ type PreflopDrillCopy = {
   focusLabel: string;
   actionLaneLabel: string;
   heroLabel: string;
+  heroValueLabel: string;
+  positionLabel: string;
   villainLabel: string;
   handLabel: string;
   stackLabel: string;
@@ -298,8 +299,7 @@ type PreflopDrillCopy = {
 const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
   vi: {
     pageEyebrow: "Preflop Decision Drill",
-    pageTitle: "Đọc spot. Chọn line. Review nhanh.",
-    pageSubtitle: "Giữ nhịp như đang grind table thật.",
+    pageTitle: "Đọc nhanh. Chốt nhanh.",
     sessionLabel: "Session",
     sessionProgress: "Spot",
     sessionAccuracy: "Đúng",
@@ -314,18 +314,20 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     focusLabel: "Focus",
     actionLaneLabel: "Action trước đó",
     heroLabel: "Hero",
+    heroValueLabel: "Bạn",
+    positionLabel: "Vị trí",
     villainLabel: "Villain",
     handLabel: "Hand",
     stackLabel: "Stack",
     spotLabel: "Spot",
     noVillainLabel: "Blinds",
     decisionEyebrow: "Decision",
-    decisionTitle: "Chọn line ngay.",
-    decisionHint: "Action lớn, rõ, dứt khoát. Khóa line rồi review.",
-    decisionLockedHint: "Review đã mở. Giữ nhịp và sang spot tiếp theo.",
-    selectedLineLabel: "Line đã chọn",
+    decisionTitle: "Chọn line",
+    decisionHint: "Bấm 1 line rồi chốt.",
+    decisionLockedHint: "Line đã khóa. Review rồi qua spot tiếp.",
+    selectedLineLabel: "Line đang chọn",
     noLineSelected: "Chưa chọn line",
-    submitLabel: "Khóa line",
+    submitLabel: "Chốt",
     nextSpotLabel: "Spot tiếp",
     finishSessionLabel: "Kết thúc set",
     restartLabel: "Làm lại set",
@@ -354,8 +356,7 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
   },
   en: {
     pageEyebrow: "Preflop Decision Drill",
-    pageTitle: "Read the spot. Lock a line. Review fast.",
-    pageSubtitle: "A tighter, faster preflop grind rhythm.",
+    pageTitle: "Read fast. Lock fast.",
     sessionLabel: "Session",
     sessionProgress: "Spot",
     sessionAccuracy: "Correct",
@@ -370,18 +371,20 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     focusLabel: "Focus",
     actionLaneLabel: "Prior action",
     heroLabel: "Hero",
+    heroValueLabel: "You",
+    positionLabel: "Position",
     villainLabel: "Villain",
     handLabel: "Hand",
     stackLabel: "Stack",
     spotLabel: "Spot",
     noVillainLabel: "Blinds",
     decisionEyebrow: "Decision",
-    decisionTitle: "Choose the line now.",
-    decisionHint: "Big action controls, fast lock-in, short review.",
-    decisionLockedHint: "Review is open. Keep the pace and move on.",
-    selectedLineLabel: "Selected line",
+    decisionTitle: "Choose the line",
+    decisionHint: "Pick one line and lock it.",
+    decisionLockedHint: "The line is locked. Review and move on.",
+    selectedLineLabel: "Current line",
     noLineSelected: "No line selected",
-    submitLabel: "Lock line",
+    submitLabel: "Lock",
     nextSpotLabel: "Next spot",
     finishSessionLabel: "Finish set",
     restartLabel: "Restart set",

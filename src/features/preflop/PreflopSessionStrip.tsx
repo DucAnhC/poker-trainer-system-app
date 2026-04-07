@@ -90,11 +90,11 @@ function StatBlock({
   value: string;
 }) {
   return (
-    <div className="rounded-[24px] border border-white/10 bg-black/14 px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+    <div className="rounded-[20px] border border-white/10 bg-black/14 px-3 py-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
         {label}
       </p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
+      <p className="mt-2 text-xl font-semibold text-white">{value}</p>
     </div>
   );
 }
@@ -123,24 +123,15 @@ export function PreflopSessionStrip({
   const copy = getPreflopDrillCopy(language);
 
   return (
-    <section className="rounded-[36px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-5 text-white shadow-panel sm:p-6">
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.95fr)] xl:items-start">
+    <section className="rounded-[32px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-4 text-white shadow-panel sm:p-5">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
         <div className="space-y-3">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-cyan-200/75">
-            {copy.pageEyebrow}
-          </p>
-          <div className="space-y-2">
-            <h2 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-              {copy.pageTitle}
-            </h2>
-            <p className="max-w-2xl text-sm leading-6 text-slate-300">
-              {copy.pageSubtitle}
-            </p>
-          </div>
-
           <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+              {copy.pageEyebrow}
+            </span>
             <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-              {copy.sessionLabel}
+              {copy.pageTitle}
             </span>
             <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
               {getPreflopPackLabel(activeContentPack.id, language)}
@@ -174,9 +165,26 @@ export function PreflopSessionStrip({
           <StatBlock label={copy.sessionAccuracy} value={formatPercent(accuracy)} />
           <StatBlock label={copy.allTimeAttempts} value={`${attempts}`} />
         </div>
+
+        <div className="rounded-[22px] border border-white/10 bg-black/10 p-3">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            {copy.sessionLabel}
+          </p>
+          <div className="mt-2 flex flex-wrap gap-2">
+            <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              {copy.packLabel}: {getPreflopPackLabel(activeContentPack.id, language)}
+            </span>
+            <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              {copy.queueLabel}: {getPreflopQueueModeLabel(queueMode, language)}
+            </span>
+            <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              {copy.difficultyLabel}: {getPreflopDifficultyLabel(selectedDifficulty, language)}
+            </span>
+          </div>
+        </div>
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_minmax(0,0.9fr)]">
+      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,0.9fr)]">
         {availableContentPacks.length > 1 ? (
           <FilterGroup label={copy.packLabel}>
             {availableContentPacks.map((contentPack) => (
