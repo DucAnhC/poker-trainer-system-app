@@ -1,0 +1,85 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id               String                  @id @default(cuid())
+  email            String                  @unique
+  name             String?
+  passwordHash     String
+  trainingAttempts TrainingAttemptRecord[]
+  trainingSessions TrainingSessionRecord[]
+  handReviewNotes  HandReviewNoteRecord[]
+  createdAt        DateTime                @default(now())
+  updatedAt        DateTime                @updatedAt
+}
+
+model TrainingAttemptRecord {
+  userId              String
+  id                  String
+  sessionId           String
+  scenarioId          String
+  module              String
+  selectedActionId    String
+  recommendedActionId String
+  isCorrect           Boolean
+  sourceType          String
+  difficulty          String
+  mistakeTags         Json
+  conceptTags         Json
+  createdAt           DateTime
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, id])
+  @@index([userId, module, createdAt])
+  @@index([userId, sessionId])
+}
+
+model TrainingSessionRecord {
+  userId           String
+  id               String
+  module           String
+  startedAt        DateTime
+  lastActivityAt   DateTime
+  completedAt      DateTime?
+  scenarioIds      Json
+  correctCount     Int
+  attemptIds       Json
+  surfacedLeakTags Json
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, id])
+  @@index([userId, module, lastActivityAt])
+}
+
+model HandReviewNoteRecord {
+  userId               String
+  id                   String
+  title                String
+  streetFocus          String
+  heroPosition         String?
+  villainPosition      String?
+  effectiveStackBb     Float?
+  board                String
+  actionHistorySummary String
+  chosenAction         String
+  uncertainty          String
+  note                 String
+  leakTagIds           Json
+  createdAt            DateTime
+  updatedAt            DateTime
+  user                 User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@id([userId, id])
+  @@index([userId, updatedAt])
+}
