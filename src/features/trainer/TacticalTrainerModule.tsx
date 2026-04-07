@@ -27,6 +27,7 @@ import type {
   Difficulty,
   InteractiveTrainingModuleId,
   PersistenceMode,
+  PostflopScenario,
   ProgressSummary,
   RetryQueueItem,
   SubmittedAnswerFeedback,
@@ -97,6 +98,53 @@ function getBreakEvenPercent(potSizeBb?: number, betToCallBb?: number) {
   return `${Math.round(requiredEquity)}%`;
 }
 
+function getFinalPotBb(potSizeBb?: number, betToCallBb?: number) {
+  if (
+    typeof potSizeBb !== "number" ||
+    typeof betToCallBb !== "number"
+  ) {
+    return null;
+  }
+
+  return potSizeBb + betToCallBb + betToCallBb;
+}
+
+function getActionTypeLabel(
+  actionType: CandidateAction["actionType"],
+  language: TacticalUiLanguage,
+) {
+  const labels =
+    language === "vi"
+      ? {
+          open: "Open",
+          check: "Check",
+          bet: "Bet",
+          call: "Call",
+          raise: "Raise",
+          "3bet": "3-bet",
+          "4bet": "4-bet",
+          fold: "Fold",
+          classify: "Read",
+        }
+      : {
+          open: "Open",
+          check: "Check",
+          bet: "Bet",
+          call: "Call",
+          raise: "Raise",
+          "3bet": "3-bet",
+          "4bet": "4-bet",
+          fold: "Fold",
+          classify: "Read",
+        };
+
+  return labels[actionType];
+}
+
+function isPotOddsOrPostflopModule(moduleId: InteractiveTrainingModuleId) {
+  return moduleId === "pot-odds" || moduleId === "postflop";
+}
+
 function getSpotTiles(
   scenario: TrainingScenario,
   language: TacticalUiLanguage,
@@ -104,40 +152,47 @@ function getSpotTiles(
   const copy = getTacticalDrillCopy(language);
 
   if (scenario.module === "pot-odds") {
-    return [
-      {
-        label: copy.potLabel,
-        value:
-          typeof scenario.potSizeBb === "number" ? `${scenario.potSizeBb}bb` : "-",
-      },
-      {
-        label: copy.callLabel,
-        value:
-          typeof scenario.betToCallBb === "number"
-            ? `${scenario.betToCallBb}bb`
-            : "-",
-      },
-      {
-        label: copy.needLabel,
-        value: getBreakEvenPercent(scenario.potSizeBb, scenario.betToCallBb) ?? "-",
-      },
-      {
-        label: copy.outsLabel,
-        value:
-          typeof scenario.outsCount === "number" ? `${scenario.outsCount}` : "-",
-      },
-      {
-        label: copy.streetLabel,
-        value: scenario.street.toUpperCase(),
-      },
-      ...(scenario.equityHint
-        ? [{ label: copy.hintLabel, value: scenario.equityHint, wide: true }]
-        : []),
-    ] satisfies SpotTile[];
+    return [] satisfies SpotTile[];
   }
 
   if (scenario.module === "preflop") {
     return [];
+  }
+
+  if (scenario.module === "postflop") {
+    const tiles: SpotTile[] = [];
+    const spotLabel = language === "vi" ? "Spot" : "Spot";
+
+    if (scenario.heroPosition || scenario.villainPosition) {
+      tiles.push({
+        label: spotLabel,
+        value: `${scenario.heroPosition ?? "-"} vs ${scenario.villainPosition ?? "-"}`,
+      });
+    }
+
+    if (typeof scenario.effectiveStackBb === "number") {
+      tiles.push({
+        label: copy.stackLabel,
+        value: `${scenario.effectiveStackBb}bb`,
+      });
+    }
+
+    if (scenario.playerArchetypeId) {
+      tiles.push({
+        label: copy.playerTypeLabel,
+        value: getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language),
+      });
+    }
+
+    if (scenario.board) {
+      tiles.push({
+        label: copy.textureLabel,
+        value: getTacticalBoardLabels(scenario.board, language).join(" / "),
+        wide: true,
+      });
+    }
+
+    return tiles;
   }
 
   const tiles: SpotTile[] = [{ label: copy.streetLabel, value: scenario.street.toUpperCase() }];
@@ -450,6 +505,175 @@ function ActionLane({
   );
 }
 
+function PotOddsHeroObject({
+  language,
+  scenario,
+}: {
+  language: TacticalUiLanguage;
+  scenario: PostflopScenario;
+}) {
+  const copy = getTacticalDrillCopy(language);
+  const breakEvenPercent =
+    getBreakEvenPercent(scenario.potSizeBb, scenario.betToCallBb) ?? "-";
+  const finalPotBb = getFinalPotBb(scenario.potSizeBb, scenario.betToCallBb);
+  const mathLineLabel = language === "vi" ? "Math line" : "Math line";
+
+  return (
+    <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.28),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div className="flex flex-wrap gap-2">
+          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/88">
+            {scenario.street.toUpperCase()}
+          </span>
+          {scenario.equityHint ? (
+            <span className="rounded-full border border-emerald-200/18 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
+              {scenario.equityHint}
+            </span>
+          ) : null}
+        </div>
+
+        {typeof scenario.outsCount === "number" ? (
+          <div className="rounded-[22px] border border-cyan-200/20 bg-cyan-300/10 px-4 py-3 text-center">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100/75">
+              {copy.outsLabel}
+            </p>
+            <p className="mt-1 text-2xl font-semibold text-cyan-50">
+              {scenario.outsCount}
+            </p>
+          </div>
+        ) : null}
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[148px_minmax(0,1fr)_148px] lg:items-center">
+        <div className="rounded-[26px] border border-white/12 bg-black/18 px-4 py-5 text-center shadow-[0_18px_34px_-24px_rgba(15,23,42,0.9)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            {copy.potLabel}
+          </p>
+          <p className="mt-3 text-4xl font-semibold tracking-tight text-white">
+            {typeof scenario.potSizeBb === "number" ? `${scenario.potSizeBb}` : "-"}
+          </p>
+          <p className="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-slate-300">
+            bb
+          </p>
+        </div>
+
+        <div className="mx-auto flex h-[220px] w-[220px] items-center justify-center rounded-full border border-cyan-200/22 bg-[radial-gradient(circle,rgba(6,182,212,0.24),rgba(15,23,42,0.4)_56%,rgba(3,7,18,0.96)_100%)] shadow-[0_28px_64px_-36px_rgba(6,182,212,0.75)]">
+          <div className="flex h-[172px] w-[172px] flex-col items-center justify-center rounded-full border border-white/10 bg-black/25 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100/80">
+              {copy.needLabel}
+            </p>
+            <p className="mt-2 text-5xl font-semibold tracking-tight text-white">
+              {breakEvenPercent}
+            </p>
+            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+              {finalPotBb ? `${scenario.betToCallBb ?? "-"}bb -> ${finalPotBb}bb` : copy.callLabel}
+            </p>
+          </div>
+        </div>
+
+        <div className="rounded-[26px] border border-white/12 bg-black/18 px-4 py-5 text-center shadow-[0_18px_34px_-24px_rgba(15,23,42,0.9)]">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            {copy.callLabel}
+          </p>
+          <p className="mt-3 text-4xl font-semibold tracking-tight text-white">
+            {typeof scenario.betToCallBb === "number" ? `${scenario.betToCallBb}` : "-"}
+          </p>
+          <p className="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-slate-300">
+            bb
+          </p>
+        </div>
+      </div>
+
+      {finalPotBb ? (
+        <div className="mt-5 rounded-[24px] border border-white/10 bg-black/16 px-4 py-4 text-center">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            {mathLineLabel}
+          </p>
+          <p className="mt-2 text-lg font-semibold text-white">
+            {language === "vi"
+              ? `${scenario.betToCallBb}bb de tranh ${finalPotBb}bb`
+              : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`}
+          </p>
+        </div>
+      ) : null}
+    </div>
+  );
+}
+
+function PostflopHeroObject({
+  language,
+  scenario,
+}: {
+  language: TacticalUiLanguage;
+  scenario: PostflopScenario;
+}) {
+  const copy = getTacticalDrillCopy(language);
+  const boardCards = getVisibleBoardCards(scenario);
+  const heroHandCards = getHeroHandCards(scenario);
+
+  return (
+    <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.26),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+          {scenario.street.toUpperCase()}
+        </span>
+        {scenario.playerArchetypeId ? (
+          <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+            {getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)}
+          </span>
+        ) : null}
+        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+          {(scenario.heroPosition ?? "-") + " vs " + (scenario.villainPosition ?? "-")}
+        </span>
+        {typeof scenario.effectiveStackBb === "number" ? (
+          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            {scenario.effectiveStackBb}bb
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
+        <div className="rounded-[26px] border border-white/12 bg-black/16 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            {copy.boardLabel}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <TacticalCardRow cards={boardCards} size="xl" />
+          </div>
+
+          <div className="mt-5">
+            <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {heroHandCards.length > 0 ? (
+            <div className="rounded-[24px] border border-white/12 bg-black/16 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                {copy.handLabel}
+              </p>
+              <div className="mt-4">
+                <TacticalCardRow cards={heroHandCards} size="lg" />
+              </div>
+            </div>
+          ) : null}
+
+          {scenario.board ? (
+            <div className="rounded-[24px] border border-white/12 bg-black/16 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                {copy.textureLabel}
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                {getTacticalBoardLabels(scenario.board, language).join(" / ")}
+              </p>
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ScenarioPrimaryVisual({
   language,
   scenario,
@@ -457,56 +681,21 @@ function ScenarioPrimaryVisual({
   language: TacticalUiLanguage;
   scenario: TrainingScenario;
 }) {
-  const copy = getTacticalDrillCopy(language);
-  const boardCards = getVisibleBoardCards(scenario);
-  const heroHandCards = getHeroHandCards(scenario);
-
   if (scenario.module === "pot-odds") {
-    const breakEvenPercent =
-      getBreakEvenPercent(scenario.potSizeBb, scenario.betToCallBb) ?? "-";
-
-    return (
-      <div className="rounded-[28px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.22),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.18)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-5">
-        <div className="grid gap-3 sm:grid-cols-3">
-          <SpotTileCard
-            label={copy.potLabel}
-            value={
-              typeof scenario.potSizeBb === "number" ? `${scenario.potSizeBb}bb` : "-"
-            }
-          />
-          <SpotTileCard
-            label={copy.callLabel}
-            value={
-              typeof scenario.betToCallBb === "number"
-                ? `${scenario.betToCallBb}bb`
-                : "-"
-            }
-          />
-          <SpotTileCard label={copy.needLabel} value={breakEvenPercent} />
-        </div>
-
-        <div className="mt-4 flex flex-wrap gap-2">
-          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
-            {scenario.street.toUpperCase()}
-          </span>
-          {typeof scenario.outsCount === "number" ? (
-            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-2 text-sm font-semibold text-cyan-100">
-              {copy.outsLabel}: {scenario.outsCount}
-            </span>
-          ) : null}
-          {scenario.equityHint ? (
-            <span className="rounded-full border border-emerald-200/18 bg-emerald-300/10 px-3 py-2 text-sm font-semibold text-emerald-100">
-              {scenario.equityHint}
-            </span>
-          ) : null}
-        </div>
-      </div>
-    );
+    return <PotOddsHeroObject language={language} scenario={scenario} />;
   }
 
   if (scenario.module === "preflop") {
     return null;
   }
+
+  if (scenario.module === "postflop") {
+    return <PostflopHeroObject language={language} scenario={scenario} />;
+  }
+
+  const copy = getTacticalDrillCopy(language);
+  const boardCards = getVisibleBoardCards(scenario);
+  const heroHandCards = getHeroHandCards(scenario);
 
   return (
     <div className="rounded-[28px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.2),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.18)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-5">
@@ -584,6 +773,9 @@ function TacticalSpotPanel({
   const spotTiles = getSpotTiles(scenario, language);
   const actionLane =
     scenario.module === "preflop" ? scenario.actionHistory : scenario.actionHistory ?? [];
+  const showBottomActionLane =
+    scenario.module !== "postflop" && actionLane.length > 0;
+  const showSupportRail = spotTiles.length > 0;
 
   return (
     <section className="rounded-[34px] border border-emerald-950/20 bg-[linear-gradient(180deg,rgba(7,30,28,0.97),rgba(8,23,32,0.96))] p-5 text-white shadow-panel sm:p-6">
@@ -619,18 +811,36 @@ function TacticalSpotPanel({
         </p>
       </div>
 
-      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(280px,0.95fr)]">
+      <div
+        className={cn(
+          "mt-4 grid gap-4",
+          showSupportRail
+            ? "xl:grid-cols-[minmax(0,1.12fr)_minmax(260px,0.88fr)]"
+            : "",
+        )}
+      >
         <ScenarioPrimaryVisual language={language} scenario={scenario} />
 
-        <div className="grid gap-3 sm:grid-cols-2">
-          {spotTiles.map((tile) => (
-            <SpotTileCard key={`${tile.label}-${tile.value}`} {...tile} />
-          ))}
-        </div>
+        {showSupportRail ? (
+          <div className="grid gap-3 sm:grid-cols-2">
+            {spotTiles.map((tile) => (
+              <SpotTileCard key={`${tile.label}-${tile.value}`} {...tile} />
+            ))}
+          </div>
+        ) : null}
       </div>
 
-      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <ActionLane label={copy.actionLabel} steps={actionLane} />
+      <div
+        className={cn(
+          "mt-4 grid gap-4",
+          showBottomActionLane
+            ? "lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+            : "",
+        )}
+      >
+        {showBottomActionLane ? (
+          <ActionLane label={copy.actionLabel} steps={actionLane} />
+        ) : null}
 
         <div className="rounded-[24px] border border-white/12 bg-black/14 p-4">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
@@ -655,6 +865,8 @@ function TacticalSpotPanel({
 function TacticalActionButton({
   action,
   index,
+  language,
+  highTension,
   selectedTag,
   bestTag,
   isSelected,
@@ -665,6 +877,8 @@ function TacticalActionButton({
 }: {
   action: CandidateAction;
   index: number;
+  language: TacticalUiLanguage;
+  highTension: boolean;
   selectedTag: string;
   bestTag: string;
   isSelected: boolean;
@@ -675,6 +889,7 @@ function TacticalActionButton({
 }) {
   const showSubmittedState = isLocked && (isRecommended || isSubmittedChoice);
   const isIncorrectSubmitted = isSubmittedChoice && !isRecommended;
+  const actionTypeLabel = getActionTypeLabel(action.actionType, language);
 
   return (
     <button
@@ -683,16 +898,18 @@ function TacticalActionButton({
       disabled={isLocked}
       aria-pressed={isSelected}
       className={cn(
-        "group w-full rounded-[28px] border px-4 py-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 active:scale-[0.99]",
-        "min-h-[96px] bg-white/[0.04] text-white/92 shadow-[0_14px_34px_-24px_rgba(15,23,42,0.85)]",
-        !isLocked && "hover:-translate-y-px hover:border-white/25 hover:bg-white/[0.08]",
+        "group w-full rounded-[28px] border px-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 active:scale-[0.99]",
+        highTension ? "min-h-[118px] py-5" : "min-h-[96px] py-4",
+        "bg-white/[0.04] text-white/92 shadow-[0_14px_34px_-24px_rgba(15,23,42,0.85)]",
+        !isLocked &&
+          "hover:-translate-y-0.5 hover:border-cyan-200/30 hover:bg-white/[0.09] hover:shadow-[0_24px_48px_-28px_rgba(6,182,212,0.5)]",
         !isSelected && !showSubmittedState && "border-white/10",
         isSelected &&
           !isLocked &&
-          "border-cyan-300/70 bg-[linear-gradient(135deg,rgba(8,47,73,0.95),rgba(8,145,178,0.26))] shadow-[0_20px_44px_-22px_rgba(103,232,249,0.5)]",
+          "border-cyan-300/70 bg-[linear-gradient(135deg,rgba(8,47,73,0.95),rgba(8,145,178,0.3))] shadow-[0_24px_48px_-24px_rgba(103,232,249,0.55)]",
         isLocked &&
           isRecommended &&
-          "border-emerald-300/65 bg-[linear-gradient(135deg,rgba(6,78,59,0.95),rgba(52,211,153,0.24))] shadow-[0_18px_44px_-24px_rgba(52,211,153,0.55)]",
+          "border-emerald-300/65 bg-[linear-gradient(135deg,rgba(6,78,59,0.95),rgba(52,211,153,0.26))] shadow-[0_20px_46px_-24px_rgba(52,211,153,0.55)]",
         isIncorrectSubmitted &&
           "border-rose-300/60 bg-[linear-gradient(135deg,rgba(76,5,25,0.96),rgba(251,113,133,0.18))] shadow-[0_18px_44px_-24px_rgba(251,113,133,0.45)]",
         isLocked && !isRecommended && !isSubmittedChoice && "border-white/10 opacity-75",
@@ -712,7 +929,12 @@ function TacticalActionButton({
           </div>
 
           <div className="min-w-0 flex-1">
-            <p className="text-lg font-semibold leading-6 text-white sm:text-xl">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="rounded-full border border-white/12 bg-black/18 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">
+                {actionTypeLabel}
+              </span>
+            </div>
+            <p className="mt-3 text-lg font-semibold leading-6 text-white sm:text-xl">
               {action.label}
             </p>
             {action.feedbackHint && isLocked && !isRecommended && isSubmittedChoice ? (
@@ -769,6 +991,7 @@ function TacticalDecisionPanel({
 }) {
   const copy = getTacticalDrillCopy(language);
   const moduleMeta = getTacticalModuleMeta(moduleId, language);
+  const highTension = isPotOddsOrPostflopModule(moduleId);
   const selectedAction =
     scenario.candidateActions.find((action) => action.id === selectedActionId) ?? null;
   const primaryButtonLabel = hasSubmitted
@@ -799,6 +1022,8 @@ function TacticalDecisionPanel({
             key={action.id}
             action={action}
             index={index}
+            language={language}
+            highTension={highTension}
             selectedTag={copy.selectedLineLabel}
             bestTag={copy.bestLineLabel}
             isSelected={selectedActionId === action.id}
@@ -810,7 +1035,14 @@ function TacticalDecisionPanel({
         ))}
       </div>
 
-      <div className="mt-5 rounded-[28px] border border-white/10 bg-white/[0.05] p-4">
+      <div
+        className={cn(
+          "mt-5 rounded-[28px] border p-4",
+          selectedAction
+            ? "border-cyan-300/22 bg-cyan-300/[0.07]"
+            : "border-white/10 bg-white/[0.05]",
+        )}
+      >
         <div className="space-y-2">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
             {copy.selectedLineLabel}
@@ -818,6 +1050,13 @@ function TacticalDecisionPanel({
           <p className="text-xl font-semibold text-white">
             {selectedAction?.label ?? copy.noLineSelectedLabel}
           </p>
+          {selectedAction ? (
+            <div className="pt-1">
+              <span className="rounded-full border border-white/12 bg-black/18 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">
+                {getActionTypeLabel(selectedAction.actionType, language)}
+              </span>
+            </div>
+          ) : null}
         </div>
 
         <div className="mt-4 grid gap-3">
@@ -826,10 +1065,11 @@ function TacticalDecisionPanel({
             onClick={hasSubmitted ? onNext : onSubmit}
             disabled={!hasSubmitted && !canSubmit}
             className={cn(
-              "w-full rounded-full px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] transition active:scale-[0.99]",
+              "w-full rounded-full px-5 text-sm font-semibold uppercase tracking-[0.16em] transition active:scale-[0.99]",
+              highTension ? "py-5" : "py-4",
               !hasSubmitted && !canSubmit
                 ? "cursor-not-allowed bg-slate-600/60 text-slate-300"
-                : "bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] text-white shadow-[0_18px_42px_-22px_rgba(34,197,94,0.7)] hover:brightness-105",
+                : "bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] text-white shadow-[0_24px_50px_-24px_rgba(34,197,94,0.72)] hover:brightness-105",
             )}
           >
             {primaryButtonLabel}

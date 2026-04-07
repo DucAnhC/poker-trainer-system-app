@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils";
 
 type TacticalCardVisualProps = {
   card: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 };
 
 type TacticalCardRowProps = {
   cards: string[];
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "xl";
 };
 
 function parseCard(card: string) {
@@ -56,6 +56,10 @@ function getSizeClassName(size: NonNullable<TacticalCardVisualProps["size"]>) {
     return "h-[72px] min-w-[52px] rounded-[18px] px-3 py-2";
   }
 
+  if (size === "xl") {
+    return "h-[138px] min-w-[92px] rounded-[28px] px-4 py-4";
+  }
+
   if (size === "lg") {
     return "h-[112px] min-w-[76px] rounded-[24px] px-4 py-3";
   }
@@ -78,10 +82,22 @@ export function TacticalCardVisual({
         parsedCard.accentClassName,
       )}
     >
-      <span className={cn("text-lg font-semibold tracking-[0.04em]", parsedCard.toneClassName)}>
+      <span
+        className={cn(
+          size === "xl" ? "text-[1.65rem]" : "text-lg",
+          "font-semibold tracking-[0.04em]",
+          parsedCard.toneClassName,
+        )}
+      >
         {parsedCard.rank}
       </span>
-      <span className={cn("text-xs font-semibold uppercase tracking-[0.22em]", parsedCard.toneClassName)}>
+      <span
+        className={cn(
+          size === "xl" ? "text-sm" : "text-xs",
+          "font-semibold uppercase tracking-[0.22em]",
+          parsedCard.toneClassName,
+        )}
+      >
         {parsedCard.suit}
       </span>
     </div>
