@@ -1,6 +1,9 @@
+"use client";
+
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { LeakTagBadge } from "@/components/ui/LeakTagBadge";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
-import { StatusPill } from "@/components/ui/StatusPill";
+import { getReviewCopy, getReviewUiLanguage } from "@/features/review/review-copy";
 import { cn, formatDateTimeLabel } from "@/lib/utils";
 import type { HandReviewNote } from "@/types/training";
 
@@ -11,6 +14,9 @@ type ReviewCardProps = {
 };
 
 export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
+  const uiCopy = useUiCopy();
+  const copy = getReviewCopy(getReviewUiLanguage(uiCopy.locale));
+
   return (
     <button
       type="button"
@@ -19,18 +25,22 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
     >
       <SurfaceCard
         className={cn(
-          "space-y-3 border-border/70 p-5 transition hover:border-accent/30",
-          isSelected && "border-accent/40 bg-accent/5",
+          "space-y-3 rounded-[28px] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white transition hover:border-cyan-300/25 hover:bg-[linear-gradient(180deg,rgba(18,30,52,0.98),rgba(8,15,28,0.96))]",
+          isSelected && "border-cyan-300/35 bg-[linear-gradient(180deg,rgba(8,47,73,0.95),rgba(8,15,28,0.96))]",
         )}
       >
         <div className="flex flex-wrap items-center gap-2">
-          <StatusPill tone="accent">{note.streetFocus}</StatusPill>
-          <StatusPill>{formatDateTimeLabel(note.updatedAt)}</StatusPill>
+          <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            {copy.streetFocusLabels[note.streetFocus]}
+          </span>
+          <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            {formatDateTimeLabel(note.updatedAt)}
+          </span>
         </div>
 
         <div className="space-y-2">
-          <h3 className="text-lg font-semibold text-foreground">{note.title}</h3>
-          <p className="line-clamp-3 text-sm leading-6 text-muted-foreground">
+          <h3 className="text-lg font-semibold text-white">{note.title}</h3>
+          <p className="line-clamp-3 text-sm leading-6 text-slate-300">
             {note.uncertainty}
           </p>
         </div>
@@ -41,7 +51,9 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
               <LeakTagBadge key={leakTagId} leakTagId={leakTagId} />
             ))
           ) : (
-            <StatusPill>No leak tags yet</StatusPill>
+            <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
+              {copy.noLeakTags}
+            </span>
           )}
         </div>
       </SurfaceCard>

@@ -2,19 +2,21 @@
 
 import { useState } from "react";
 
+import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { LeakTagBadge } from "@/components/ui/LeakTagBadge";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { leakTags } from "@/data/leak-tags";
 import { positions } from "@/data/positions";
-import { cn } from "@/lib/utils";
-import type { PositionId } from "@/types/poker";
-import type { HandReviewNote, ReviewStreetFocus } from "@/types/training";
+import { getReviewCopy, getReviewUiLanguage } from "@/features/review/review-copy";
+import { ReviewFieldGroup } from "@/features/review/ReviewFieldGroup";
 import {
   createEmptyHandReviewDraft,
   reviewStreetFocusOptions,
   type HandReviewDraft,
 } from "@/features/review/review-constants";
-import { ReviewFieldGroup } from "@/features/review/ReviewFieldGroup";
+import { cn } from "@/lib/utils";
+import type { PositionId } from "@/types/poker";
+import type { HandReviewNote } from "@/types/training";
 
 type ReviewFormProps = {
   onSave: (draft: HandReviewDraft) => Promise<boolean>;
@@ -24,7 +26,7 @@ type ReviewFormProps = {
 
 type ReviewFormState = {
   title: string;
-  streetFocus: ReviewStreetFocus;
+  streetFocus: HandReviewDraft["streetFocus"];
   heroPosition: PositionId | "";
   villainPosition: PositionId | "";
   effectiveStackBb: string;
@@ -37,7 +39,7 @@ type ReviewFormState = {
 };
 
 const fieldClassName =
-  "w-full rounded-2xl border border-border bg-white px-4 py-3 text-sm text-foreground shadow-sm outline-none transition placeholder:text-muted-foreground focus:border-accent/40 focus:ring-2 focus:ring-accent/10";
+  "w-full rounded-[20px] border border-white/12 bg-black/16 px-4 py-3 text-sm text-white shadow-sm outline-none transition placeholder:text-slate-500 focus:border-cyan-300/35 focus:ring-2 focus:ring-cyan-300/10";
 
 function createEmptyReviewFormState(): ReviewFormState {
   const emptyDraft = createEmptyHandReviewDraft();
@@ -72,6 +74,9 @@ export function ReviewForm({
   isSubmitting = false,
   storageMode = "local",
 }: ReviewFormProps) {
+  const uiCopy = useUiCopy();
+  const language = getReviewUiLanguage(uiCopy.locale);
+  const copy = getReviewCopy(language);
   const [formState, setFormState] = useState<ReviewFormState>(
     createEmptyReviewFormState(),
   );
@@ -122,203 +127,218 @@ export function ReviewForm({
   }
 
   return (
-    <SurfaceCard className="space-y-6">
+    <SurfaceCard className="rounded-[34px] border-slate-900/70 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel sm:p-6">
       <div className="space-y-2">
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
-          New review
+        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+          {copy.formEyebrow}
         </p>
-        <h2 className="text-2xl font-semibold text-foreground">
-          Capture one hand or one decision point
+        <h2 className="text-[1.9rem] font-semibold tracking-tight text-white">
+          {copy.formTitle}
         </h2>
-        <p className="text-sm leading-6 text-muted-foreground">
-          Keep the note structured and practical. This is a manual review tool,
-          not a hand-history parser.
-        </p>
+        <p className="text-sm leading-6 text-slate-300">{copy.formBody}</p>
       </div>
 
-      <form className="space-y-5" onSubmit={handleSubmit}>
-        <ReviewFieldGroup
-          label="Title"
-          hint="Short label for the hand, spot, or leak you want to remember."
-        >
-          <input
-            required
-            value={formState.title}
-            onChange={(event) => updateField("title", event.target.value)}
-            disabled={isSubmitting}
-            className={fieldClassName}
-            placeholder="Example: BTN vs BB top pair river fold"
-          />
-        </ReviewFieldGroup>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <ReviewFieldGroup label="Street focus">
-            <select
-              value={formState.streetFocus}
-              onChange={(event) =>
-                updateField(
-                  "streetFocus",
-                  event.target.value as ReviewFormState["streetFocus"],
-                )
-              }
-              disabled={isSubmitting}
-              className={fieldClassName}
-            >
-              {reviewStreetFocusOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </ReviewFieldGroup>
-
-          <ReviewFieldGroup
-            label="Effective stack"
-            hint="Optional. Use big blinds when that helps the review."
-          >
-            <input
-              value={formState.effectiveStackBb}
-              onChange={(event) =>
-                updateField("effectiveStackBb", event.target.value)
-              }
-              disabled={isSubmitting}
-              inputMode="numeric"
-              className={fieldClassName}
-              placeholder="100"
-            />
-          </ReviewFieldGroup>
-        </div>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <ReviewFieldGroup label="Hero position">
-            <select
-              value={formState.heroPosition}
-              onChange={(event) =>
-                updateField(
-                  "heroPosition",
-                  event.target.value as ReviewFormState["heroPosition"],
-                )
-              }
-              disabled={isSubmitting}
-              className={fieldClassName}
-            >
-              <option value="">Not specified</option>
-              {positions.map((position) => (
-                <option key={position.id} value={position.id}>
-                  {position.label}
-                </option>
-              ))}
-            </select>
-          </ReviewFieldGroup>
-
-          <ReviewFieldGroup label="Villain position">
-            <select
-              value={formState.villainPosition}
-              onChange={(event) =>
-                updateField(
-                  "villainPosition",
-                  event.target.value as ReviewFormState["villainPosition"],
-                )
-              }
-              disabled={isSubmitting}
-              className={fieldClassName}
-            >
-              <option value="">Not specified</option>
-              {positions.map((position) => (
-                <option key={position.id} value={position.id}>
-                  {position.label}
-                </option>
-              ))}
-            </select>
-          </ReviewFieldGroup>
-        </div>
-
-        <ReviewFieldGroup
-          label="Board"
-          hint="Optional. Use a simple text format like Ah Kd 7c when relevant."
-        >
-          <input
-            value={formState.board}
-            onChange={(event) => updateField("board", event.target.value)}
-            disabled={isSubmitting}
-            className={fieldClassName}
-            placeholder="Ah Kd 7c"
-          />
-        </ReviewFieldGroup>
-
-        <ReviewFieldGroup
-          label="Action history summary"
-          hint="Describe the line briefly so the future you can reconstruct the spot."
-        >
-          <textarea
-            required
-            rows={4}
-            value={formState.actionHistorySummary}
-            onChange={(event) =>
-              updateField("actionHistorySummary", event.target.value)
-            }
-            disabled={isSubmitting}
-            className={cn(fieldClassName, "min-h-28 resize-y")}
-            placeholder="CO opens, BTN calls, BB folds. Flop Qh 8h 4c, CO c-bets one-third pot..."
-          />
-        </ReviewFieldGroup>
-
-        <div className="grid gap-4 md:grid-cols-2">
-          <ReviewFieldGroup
-            label="Your chosen action"
-            hint="What you actually did or wanted to do in the spot."
-          >
-            <input
-              required
-              value={formState.chosenAction}
-              onChange={(event) =>
-                updateField("chosenAction", event.target.value)
-              }
-              disabled={isSubmitting}
-              className={fieldClassName}
-              placeholder="Called river raise"
-            />
-          </ReviewFieldGroup>
-
-          <ReviewFieldGroup
-            label="What are you unsure about?"
-            hint="Focus the review on the real decision question."
-          >
-            <input
-              required
-              value={formState.uncertainty}
-              onChange={(event) => updateField("uncertainty", event.target.value)}
-              disabled={isSubmitting}
-              className={fieldClassName}
-              placeholder="Was this a disciplined fold or too tight?"
-            />
-          </ReviewFieldGroup>
-        </div>
-
-        <ReviewFieldGroup
-          label="Optional note"
-          hint="Use this for takeaways, reads, or mental-game context."
-        >
-          <textarea
-            rows={3}
-            value={formState.note}
-            onChange={(event) => updateField("note", event.target.value)}
-            disabled={isSubmitting}
-            className={cn(fieldClassName, "min-h-24 resize-y")}
-            placeholder="I may have let the previous bad beat affect this decision."
-          />
-        </ReviewFieldGroup>
-
-        <div className="space-y-3">
-          <div className="space-y-1">
-            <p className="text-sm font-semibold text-foreground">Leak tags</p>
-            <p className="text-xs leading-5 text-muted-foreground">
-              Pick any tags that help classify the leak or uncertainty. These are
-              learner-facing heuristics, not perfect diagnoses.
+      <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+        <div className="rounded-[28px] border border-white/10 bg-black/12 p-4 sm:p-5">
+          <div className="space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+              {copy.snapshotLabel}
             </p>
           </div>
 
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="mt-4 space-y-5">
+            <ReviewFieldGroup
+              label={copy.titleLabel}
+              hint={copy.titleHint}
+            >
+              <input
+                required
+                value={formState.title}
+                onChange={(event) => updateField("title", event.target.value)}
+                disabled={isSubmitting}
+                className={fieldClassName}
+                placeholder={copy.titlePlaceholder}
+              />
+            </ReviewFieldGroup>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <ReviewFieldGroup label={copy.focusLabel}>
+                <select
+                  value={formState.streetFocus}
+                  onChange={(event) =>
+                    updateField(
+                      "streetFocus",
+                      event.target.value as ReviewFormState["streetFocus"],
+                    )
+                  }
+                  disabled={isSubmitting}
+                  className={fieldClassName}
+                >
+                  {reviewStreetFocusOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {copy.streetFocusLabels[option.value]}
+                    </option>
+                  ))}
+                </select>
+              </ReviewFieldGroup>
+
+              <ReviewFieldGroup
+                label={copy.stackLabel}
+                hint={copy.stackHint}
+              >
+                <input
+                  value={formState.effectiveStackBb}
+                  onChange={(event) =>
+                    updateField("effectiveStackBb", event.target.value)
+                  }
+                  disabled={isSubmitting}
+                  inputMode="numeric"
+                  className={fieldClassName}
+                  placeholder={copy.stackPlaceholder}
+                />
+              </ReviewFieldGroup>
+            </div>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <ReviewFieldGroup label={copy.heroLabel}>
+                <select
+                  value={formState.heroPosition}
+                  onChange={(event) =>
+                    updateField(
+                      "heroPosition",
+                      event.target.value as ReviewFormState["heroPosition"],
+                    )
+                  }
+                  disabled={isSubmitting}
+                  className={fieldClassName}
+                >
+                  <option value="">{copy.notSpecified}</option>
+                  {positions.map((position) => (
+                    <option key={position.id} value={position.id}>
+                      {position.label}
+                    </option>
+                  ))}
+                </select>
+              </ReviewFieldGroup>
+
+              <ReviewFieldGroup label={copy.villainLabel}>
+                <select
+                  value={formState.villainPosition}
+                  onChange={(event) =>
+                    updateField(
+                      "villainPosition",
+                      event.target.value as ReviewFormState["villainPosition"],
+                    )
+                  }
+                  disabled={isSubmitting}
+                  className={fieldClassName}
+                >
+                  <option value="">{copy.notSpecified}</option>
+                  {positions.map((position) => (
+                    <option key={position.id} value={position.id}>
+                      {position.label}
+                    </option>
+                  ))}
+                </select>
+              </ReviewFieldGroup>
+            </div>
+
+            <ReviewFieldGroup
+              label={copy.boardLabel}
+              hint={copy.boardHint}
+            >
+              <input
+                value={formState.board}
+                onChange={(event) => updateField("board", event.target.value)}
+                disabled={isSubmitting}
+                className={fieldClassName}
+                placeholder={copy.boardPlaceholder}
+              />
+            </ReviewFieldGroup>
+          </div>
+        </div>
+
+        <div className="rounded-[28px] border border-white/10 bg-black/12 p-4 sm:p-5">
+          <div className="space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+              {copy.decisionNoteLabel}
+            </p>
+          </div>
+
+          <div className="mt-4 space-y-5">
+            <ReviewFieldGroup
+              label={copy.actionHistoryLabel}
+              hint={copy.actionHistoryHint}
+            >
+              <textarea
+                required
+                rows={4}
+                value={formState.actionHistorySummary}
+                onChange={(event) =>
+                  updateField("actionHistorySummary", event.target.value)
+                }
+                disabled={isSubmitting}
+                className={cn(fieldClassName, "min-h-28 resize-y")}
+                placeholder={copy.actionHistoryPlaceholder}
+              />
+            </ReviewFieldGroup>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <ReviewFieldGroup
+                label={copy.chosenActionLabel}
+                hint={copy.chosenActionHint}
+              >
+                <input
+                  required
+                  value={formState.chosenAction}
+                  onChange={(event) =>
+                    updateField("chosenAction", event.target.value)
+                  }
+                  disabled={isSubmitting}
+                  className={fieldClassName}
+                  placeholder={copy.chosenActionPlaceholder}
+                />
+              </ReviewFieldGroup>
+
+              <ReviewFieldGroup
+                label={copy.uncertaintyLabel}
+                hint={copy.uncertaintyHint}
+              >
+                <input
+                  required
+                  value={formState.uncertainty}
+                  onChange={(event) => updateField("uncertainty", event.target.value)}
+                  disabled={isSubmitting}
+                  className={fieldClassName}
+                  placeholder={copy.uncertaintyPlaceholder}
+                />
+              </ReviewFieldGroup>
+            </div>
+
+            <ReviewFieldGroup
+              label={copy.noteLabel}
+              hint={copy.noteHint}
+            >
+              <textarea
+                rows={3}
+                value={formState.note}
+                onChange={(event) => updateField("note", event.target.value)}
+                disabled={isSubmitting}
+                className={cn(fieldClassName, "min-h-24 resize-y")}
+                placeholder={copy.notePlaceholder}
+              />
+            </ReviewFieldGroup>
+          </div>
+        </div>
+
+        <div className="rounded-[28px] border border-white/10 bg-black/12 p-4 sm:p-5">
+          <div className="space-y-2">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+              {copy.leakTagsLabel}
+            </p>
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
             {leakTags.map((leakTag) => {
               const isSelected = formState.leakTagIds.includes(leakTag.id);
 
@@ -326,8 +346,8 @@ export function ReviewForm({
                 <label
                   key={leakTag.id}
                   className={cn(
-                    "flex cursor-pointer gap-3 rounded-2xl border border-border/70 bg-muted/20 p-4 transition hover:border-accent/30 hover:bg-accent/5",
-                    isSelected && "border-accent/35 bg-accent/5",
+                    "flex cursor-pointer gap-3 rounded-[22px] border border-white/10 bg-black/12 p-4 transition hover:border-cyan-300/25 hover:bg-cyan-300/[0.06]",
+                    isSelected && "border-cyan-300/30 bg-cyan-300/[0.08]",
                   )}
                 >
                   <input
@@ -335,11 +355,11 @@ export function ReviewForm({
                     checked={isSelected}
                     onChange={() => handleToggleLeakTag(leakTag.id)}
                     disabled={isSubmitting}
-                    className="mt-1 h-4 w-4 rounded border-border text-accent-strong focus:ring-accent/30"
+                    className="mt-1 h-4 w-4 rounded border-white/20 bg-transparent text-cyan-300 focus:ring-cyan-300/30"
                   />
                   <div className="space-y-2">
                     <LeakTagBadge leakTag={leakTag} />
-                    <p className="text-xs leading-5 text-muted-foreground">
+                    <p className="text-xs leading-5 text-slate-400">
                       {leakTag.description}
                     </p>
                   </div>
@@ -349,18 +369,16 @@ export function ReviewForm({
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-3 border-t border-border/70 pt-4">
-          <p className="text-xs leading-5 text-muted-foreground">
-            {storageMode === "account"
-              ? "Saved notes write to the signed-in account and can sync across future sessions."
-              : "Saved notes stay local to this browser through localStorage."}
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-white/10 bg-black/12 p-4">
+          <p className="text-xs leading-5 text-slate-400">
+            {storageMode === "account" ? copy.storageAccount : copy.storageLocal}
           </p>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-full bg-accent-strong px-5 py-3 text-sm font-semibold text-white transition hover:bg-accent"
+            className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:brightness-105"
           >
-            {isSubmitting ? "Saving review note..." : "Save review note"}
+            {isSubmitting ? copy.savingLabel : copy.saveLabel}
           </button>
         </div>
       </form>
