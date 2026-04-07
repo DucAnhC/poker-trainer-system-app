@@ -16,6 +16,10 @@ type ReviewCardProps = {
 export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
   const uiCopy = useUiCopy();
   const copy = getReviewCopy(getReviewUiLanguage(uiCopy.locale));
+  const spotLabel =
+    note.heroPosition || note.villainPosition
+      ? `${note.heroPosition ?? "Hero"} vs ${note.villainPosition ?? "Villain"}`
+      : null;
 
   return (
     <button
@@ -25,14 +29,20 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
     >
       <SurfaceCard
         className={cn(
-          "space-y-3 rounded-[28px] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white transition hover:border-cyan-300/25 hover:bg-[linear-gradient(180deg,rgba(18,30,52,0.98),rgba(8,15,28,0.96))]",
-          isSelected && "border-cyan-300/35 bg-[linear-gradient(180deg,rgba(8,47,73,0.95),rgba(8,15,28,0.96))]",
+          "space-y-4 rounded-[28px] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white transition hover:border-cyan-300/25 hover:bg-[linear-gradient(180deg,rgba(18,30,52,0.98),rgba(8,15,28,0.96))]",
+          isSelected &&
+            "border-cyan-300/35 bg-[linear-gradient(180deg,rgba(8,47,73,0.95),rgba(8,15,28,0.96))] shadow-[0_24px_52px_-28px_rgba(34,211,238,0.45)]",
         )}
       >
         <div className="flex flex-wrap items-center gap-2">
           <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
             {copy.streetFocusLabels[note.streetFocus]}
           </span>
+          {spotLabel ? (
+            <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              {spotLabel}
+            </span>
+          ) : null}
           <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
             {formatDateTimeLabel(note.updatedAt)}
           </span>
@@ -40,12 +50,30 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
 
         <div className="space-y-2">
           <h3 className="text-lg font-semibold text-white">{note.title}</h3>
-          <p className="line-clamp-3 text-sm leading-6 text-slate-300">
+          <div className="rounded-[20px] border border-white/10 bg-black/16 px-4 py-3">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              {copy.chosenActionLabel}
+            </p>
+            <p className="mt-2 text-sm font-semibold leading-6 text-white">
+              {note.chosenAction}
+            </p>
+          </div>
+          <p className="line-clamp-2 text-sm leading-6 text-slate-300">
             {note.uncertainty}
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          {note.board ? (
+            <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
+              {note.board}
+            </span>
+          ) : null}
+          {typeof note.effectiveStackBb === "number" ? (
+            <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
+              {note.effectiveStackBb}bb
+            </span>
+          ) : null}
           {note.leakTagIds.length > 0 ? (
             note.leakTagIds.slice(0, 3).map((leakTagId) => (
               <LeakTagBadge key={leakTagId} leakTagId={leakTagId} />

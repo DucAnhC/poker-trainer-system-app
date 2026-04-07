@@ -31,11 +31,11 @@ function DetailTile({
   }
 
   return (
-    <div className="rounded-[22px] border border-white/10 bg-black/12 px-4 py-4">
+    <div className="rounded-[22px] border border-white/10 bg-black/14 px-4 py-4">
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
         {label}
       </p>
-      <p className="mt-2 text-sm leading-6 text-white">{value}</p>
+      <p className="mt-2 text-sm font-semibold leading-6 text-white">{value}</p>
     </div>
   );
 }
@@ -65,6 +65,12 @@ export function ReviewDetailCard({
   }
 
   const reviewFocusAreas = getReviewNoteFocusAreas(note, 2);
+  const spotLabel =
+    note.heroPosition || note.villainPosition
+      ? `${note.heroPosition ? positionLabels[note.heroPosition] : copy.detailLabels.hero} vs ${
+          note.villainPosition ? positionLabels[note.villainPosition] : copy.detailLabels.villain
+        }`
+      : null;
 
   return (
     <SurfaceCard className="rounded-[32px] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel">
@@ -91,31 +97,59 @@ export function ReviewDetailCard({
         </button>
       </div>
 
-      <div className="mt-5 grid gap-3 md:grid-cols-2">
-        <DetailTile
-          label={copy.detailLabels.hero}
-          value={note.heroPosition ? positionLabels[note.heroPosition] : null}
-        />
-        <DetailTile
-          label={copy.detailLabels.villain}
-          value={note.villainPosition ? positionLabels[note.villainPosition] : null}
-        />
-        <DetailTile
-          label={copy.detailLabels.stack}
-          value={
-            typeof note.effectiveStackBb === "number"
-              ? `${note.effectiveStackBb}bb`
-              : null
-          }
-        />
-        <DetailTile label={copy.detailLabels.board} value={note.board} />
+      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
+        <div className="rounded-[26px] border border-white/10 bg-black/12 p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+              {copy.snapshotLabel}
+            </span>
+            {spotLabel ? (
+              <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+                {spotLabel}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-4 grid gap-3 md:grid-cols-2">
+            <DetailTile
+              label={copy.detailLabels.hero}
+              value={note.heroPosition ? positionLabels[note.heroPosition] : null}
+            />
+            <DetailTile
+              label={copy.detailLabels.villain}
+              value={note.villainPosition ? positionLabels[note.villainPosition] : null}
+            />
+            <DetailTile
+              label={copy.detailLabels.stack}
+              value={
+                typeof note.effectiveStackBb === "number"
+                  ? `${note.effectiveStackBb}bb`
+                  : null
+              }
+            />
+            <DetailTile label={copy.detailLabels.board} value={note.board} />
+          </div>
+        </div>
+
+        <div className="rounded-[26px] border border-white/10 bg-black/12 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+            {copy.decisionNoteLabel}
+          </p>
+          <div className="mt-4 grid gap-3">
+            <DetailTile label={copy.detailLabels.chosenAction} value={note.chosenAction} />
+            <DetailTile label={copy.detailLabels.uncertainty} value={note.uncertainty} />
+            <DetailTile label={copy.detailLabels.note} value={note.note} />
+          </div>
+        </div>
       </div>
 
-      <div className="mt-4 space-y-3">
-        <DetailTile label={copy.detailLabels.actionHistory} value={note.actionHistorySummary} />
-        <DetailTile label={copy.detailLabels.chosenAction} value={note.chosenAction} />
-        <DetailTile label={copy.detailLabels.uncertainty} value={note.uncertainty} />
-        <DetailTile label={copy.detailLabels.note} value={note.note} />
+      <div className="mt-4 rounded-[26px] border border-white/10 bg-black/12 p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+          {copy.detailLabels.actionHistory}
+        </p>
+        <p className="mt-3 text-sm leading-6 text-slate-200">
+          {note.actionHistorySummary}
+        </p>
       </div>
 
       <div className="mt-4 space-y-2">

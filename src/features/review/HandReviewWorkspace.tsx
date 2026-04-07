@@ -165,8 +165,8 @@ export function HandReviewWorkspace() {
   return (
     <div className="space-y-5">
       <section className="rounded-[34px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-5 text-white shadow-panel sm:p-6">
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
-          <div className="space-y-3">
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_340px] xl:items-start">
+          <div className="space-y-4">
             <div className="flex flex-wrap items-center gap-2">
               <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
                 {copy.pageEyebrow}
@@ -194,24 +194,84 @@ export function HandReviewWorkspace() {
                 {copy.pageBody}
               </p>
             </div>
+
+            <div className="grid gap-3 sm:grid-cols-3">
+              <WorkspaceStat
+                label={copy.savedReviews}
+                value={`${notes.length}`}
+                note={storageMode === "account" ? copy.accountMode : copy.localMode}
+              />
+              <WorkspaceStat
+                label={copy.lastUpdated}
+                value={hasLoaded ? formatDateTimeLabel(lastUpdatedAt) : "..."}
+                note={hasLoaded ? copy.pageBody : copy.loadingBody}
+              />
+              <WorkspaceStat
+                label={copy.leakPeak}
+                value={`${getMostTaggedLeakCount(notes)}`}
+                note={copy.followUpLabel}
+              />
+            </div>
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-3 xl:grid-cols-1">
-            <WorkspaceStat
-              label={copy.savedReviews}
-              value={`${notes.length}`}
-              note={storageMode === "account" ? copy.accountMode : copy.localMode}
-            />
-            <WorkspaceStat
-              label={copy.lastUpdated}
-              value={hasLoaded ? formatDateTimeLabel(lastUpdatedAt) : "..."}
-              note={hasLoaded ? copy.pageBody : copy.loadingBody}
-            />
-            <WorkspaceStat
-              label={copy.leakPeak}
-              value={`${getMostTaggedLeakCount(notes)}`}
-              note={copy.followUpLabel}
-            />
+          <div className="rounded-[28px] border border-white/10 bg-black/14 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+              {selectedNote ? copy.detailEyebrow : copy.snapshotLabel}
+            </p>
+            <div className="mt-3 space-y-3">
+              {selectedNote ? (
+                <>
+                  <h2 className="text-2xl font-semibold tracking-tight text-white">
+                    {selectedNote.title}
+                  </h2>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+                      {copy.streetFocusLabels[selectedNote.streetFocus]}
+                    </span>
+                    {selectedNote.heroPosition || selectedNote.villainPosition ? (
+                      <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+                        {(selectedNote.heroPosition ?? "Hero") +
+                          " vs " +
+                          (selectedNote.villainPosition ?? "Villain")}
+                      </span>
+                    ) : null}
+                    {typeof selectedNote.effectiveStackBb === "number" ? (
+                      <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+                        {selectedNote.effectiveStackBb}bb
+                      </span>
+                    ) : null}
+                  </div>
+
+                  <div className="grid gap-3">
+                    <div className="rounded-[22px] border border-cyan-300/20 bg-cyan-300/[0.07] p-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100/85">
+                        {copy.chosenActionLabel}
+                      </p>
+                      <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                        {selectedNote.chosenAction}
+                      </p>
+                    </div>
+                    <div className="rounded-[22px] border border-white/10 bg-black/16 p-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                        {copy.uncertaintyLabel}
+                      </p>
+                      <p className="mt-2 text-sm leading-6 text-slate-200">
+                        {selectedNote.uncertainty}
+                      </p>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  <h2 className="text-2xl font-semibold tracking-tight text-white">
+                    {copy.detailTitle}
+                  </h2>
+                  <p className="text-sm leading-6 text-slate-300">
+                    {copy.detailBody}
+                  </p>
+                </>
+              )}
+            </div>
           </div>
         </div>
       </section>

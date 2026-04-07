@@ -39,7 +39,7 @@ type ReviewFormState = {
 };
 
 const fieldClassName =
-  "w-full rounded-[20px] border border-white/12 bg-black/16 px-4 py-3 text-sm text-white shadow-sm outline-none transition placeholder:text-slate-500 focus:border-cyan-300/35 focus:ring-2 focus:ring-cyan-300/10";
+  "w-full rounded-[22px] border border-white/12 bg-black/18 px-4 py-3 text-sm text-white shadow-sm outline-none transition placeholder:text-slate-500 focus:border-cyan-300/35 focus:ring-2 focus:ring-cyan-300/10";
 
 function createEmptyReviewFormState(): ReviewFormState {
   const emptyDraft = createEmptyHandReviewDraft();
@@ -80,6 +80,16 @@ export function ReviewForm({
   const [formState, setFormState] = useState<ReviewFormState>(
     createEmptyReviewFormState(),
   );
+  const heroPositionLabel =
+    positions.find((position) => position.id === formState.heroPosition)?.label ??
+    copy.notSpecified;
+  const villainPositionLabel =
+    positions.find((position) => position.id === formState.villainPosition)?.label ??
+    copy.notSpecified;
+  const selectedLeakCount = formState.leakTagIds.length;
+  const boardPreview = formState.board.trim();
+  const chosenActionPreview = formState.chosenAction.trim();
+  const uncertaintyPreview = formState.uncertainty.trim();
 
   function updateField<Key extends keyof ReviewFormState>(
     key: Key,
@@ -139,6 +149,77 @@ export function ReviewForm({
       </div>
 
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
+        <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.18),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.22)_100%)] p-4 sm:p-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+              {copy.snapshotLabel}
+            </span>
+            <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              {copy.streetFocusLabels[formState.streetFocus]}
+            </span>
+            {selectedLeakCount > 0 ? (
+              <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+                {copy.leakTagsLabel} x{selectedLeakCount}
+              </span>
+            ) : null}
+          </div>
+
+          <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
+            <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                {copy.titleLabel}
+              </p>
+              <p className="mt-2 text-xl font-semibold tracking-tight text-white">
+                {formState.title.trim() || copy.titlePlaceholder}
+              </p>
+
+              <div className="mt-4 flex flex-wrap gap-2">
+                <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+                  {copy.heroLabel}: {heroPositionLabel}
+                </span>
+                <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+                  {copy.villainLabel}: {villainPositionLabel}
+                </span>
+                <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+                  {copy.stackLabel}:{" "}
+                  {formState.effectiveStackBb.trim()
+                    ? `${formState.effectiveStackBb.trim()}bb`
+                    : "--"}
+                </span>
+              </div>
+
+              <div className="mt-4 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                  {copy.boardLabel}
+                </p>
+                <p className="mt-2 text-sm font-semibold text-white">
+                  {boardPreview || copy.boardPlaceholder}
+                </p>
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              <div className="rounded-[24px] border border-cyan-300/20 bg-cyan-300/[0.07] p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/85">
+                  {copy.chosenActionLabel}
+                </p>
+                <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                  {chosenActionPreview || copy.chosenActionPlaceholder}
+                </p>
+              </div>
+
+              <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                  {copy.uncertaintyLabel}
+                </p>
+                <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                  {uncertaintyPreview || copy.uncertaintyPlaceholder}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div className="rounded-[28px] border border-white/10 bg-black/12 p-4 sm:p-5">
           <div className="space-y-2">
             <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
@@ -370,13 +451,18 @@ export function ReviewForm({
         </div>
 
         <div className="flex flex-wrap items-center justify-between gap-3 rounded-[24px] border border-white/10 bg-black/12 p-4">
-          <p className="text-xs leading-5 text-slate-400">
-            {storageMode === "account" ? copy.storageAccount : copy.storageLocal}
-          </p>
+          <div className="space-y-1">
+            <p className="text-xs leading-5 text-slate-400">
+              {storageMode === "account" ? copy.storageAccount : copy.storageLocal}
+            </p>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+              {copy.leakTagsLabel}: {selectedLeakCount}
+            </p>
+          </div>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:brightness-105"
+            className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_24px_50px_-24px_rgba(34,197,94,0.72)] transition hover:brightness-105"
           >
             {isSubmitting ? copy.savingLabel : copy.saveLabel}
           </button>

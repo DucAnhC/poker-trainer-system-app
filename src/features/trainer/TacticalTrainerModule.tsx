@@ -21,6 +21,7 @@ import {
 } from "@/features/trainer/tactical-trainer-copy";
 import { getScenarioFollowUpSuggestions } from "@/lib/training/follow-up-suggestions";
 import { cn, formatDateTimeLabel, formatPercent } from "@/lib/utils";
+import type { BoardTextureProfile, PlayerArchetypeId } from "@/types/poker";
 import type {
   CandidateAction,
   ContentPack,
@@ -141,8 +142,219 @@ function getActionTypeLabel(
   return labels[actionType];
 }
 
-function isPotOddsOrPostflopModule(moduleId: InteractiveTrainingModuleId) {
-  return moduleId === "pot-odds" || moduleId === "postflop";
+function shouldUseHighTensionDecisionPanel(moduleId: InteractiveTrainingModuleId) {
+  return moduleId !== "preflop";
+}
+
+function getBoardTextureCue(
+  board: BoardTextureProfile | undefined,
+  language: TacticalUiLanguage,
+) {
+  if (!board) {
+    return language === "vi"
+      ? "Đọc texture trước, rồi mới chốt takeaway."
+      : "Read the texture first, then lock the takeaway.";
+  }
+
+  if (board.dynamicLevel === "dynamic") {
+    return language === "vi"
+      ? "Board động, nhiều turn đổi nhịp và caller giữ nhiều draw."
+      : "Dynamic board: many turns swing the node and the caller keeps more draws.";
+  }
+
+  if (board.dynamicLevel === "medium") {
+    return language === "vi"
+      ? "Board trung tính, vẫn có đủ turn làm range pressure đổi hướng."
+      : "Medium texture: enough turn cards still redirect the pressure.";
+  }
+
+  return language === "vi"
+    ? "Board tĩnh, ít lá turn làm spot đổi mạnh."
+    : "Static board: fewer turns swing the spot sharply.";
+}
+
+function getTextureStateChips(
+  board: BoardTextureProfile,
+  language: TacticalUiLanguage,
+) {
+  const labels = getTacticalBoardLabels(board, language);
+
+  return [
+    {
+      label: language === "vi" ? "Suits" : "Suits",
+      value: labels[0],
+    },
+    {
+      label: language === "vi" ? "Kết nối" : "Connectivity",
+      value: labels[1],
+    },
+    {
+      label: language === "vi" ? "Pair" : "Pairing",
+      value: labels[2],
+    },
+    {
+      label: language === "vi" ? "Nhịp" : "Tempo",
+      value: labels[3],
+    },
+  ];
+}
+
+function getTextureSceneTone(board: BoardTextureProfile | undefined) {
+  if (!board) {
+    return "bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.24),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)]";
+  }
+
+  if (board.dynamicLevel === "dynamic") {
+    return "bg-[radial-gradient(circle_at_top,rgba(251,146,60,0.24),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)]";
+  }
+
+  if (board.dynamicLevel === "medium") {
+    return "bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.22),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)]";
+  }
+
+  return "bg-[radial-gradient(circle_at_top,rgba(52,211,153,0.2),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)]";
+}
+
+function getPlayerTypeScene(
+  playerTypeId: PlayerArchetypeId | undefined,
+  language: TacticalUiLanguage,
+) {
+  const fallback = {
+    eyebrow: language === "vi" ? "Villain read" : "Villain read",
+    read:
+      language === "vi"
+        ? "Giữ baseline cho tới khi read đủ mạnh."
+        : "Stay close to baseline until the read is strong enough.",
+    exploit:
+      language === "vi"
+        ? "Chỉ exploit khi tendency thật sự lộ ra."
+        : "Exploit only when the tendency is actually clear.",
+    accent:
+      "border-cyan-300/28 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+    badge:
+      "border-cyan-200/20 bg-cyan-300/12 text-cyan-100",
+  };
+
+  if (!playerTypeId) {
+    return fallback;
+  }
+
+  const themes =
+    language === "vi"
+      ? {
+          nit: {
+            eyebrow: "Nit",
+            read: "Ít bluff ở node lớn, line mạnh thường nặng value.",
+            exploit: "Tôn trọng strength hơn và fold kỷ luật hơn.",
+            accent:
+              "border-amber-300/28 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-amber-200/20 bg-amber-300/12 text-amber-100",
+          },
+          tag: {
+            eyebrow: "TAG",
+            read: "Profile chắc tay, ít node nào đáng bẻ mạnh nếu read còn mỏng.",
+            exploit: "Giữ baseline trước, chỉ lệch khi có dữ liệu rõ.",
+            accent:
+              "border-cyan-300/28 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-cyan-200/20 bg-cyan-300/12 text-cyan-100",
+          },
+          lag: {
+            eyebrow: "LAG",
+            read: "Mở rộng và gây áp lực nhiều hơn mức cân bằng.",
+            exploit: "Tăng re-raise hoặc trap tùy node có fold equity.",
+            accent:
+              "border-orange-300/28 bg-[radial-gradient(circle_at_top,rgba(251,146,60,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-orange-200/20 bg-orange-300/12 text-orange-100",
+          },
+          "calling-station": {
+            eyebrow: "Calling station",
+            read: "Call quá rộng, ghét bỏ bluff-catcher và pair yếu.",
+            exploit: "Value bet mỏng hơn, bluff ít hơn.",
+            accent:
+              "border-emerald-300/28 bg-[radial-gradient(circle_at_top,rgba(52,211,153,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-emerald-200/20 bg-emerald-300/12 text-emerald-100",
+          },
+          maniac: {
+            eyebrow: "Maniac",
+            read: "Over-barrel, over-bluff và ép bluff-catcher nhiều hơn bình thường.",
+            exploit: "Call down rộng hơn với bluff-catcher đáng tin.",
+            accent:
+              "border-rose-300/28 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.26),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-rose-200/20 bg-rose-300/12 text-rose-100",
+          },
+          "passive-rec": {
+            eyebrow: "Passive rec",
+            read: "Chậm nhịp, under-bluff và hay telegraph strength.",
+            exploit: "Bet chủ động hơn, đừng level chính mình.",
+            accent:
+              "border-sky-300/28 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-sky-200/20 bg-sky-300/12 text-sky-100",
+          },
+        }
+      : {
+          nit: {
+            eyebrow: "Nit",
+            read: "Under-bluffs big nodes and arrives value-heavy in strong lines.",
+            exploit: "Respect the strength and fold more cleanly.",
+            accent:
+              "border-amber-300/28 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-amber-200/20 bg-amber-300/12 text-amber-100",
+          },
+          tag: {
+            eyebrow: "TAG",
+            read: "Solid profile, so dramatic exploits need real evidence.",
+            exploit: "Stay baseline-first until the read is clearer.",
+            accent:
+              "border-cyan-300/28 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-cyan-200/20 bg-cyan-300/12 text-cyan-100",
+          },
+          lag: {
+            eyebrow: "LAG",
+            read: "Wide opens and pressure-heavy lines create more exploitable dead money.",
+            exploit: "Lean into re-raises when fold equity is showing.",
+            accent:
+              "border-orange-300/28 bg-[radial-gradient(circle_at_top,rgba(251,146,60,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-orange-200/20 bg-orange-300/12 text-orange-100",
+          },
+          "calling-station": {
+            eyebrow: "Calling station",
+            read: "Calls too wide and hangs on to bluff-catchers too often.",
+            exploit: "Value bet thinner and bluff less often.",
+            accent:
+              "border-emerald-300/28 bg-[radial-gradient(circle_at_top,rgba(52,211,153,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-emerald-200/20 bg-emerald-300/12 text-emerald-100",
+          },
+          maniac: {
+            eyebrow: "Maniac",
+            read: "Over-barrels and over-bluffs enough to stretch bluff-catching.",
+            exploit: "Call down wider when the bluff-catcher is credible.",
+            accent:
+              "border-rose-300/28 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.26),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-rose-200/20 bg-rose-300/12 text-rose-100",
+          },
+          "passive-rec": {
+            eyebrow: "Passive rec",
+            read: "Plays slower, under-bluffs, and telegraphs strength more often.",
+            exploit: "Bet more proactively and do not level yourself.",
+            accent:
+              "border-sky-300/28 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
+            badge:
+              "border-sky-200/20 bg-sky-300/12 text-sky-100",
+          },
+        };
+
+  return themes[playerTypeId] ?? fallback;
 }
 
 function getSpotTiles(
@@ -177,10 +389,53 @@ function getSpotTiles(
       });
     }
 
-    if (scenario.playerArchetypeId) {
+    if (scenario.board) {
       tiles.push({
-        label: copy.playerTypeLabel,
-        value: getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language),
+        label: copy.textureLabel,
+        value: getTacticalBoardLabels(scenario.board, language).join(" / "),
+        wide: true,
+      });
+    }
+
+    return tiles;
+  }
+
+  if (scenario.module === "board-texture") {
+    const tiles: SpotTile[] = [];
+    const spotLabel = language === "vi" ? "Spot" : "Spot";
+
+    if (scenario.heroPosition || scenario.villainPosition) {
+      tiles.push({
+        label: spotLabel,
+        value: `${scenario.heroPosition ?? "-"} vs ${scenario.villainPosition ?? "-"}`,
+      });
+    }
+
+    if (typeof scenario.effectiveStackBb === "number") {
+      tiles.push({
+        label: copy.stackLabel,
+        value: `${scenario.effectiveStackBb}bb`,
+      });
+    }
+
+    return tiles;
+  }
+
+  if (scenario.module === "player-types") {
+    const tiles: SpotTile[] = [];
+    const spotLabel = language === "vi" ? "Spot" : "Spot";
+
+    if (scenario.heroPosition || scenario.villainPosition) {
+      tiles.push({
+        label: spotLabel,
+        value: `${scenario.heroPosition ?? "-"} vs ${scenario.villainPosition ?? "-"}`,
+      });
+    }
+
+    if (typeof scenario.effectiveStackBb === "number") {
+      tiles.push({
+        label: copy.stackLabel,
+        value: `${scenario.effectiveStackBb}bb`,
       });
     }
 
@@ -491,13 +746,14 @@ function ActionLane({
         {steps.map((step, index) => (
           <div key={`${step}-${index}`} className="flex items-center gap-2">
             {index > 0 ? (
-              <span className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-100/45">
-                {"->"}
-              </span>
+              <span className="h-px w-4 rounded-full bg-gradient-to-r from-cyan-300/45 to-emerald-300/25" />
             ) : null}
-            <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
-              {step}
-            </span>
+            <div className="flex items-center gap-2 rounded-[18px] border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-black/15 text-[10px] uppercase tracking-[0.16em] text-slate-300">
+                {index + 1}
+              </span>
+              <span>{step}</span>
+            </div>
           </div>
         ))}
       </div>
@@ -516,7 +772,7 @@ function PotOddsHeroObject({
   const breakEvenPercent =
     getBreakEvenPercent(scenario.potSizeBb, scenario.betToCallBb) ?? "-";
   const finalPotBb = getFinalPotBb(scenario.potSizeBb, scenario.betToCallBb);
-  const mathLineLabel = language === "vi" ? "Math line" : "Math line";
+  const mathLineLabel = language === "vi" ? "Nhịp giá" : "Math line";
 
   return (
     <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.28),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
@@ -591,7 +847,7 @@ function PotOddsHeroObject({
           </p>
           <p className="mt-2 text-lg font-semibold text-white">
             {language === "vi"
-              ? `${scenario.betToCallBb}bb de tranh ${finalPotBb}bb`
+              ? `${scenario.betToCallBb}bb để tranh ${finalPotBb}bb`
               : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`}
           </p>
         </div>
@@ -674,6 +930,232 @@ function PostflopHeroObject({
   );
 }
 
+function BoardTextureHeroObject({
+  language,
+  scenario,
+}: {
+  language: TacticalUiLanguage;
+  scenario: PostflopScenario;
+}) {
+  const copy = getTacticalDrillCopy(language);
+  const boardCards = getVisibleBoardCards(scenario);
+  const textureChips = scenario.board ? getTextureStateChips(scenario.board, language) : [];
+  const boardCue = getBoardTextureCue(scenario.board, language);
+
+  return (
+    <div
+      className={cn(
+        "rounded-[30px] border border-white/12 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5",
+        getTextureSceneTone(scenario.board),
+      )}
+    >
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+          {scenario.street.toUpperCase()}
+        </span>
+        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+          {(scenario.heroPosition ?? "-") + " vs " + (scenario.villainPosition ?? "-")}
+        </span>
+        {typeof scenario.effectiveStackBb === "number" ? (
+          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            {scenario.effectiveStackBb}bb
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
+        <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            {copy.boardLabel}
+          </p>
+          <div className="mt-4 flex flex-wrap items-center gap-3">
+            <TacticalCardRow cards={boardCards} size="xl" />
+          </div>
+
+          <div className="mt-5">
+            <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+              {copy.textureLabel}
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
+              {textureChips.map((chip) => (
+                <div
+                  key={`${chip.label}-${chip.value}`}
+                  className="rounded-[20px] border border-white/10 bg-black/18 px-4 py-3"
+                >
+                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                    {chip.label}
+                  </p>
+                  <p className="mt-1 text-sm font-semibold text-white">{chip.value}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/80">
+              {copy.whyLabel}
+            </p>
+            <p className="mt-2 text-sm font-semibold leading-6 text-white">{boardCue}</p>
+            {scenario.board?.notes[0] ? (
+              <p className="mt-3 text-xs leading-5 text-slate-400">
+                {scenario.board.notes[0]}
+              </p>
+            ) : null}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PlayerTypeHeroObject({
+  language,
+  scenario,
+}: {
+  language: TacticalUiLanguage;
+  scenario: PostflopScenario;
+}) {
+  const copy = getTacticalDrillCopy(language);
+  const boardCards = getVisibleBoardCards(scenario);
+  const heroHandCards = getHeroHandCards(scenario);
+  const playerScene = getPlayerTypeScene(scenario.playerArchetypeId, language);
+  const readLabel = language === "vi" ? "Read" : "Read";
+  const exploitLabel = language === "vi" ? "Exploit" : "Exploit";
+
+  return (
+    <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.16),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+          {scenario.street.toUpperCase()}
+        </span>
+        {scenario.playerArchetypeId ? (
+          <span className={cn("rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]", playerScene.badge)}>
+            {getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)}
+          </span>
+        ) : null}
+        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+          {(scenario.heroPosition ?? "-") + " vs " + (scenario.villainPosition ?? "-")}
+        </span>
+        {typeof scenario.effectiveStackBb === "number" ? (
+          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            {scenario.effectiveStackBb}bb
+          </span>
+        ) : null}
+      </div>
+
+      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(280px,0.86fr)_minmax(0,1.14fr)]">
+        <div className={cn("rounded-[26px] border p-4 shadow-[0_18px_34px_-24px_rgba(15,23,42,0.9)]", playerScene.accent)}>
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
+            {copy.playerTypeLabel}
+          </p>
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-3xl font-semibold tracking-tight text-white">
+                {playerScene.eyebrow}
+              </p>
+              <p className="mt-1 text-sm font-semibold text-white/80">
+                {scenario.playerArchetypeId
+                  ? getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)
+                  : copy.playerTypeLabel}
+              </p>
+            </div>
+            <span className={cn("rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]", playerScene.badge)}>
+              {language === "vi" ? "Tendency" : "Tendency"}
+            </span>
+          </div>
+
+          <div className="mt-4 grid gap-3">
+            <div className="rounded-[20px] border border-white/12 bg-black/18 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                {readLabel}
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                {playerScene.read}
+              </p>
+            </div>
+            <div className="rounded-[20px] border border-white/12 bg-black/18 p-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                {exploitLabel}
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                {playerScene.exploit}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
+            {boardCards.length > 0 ? (
+              <>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                  {copy.boardLabel}
+                </p>
+                <div className="mt-4 flex flex-wrap items-center gap-3">
+                  <TacticalCardRow cards={boardCards} size="xl" />
+                </div>
+              </>
+            ) : (
+              <>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                  {copy.focusLabel}
+                </p>
+                <div className="mt-3 flex flex-wrap gap-2">
+                  <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+                    {(scenario.heroPosition ?? "Hero") + " vs " + (scenario.villainPosition ?? "Villain")}
+                  </span>
+                  {typeof scenario.effectiveStackBb === "number" ? (
+                    <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+                      {scenario.effectiveStackBb}bb
+                    </span>
+                  ) : null}
+                </div>
+              </>
+            )}
+
+            {heroHandCards.length > 0 ? (
+              <div className="mt-5">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                  {copy.handLabel}
+                </p>
+                <div className="mt-3">
+                  <TacticalCardRow cards={heroHandCards} size="lg" />
+                </div>
+              </div>
+            ) : null}
+
+            <div className="mt-5">
+              <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
+            </div>
+          </div>
+
+          {scenario.board ? (
+            <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/80">
+                {copy.textureLabel}
+              </p>
+              <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                {getTacticalBoardLabels(scenario.board, language).join(" / ")}
+              </p>
+              {scenario.board.notes[0] ? (
+                <p className="mt-3 text-xs leading-5 text-slate-400">
+                  {scenario.board.notes[0]}
+                </p>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function ScenarioPrimaryVisual({
   language,
   scenario,
@@ -691,6 +1173,14 @@ function ScenarioPrimaryVisual({
 
   if (scenario.module === "postflop") {
     return <PostflopHeroObject language={language} scenario={scenario} />;
+  }
+
+  if (scenario.module === "board-texture") {
+    return <BoardTextureHeroObject language={language} scenario={scenario} />;
+  }
+
+  if (scenario.module === "player-types") {
+    return <PlayerTypeHeroObject language={language} scenario={scenario} />;
   }
 
   const copy = getTacticalDrillCopy(language);
@@ -774,7 +1264,8 @@ function TacticalSpotPanel({
   const actionLane =
     scenario.module === "preflop" ? scenario.actionHistory : scenario.actionHistory ?? [];
   const showBottomActionLane =
-    scenario.module !== "postflop" && actionLane.length > 0;
+    !["postflop", "board-texture", "player-types"].includes(scenario.module) &&
+    actionLane.length > 0;
   const showSupportRail = spotTiles.length > 0;
 
   return (
@@ -991,7 +1482,7 @@ function TacticalDecisionPanel({
 }) {
   const copy = getTacticalDrillCopy(language);
   const moduleMeta = getTacticalModuleMeta(moduleId, language);
-  const highTension = isPotOddsOrPostflopModule(moduleId);
+  const highTension = shouldUseHighTensionDecisionPanel(moduleId);
   const selectedAction =
     scenario.candidateActions.find((action) => action.id === selectedActionId) ?? null;
   const primaryButtonLabel = hasSubmitted
@@ -1098,8 +1589,8 @@ function ReviewBlock({
   children: ReactNode;
 }) {
   return (
-    <div className={cn("rounded-[28px] border p-5", className)}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+    <div className={cn("rounded-[28px] border border-white/12 bg-black/14 p-5", className)}>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
         {label}
       </p>
       <div className="mt-3 space-y-3">{children}</div>
@@ -1122,12 +1613,12 @@ function TacticalFeedbackPanel({
 
   if (!feedback) {
     return (
-      <section className="rounded-[32px] border border-dashed border-border/80 bg-surface/75 p-5 shadow-panel sm:p-6">
+      <section className="rounded-[32px] border border-white/12 bg-[linear-gradient(180deg,rgba(8,20,35,0.98),rgba(3,10,24,0.96))] p-5 text-white shadow-panel sm:p-6">
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-strong">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
             {copy.nextLabel}
           </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-foreground">
+          <h2 className="text-2xl font-semibold tracking-tight text-white">
             {copy.reviewPlaceholder}
           </h2>
         </div>
@@ -1136,13 +1627,13 @@ function TacticalFeedbackPanel({
           {[copy.resultLabel, copy.bestLineLabel, copy.whyLabel, copy.learnLabel].map((label) => (
             <div
               key={label}
-              className="rounded-[24px] border border-border/70 bg-muted/18 px-4 py-5"
+              className="rounded-[24px] border border-white/10 bg-black/14 px-4 py-5"
             >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 {label}
               </p>
-              <div className="mt-3 h-3 w-24 rounded-full bg-muted" />
-              <div className="mt-2 h-3 w-32 rounded-full bg-muted/80" />
+              <div className="mt-3 h-3 w-24 rounded-full bg-white/10" />
+              <div className="mt-2 h-3 w-32 rounded-full bg-white/5" />
             </div>
           ))}
         </div>
@@ -1174,25 +1665,25 @@ function TacticalFeedbackPanel({
   }).slice(0, 2);
 
   return (
-    <section className="rounded-[32px] border border-border/70 bg-surface/90 p-5 shadow-panel sm:p-6">
+    <section className="rounded-[32px] border border-white/12 bg-[linear-gradient(180deg,rgba(8,20,35,0.98),rgba(3,10,24,0.96))] p-5 text-white shadow-panel sm:p-6">
       <div className="flex flex-wrap items-center gap-2">
         <span
           className={cn(
             "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
             isCorrect
-              ? "border-emerald-200 bg-emerald-50 text-emerald-700"
-              : "border-rose-200 bg-rose-50 text-rose-700",
+              ? "border-emerald-200/30 bg-emerald-300/10 text-emerald-100"
+              : "border-rose-200/30 bg-rose-300/10 text-rose-100",
           )}
         >
           {isCorrect ? copy.correctLabel : copy.incorrectLabel}
         </span>
-        <span className="rounded-full border border-border bg-muted/55 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
           {copy.selectedLineLabel}: {feedback.selectedAction.label}
         </span>
-        <span className="rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-accent-strong">
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
           {copy.bestLineLabel}: {feedback.recommendedAction.label}
         </span>
-        <span className="rounded-full border border-gold/20 bg-gold/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-800">
+        <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
           {getTacticalSourceTypeLabel(scenario.sourceType, language)}
         </span>
       </div>
@@ -1202,40 +1693,43 @@ function TacticalFeedbackPanel({
           label={copy.resultLabel}
           className={cn(
             isCorrect
-              ? "border-emerald-200/70 bg-emerald-50/70"
-              : "border-rose-200/70 bg-rose-50/70",
+              ? "border-emerald-300/28 bg-[linear-gradient(180deg,rgba(6,78,59,0.92),rgba(6,24,28,0.96))]"
+              : "border-rose-300/28 bg-[linear-gradient(180deg,rgba(76,5,25,0.94),rgba(22,8,18,0.96))]",
           )}
         >
           <p
             className={cn(
               "text-3xl font-semibold tracking-tight",
-              isCorrect ? "text-emerald-700" : "text-rose-700",
+              isCorrect ? "text-emerald-100" : "text-rose-100",
             )}
           >
             {isCorrect ? copy.correctLabel : copy.incorrectLabel}
           </p>
-          <p className="text-sm leading-6 text-muted-foreground">
+          <p className="text-sm leading-6 text-white/78">
             {feedback.selectedAction.label}
           </p>
         </ReviewBlock>
 
-        <ReviewBlock label={copy.bestLineLabel} className="border-accent/20 bg-accent/5">
-          <p className="text-2xl font-semibold tracking-tight text-accent-strong">
+        <ReviewBlock
+          label={copy.bestLineLabel}
+          className="border-cyan-300/24 bg-[linear-gradient(180deg,rgba(8,47,73,0.96),rgba(8,23,42,0.96))]"
+        >
+          <p className="text-2xl font-semibold tracking-tight text-cyan-100">
             {feedback.recommendedAction.label}
           </p>
-          <p className="text-sm leading-6 text-muted-foreground">
+          <p className="text-sm leading-6 text-white/78">
             {answerBlock?.body ?? scenario.learningGoal}
           </p>
         </ReviewBlock>
 
-        <ReviewBlock label={copy.whyLabel} className="border-border/70 bg-muted/12">
-          <p className="text-sm leading-6 text-muted-foreground">
+        <ReviewBlock label={copy.whyLabel}>
+          <p className="text-sm leading-6 text-slate-200/90">
             {whyBlock?.body ?? scenario.learningGoal}
           </p>
         </ReviewBlock>
 
-        <ReviewBlock label={copy.learnLabel} className="border-border/70 bg-muted/12">
-          <p className="text-sm leading-6 text-muted-foreground">
+        <ReviewBlock label={copy.learnLabel}>
+          <p className="text-sm leading-6 text-slate-200/90">
             {takeawayBlock?.body ?? scenario.learningGoal}
           </p>
           {!isCorrect && surfacedLeakTags.length > 0 ? (
@@ -1243,7 +1737,7 @@ function TacticalFeedbackPanel({
               {surfacedLeakTags.map((leakLabel) => (
                 <span
                   key={`${scenario.id}-${leakLabel}`}
-                  className="rounded-full border border-rose-200 bg-rose-50 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-rose-700"
+                  className="rounded-full border border-rose-200/30 bg-rose-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-rose-100"
                 >
                   {leakLabel}
                 </span>
@@ -1254,22 +1748,22 @@ function TacticalFeedbackPanel({
       </div>
 
       {!isCorrect && feedback.selectedAction.feedbackHint ? (
-        <div className="mt-4 rounded-[26px] border border-rose-200/70 bg-rose-50/80 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-700">
+        <div className="mt-4 rounded-[26px] border border-rose-200/30 bg-rose-300/10 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-100">
             {copy.driftLabel}
           </p>
-          <p className="mt-2 text-sm leading-6 text-rose-900/80">
+          <p className="mt-2 text-sm leading-6 text-rose-50/90">
             {feedback.selectedAction.feedbackHint}
           </p>
         </div>
       ) : null}
 
       {firstAssumption ? (
-        <div className="mt-4 rounded-[26px] border border-gold/20 bg-gold/10 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-800">
+        <div className="mt-4 rounded-[26px] border border-amber-200/20 bg-amber-300/10 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
             {copy.assumptionsLabel}
           </p>
-          <p className="mt-2 text-sm leading-6 text-muted-foreground">
+          <p className="mt-2 text-sm leading-6 text-slate-200/90">
             {firstAssumption}
           </p>
         </div>
@@ -1280,22 +1774,22 @@ function TacticalFeedbackPanel({
           {followUpSuggestions.map((suggestion) => (
             <div
               key={suggestion.id}
-              className="rounded-[24px] border border-border/70 bg-muted/18 p-4"
+              className="rounded-[24px] border border-white/12 bg-black/14 p-4"
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-accent/20 bg-accent/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-accent-strong">
+                <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
                   {copy.nextLabel}
                 </span>
               </div>
-              <p className="mt-3 text-lg font-semibold text-foreground">
+              <p className="mt-3 text-lg font-semibold text-white">
                 {suggestion.title}
               </p>
-              <p className="mt-2 text-sm leading-6 text-muted-foreground">
+              <p className="mt-2 text-sm leading-6 text-slate-300">
                 {suggestion.reason}
               </p>
               <Link
                 href={suggestion.route}
-                className="mt-4 inline-flex rounded-full border border-border bg-white px-4 py-2 text-sm font-semibold text-foreground transition hover:border-accent/40 hover:text-accent-strong"
+                className="mt-4 inline-flex rounded-full border border-white/12 bg-black/15 px-4 py-2 text-sm font-semibold text-white transition hover:border-cyan-300/25 hover:text-cyan-100"
               >
                 {copy.openPackLabel}
               </Link>
