@@ -50,6 +50,11 @@ export const difficultyLevels: Difficulty[] = [
 export type PersistenceMode = "local" | "account";
 export type TrainingDifficultyFilter = Difficulty | "all";
 export type TrainerQueueMode = "adaptive" | "default";
+export type TrainingAnswerPhase =
+  | "idle"
+  | "selected"
+  | "revealed"
+  | "next-ready";
 export type SourceType = "simplification" | "baseline" | "exploit";
 export type Street = "preflop" | "flop" | "turn" | "river" | "meta";
 export type TrainingMode =

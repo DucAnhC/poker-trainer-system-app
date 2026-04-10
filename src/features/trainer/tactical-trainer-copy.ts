@@ -4,6 +4,7 @@ import type {
   InteractiveTrainingModuleId,
   PersistenceMode,
   SourceType,
+  TrainingAnswerPhase,
   TrainerQueueMode,
 } from "@/types/training";
 
@@ -27,6 +28,8 @@ type TacticalCopy = {
   nextSpotLabel: string;
   finishSetLabel: string;
   restartLabel: string;
+  selectedHint: string;
+  decisionReviewHint: string;
   sessionProgressLabel: string;
   accuracyLabel: string;
   attemptsLabel: string;
@@ -103,6 +106,8 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     nextSpotLabel: "Next spot",
     finishSetLabel: "Finish set",
     restartLabel: "Restart",
+    selectedHint: "The line is ready. Lock it to open the correction.",
+    decisionReviewHint: "Result is open. Review, then move when ready.",
     sessionProgressLabel: "Progress",
     accuracyLabel: "Accuracy",
     attemptsLabel: "Attempts",
@@ -123,7 +128,7 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     driftLabel: "Line drift",
     assumptionsLabel: "Assumption",
     nextLabel: "Study next",
-    reviewPlaceholder: "Submit to open the short correction.",
+    reviewPlaceholder: "Lock a line to open the short correction.",
     correctLabel: "Correct",
     incorrectLabel: "Review",
     heroLabel: "Hero",
@@ -262,6 +267,8 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     nextSpotLabel: "Tình huống tiếp",
     finishSetLabel: "Kết thúc set",
     restartLabel: "Làm lại",
+    selectedHint: "Line đã sẵn. Bấm chốt để mở sửa nhanh.",
+    decisionReviewHint: "Kết quả đã mở. Xem nhanh rồi tự bấm tình huống tiếp.",
     sessionProgressLabel: "Tiến độ",
     accuracyLabel: "Độ chính xác",
     attemptsLabel: "Tổng lượt thử",
@@ -282,7 +289,7 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     driftLabel: "Lệch ở đâu",
     assumptionsLabel: "Giả định",
     nextLabel: "Học tiếp",
-    reviewPlaceholder: "Chọn line rồi xem giải thích.",
+    reviewPlaceholder: "Chốt line để mở sửa nhanh.",
     correctLabel: "Đúng",
     incorrectLabel: "Sai",
     heroLabel: "Hero",
@@ -424,6 +431,24 @@ export function getTacticalUiLanguage(locale: string): TacticalUiLanguage {
 
 export function getTacticalDrillCopy(language: TacticalUiLanguage) {
   return tacticalCopy[language];
+}
+
+export function getTacticalDecisionHint(
+  phase: TrainingAnswerPhase,
+  defaultHint: string,
+  language: TacticalUiLanguage,
+) {
+  const copy = getTacticalDrillCopy(language);
+
+  if (phase === "selected") {
+    return copy.selectedHint;
+  }
+
+  if (phase === "revealed" || phase === "next-ready") {
+    return copy.decisionReviewHint;
+  }
+
+  return defaultHint;
 }
 
 export function getTacticalPackLabel(

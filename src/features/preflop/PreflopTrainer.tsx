@@ -160,8 +160,10 @@ export function PreflopTrainer() {
           language={language}
           scenario={session.currentScenario}
           selectedActionId={session.selectedActionId}
+          answerPhase={session.answerPhase}
           feedback={session.feedback}
           canSubmit={session.canSubmit}
+          canAdvance={session.canAdvance}
           hasSubmitted={session.hasSubmitted}
           isLastScenario={session.isLastScenario}
           onSelectAction={session.handleSelectAction}

@@ -1,9 +1,14 @@
 import { cn } from "@/lib/utils";
-import type { SubmittedAnswerFeedback, TrainingScenario } from "@/types/training";
+import type {
+  SubmittedAnswerFeedback,
+  TrainingAnswerPhase,
+  TrainingScenario,
+} from "@/types/training";
 
 import { PreflopActionButton } from "@/features/preflop/PreflopActionButton";
 import {
   getPreflopActionSummaryLabel,
+  getPreflopDecisionHint,
   getPreflopDrillCopy,
   type PreflopUiLanguage,
 } from "@/features/preflop/preflop-trainer-copy";
@@ -12,8 +17,10 @@ type PreflopDecisionPanelProps = {
   language: PreflopUiLanguage;
   scenario: TrainingScenario;
   selectedActionId: string | null;
+  answerPhase: TrainingAnswerPhase;
   feedback: SubmittedAnswerFeedback | null;
   canSubmit: boolean;
+  canAdvance: boolean;
   hasSubmitted: boolean;
   isLastScenario: boolean;
   onSelectAction: (actionId: string) => void;
@@ -26,8 +33,10 @@ export function PreflopDecisionPanel({
   language,
   scenario,
   selectedActionId,
+  answerPhase,
   feedback,
   canSubmit,
+  canAdvance,
   hasSubmitted,
   isLastScenario,
   onSelectAction,
@@ -41,6 +50,7 @@ export function PreflopDecisionPanel({
   const selectedActionLabel = selectedAction
     ? getPreflopActionSummaryLabel(selectedAction)
     : null;
+  const decisionHint = getPreflopDecisionHint(answerPhase, language);
   const primaryButtonLabel = hasSubmitted
     ? isLastScenario
       ? copy.finishSessionLabel
@@ -59,7 +69,7 @@ export function PreflopDecisionPanel({
           {copy.decisionTitle}
         </h2>
         <p className="text-sm leading-6 text-slate-300">
-          {hasSubmitted ? copy.decisionLockedHint : copy.decisionHint}
+          {decisionHint}
         </p>
       </div>
 
@@ -95,10 +105,10 @@ export function PreflopDecisionPanel({
           <button
             type="button"
             onClick={hasSubmitted ? onNext : onSubmit}
-            disabled={!hasSubmitted && !canSubmit}
+            disabled={hasSubmitted ? !canAdvance : !canSubmit}
             className={cn(
               "w-full rounded-full px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] transition active:scale-[0.99]",
-              !hasSubmitted && !canSubmit
+              (hasSubmitted ? !canAdvance : !canSubmit)
                 ? "cursor-not-allowed bg-slate-600/60 text-slate-300"
                 : "bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] text-white shadow-[0_18px_42px_-22px_rgba(34,197,94,0.7)] hover:brightness-105",
             )}

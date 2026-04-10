@@ -31,6 +31,7 @@ import type {
   QuizAttempt,
   RetryQueueItem,
   SubmittedAnswerFeedback,
+  TrainingAnswerPhase,
   TrainingDifficultyFilter,
   TrainingScenario,
   TrainingSession,
@@ -58,6 +59,9 @@ function buildScenarioSignature(scenarios: TrainingScenario[]) {
 function sortDifficulties(left: Difficulty, right: Difficulty) {
   return difficultyLevels.indexOf(left) - difficultyLevels.indexOf(right);
 }
+
+const SAVE_INDICATOR_DELAY_MS = 180;
+const SAVE_INDICATOR_MIN_VISIBLE_MS = 700;
 
 export function useTrainingSession<T extends TrainingScenario>(
   module: InteractiveTrainingModuleId,
@@ -125,6 +129,7 @@ export function useTrainingSession<T extends TrainingScenario>(
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
+  const [answerPhase, setAnswerPhase] = useState<TrainingAnswerPhase>("idle");
   const [feedback, setFeedback] = useState<SubmittedAnswerFeedback | null>(null);
   const [attemptIds, setAttemptIds] = useState<string[]>([]);
   const [correctCount, setCorrectCount] = useState(0);
@@ -133,10 +138,97 @@ export function useTrainingSession<T extends TrainingScenario>(
   const [completionTimestamp, setCompletionTimestamp] = useState<string | null>(
     null,
   );
-  const [isPersistingAttempt, setIsPersistingAttempt] = useState(false);
-  const [isPersistingSession, setIsPersistingSession] = useState(false);
+  const [isSaveIndicatorVisible, setIsSaveIndicatorVisible] = useState(false);
   const [persistenceError, setPersistenceError] = useState<string | null>(null);
   const hasMountedForScenarioSignature = useRef(false);
+  const isSaveIndicatorVisibleRef = useRef(false);
+  const pendingVisibleSaveCountRef = useRef(0);
+  const saveIndicatorDelayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const saveIndicatorHideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  const saveIndicatorShownAtRef = useRef<number | null>(null);
+  const shouldShowNextSessionSaveRef = useRef(false);
+
+  const clearSaveIndicatorTimers = useCallback(() => {
+    if (saveIndicatorDelayTimeoutRef.current) {
+      clearTimeout(saveIndicatorDelayTimeoutRef.current);
+      saveIndicatorDelayTimeoutRef.current = null;
+    }
+
+    if (saveIndicatorHideTimeoutRef.current) {
+      clearTimeout(saveIndicatorHideTimeoutRef.current);
+      saveIndicatorHideTimeoutRef.current = null;
+    }
+  }, []);
+
+  const setSaveIndicatorVisibility = useCallback((nextVisibility: boolean) => {
+    isSaveIndicatorVisibleRef.current = nextVisibility;
+    setIsSaveIndicatorVisible(nextVisibility);
+  }, []);
+
+  const beginVisibleSave = useCallback(() => {
+    pendingVisibleSaveCountRef.current += 1;
+
+    if (saveIndicatorHideTimeoutRef.current) {
+      clearTimeout(saveIndicatorHideTimeoutRef.current);
+      saveIndicatorHideTimeoutRef.current = null;
+    }
+
+    if (isSaveIndicatorVisibleRef.current || saveIndicatorDelayTimeoutRef.current) {
+      return;
+    }
+
+    saveIndicatorDelayTimeoutRef.current = setTimeout(() => {
+      saveIndicatorDelayTimeoutRef.current = null;
+
+      if (pendingVisibleSaveCountRef.current <= 0) {
+        return;
+      }
+
+      saveIndicatorShownAtRef.current = Date.now();
+      setSaveIndicatorVisibility(true);
+    }, SAVE_INDICATOR_DELAY_MS);
+  }, [setSaveIndicatorVisibility]);
+
+  const endVisibleSave = useCallback(() => {
+    pendingVisibleSaveCountRef.current = Math.max(
+      0,
+      pendingVisibleSaveCountRef.current - 1,
+    );
+
+    if (pendingVisibleSaveCountRef.current > 0) {
+      return;
+    }
+
+    if (saveIndicatorDelayTimeoutRef.current) {
+      clearTimeout(saveIndicatorDelayTimeoutRef.current);
+      saveIndicatorDelayTimeoutRef.current = null;
+    }
+
+    if (!isSaveIndicatorVisibleRef.current) {
+      return;
+    }
+
+    const shownAt = saveIndicatorShownAtRef.current ?? Date.now();
+    const elapsed = Date.now() - shownAt;
+    const remainingVisibleTime = Math.max(
+      SAVE_INDICATOR_MIN_VISIBLE_MS - elapsed,
+      0,
+    );
+
+    if (saveIndicatorHideTimeoutRef.current) {
+      clearTimeout(saveIndicatorHideTimeoutRef.current);
+    }
+
+    saveIndicatorHideTimeoutRef.current = setTimeout(() => {
+      saveIndicatorHideTimeoutRef.current = null;
+      saveIndicatorShownAtRef.current = null;
+      setSaveIndicatorVisibility(false);
+    }, remainingVisibleTime);
+  }, [setSaveIndicatorVisibility]);
 
   const refreshPersistedProgressSummary = useCallback(async () => {
     if (authStatus === "loading") {
@@ -175,6 +267,13 @@ export function useTrainingSession<T extends TrainingScenario>(
       completedAt: completionTimestamp,
     });
 
+  useEffect(
+    () => () => {
+      clearSaveIndicatorTimers();
+    },
+    [clearSaveIndicatorTimers],
+  );
+
   useEffect(() => {
     if (authStatus === "loading") {
       return;
@@ -182,7 +281,13 @@ export function useTrainingSession<T extends TrainingScenario>(
 
     if (isAuthenticated) {
       let isCancelled = false;
-      setIsPersistingSession(true);
+      const showVisibleSave = shouldShowNextSessionSaveRef.current;
+      shouldShowNextSessionSaveRef.current = false;
+
+      if (showVisibleSave) {
+        beginVisibleSave();
+      }
+
       void persistCloudTrainingSession(session)
         .then(() => {
           if (isCancelled) {
@@ -205,7 +310,9 @@ export function useTrainingSession<T extends TrainingScenario>(
         })
         .finally(() => {
           if (!isCancelled) {
-            setIsPersistingSession(false);
+            if (showVisibleSave) {
+              endVisibleSave();
+            }
           }
         });
 
@@ -215,14 +322,26 @@ export function useTrainingSession<T extends TrainingScenario>(
     }
 
     setPersistenceError(null);
-    setIsPersistingSession(false);
-    setIsPersistingAttempt(false);
+    pendingVisibleSaveCountRef.current = 0;
+    shouldShowNextSessionSaveRef.current = false;
+    clearSaveIndicatorTimers();
+    saveIndicatorShownAtRef.current = null;
+    setSaveIndicatorVisibility(false);
     try {
       recordTrainingSession(session);
     } catch {
       setPersistenceError("Không thể ghi tiến độ lên trình duyệt này.");
     }
-  }, [authStatus, isAuthenticated, refreshPersistedProgressSummary, session]);
+  }, [
+    authStatus,
+    beginVisibleSave,
+    endVisibleSave,
+    isAuthenticated,
+    refreshPersistedProgressSummary,
+    session,
+    clearSaveIndicatorTimers,
+    setSaveIndicatorVisibility,
+  ]);
 
   useEffect(() => {
     void refreshPersistedProgressSummary();
@@ -247,6 +366,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     setSession(nextSession);
     setCurrentIndex(0);
     setSelectedActionId(null);
+    setAnswerPhase("idle");
     setFeedback(null);
     setAttemptIds([]);
     setCorrectCount(0);
@@ -254,20 +374,40 @@ export function useTrainingSession<T extends TrainingScenario>(
     setCompletionTimestamp(null);
     setIsComplete(activeScenarioIds.length === 0);
     setPersistenceError(null);
-    setIsPersistingAttempt(false);
-    setIsPersistingSession(false);
+    pendingVisibleSaveCountRef.current = 0;
+    shouldShowNextSessionSaveRef.current = false;
+    clearSaveIndicatorTimers();
+    saveIndicatorShownAtRef.current = null;
+    setSaveIndicatorVisibility(false);
   }, [activeScenarioIds, module, scenarioSignature]);
 
+  useEffect(() => {
+    if (!feedback || answerPhase !== "revealed") {
+      return;
+    }
+
+    const nextReadyTimer = setTimeout(() => {
+      setAnswerPhase((currentPhase) =>
+        currentPhase === "revealed" ? "next-ready" : currentPhase,
+      );
+    }, 0);
+
+    return () => {
+      clearTimeout(nextReadyTimer);
+    };
+  }, [answerPhase, feedback]);
+
   function handleSelectAction(actionId: string) {
-    if (feedback || isComplete) {
+    if (feedback || isComplete || answerPhase === "revealed") {
       return;
     }
 
     setSelectedActionId(actionId);
+    setAnswerPhase("selected");
   }
 
   function handleSubmitAnswer() {
-    if (!currentScenario || !selectedActionId || feedback) {
+    if (!currentScenario || !selectedActionId || feedback || answerPhase !== "selected") {
       return;
     }
 
@@ -317,8 +457,8 @@ export function useTrainingSession<T extends TrainingScenario>(
     };
 
     if (isAuthenticated) {
-      setIsPersistingAttempt(true);
       setPersistenceError(null);
+      beginVisibleSave();
       void persistCloudQuizAttempt(attempt)
         .then(() => {
           setPersistenceError(null);
@@ -332,7 +472,7 @@ export function useTrainingSession<T extends TrainingScenario>(
           );
         })
         .finally(() => {
-          setIsPersistingAttempt(false);
+          endVisibleSave();
         });
     } else {
       try {
@@ -343,11 +483,15 @@ export function useTrainingSession<T extends TrainingScenario>(
       }
     }
 
+    if (isAuthenticated) {
+      shouldShowNextSessionSaveRef.current = true;
+    }
+
     setSession(nextSession);
     setAttemptIds(nextAttemptIds);
     setCorrectCount(nextCorrectCount);
     setSurfacedLeakTags(nextSurfacedLeakTags);
-
+    setAnswerPhase("revealed");
     setFeedback({
       attempt,
       selectedAction,
@@ -356,7 +500,7 @@ export function useTrainingSession<T extends TrainingScenario>(
   }
 
   function handleNextScenario() {
-    if (!feedback) {
+    if (!feedback || answerPhase !== "next-ready") {
       return;
     }
 
@@ -368,6 +512,10 @@ export function useTrainingSession<T extends TrainingScenario>(
         completedAt,
       };
 
+      if (isAuthenticated) {
+        shouldShowNextSessionSaveRef.current = true;
+      }
+
       setSession(completedSession);
       setCompletionTimestamp(completedAt);
       setIsComplete(true);
@@ -376,6 +524,7 @@ export function useTrainingSession<T extends TrainingScenario>(
 
     setCurrentIndex((index) => index + 1);
     setSelectedActionId(null);
+    setAnswerPhase("idle");
     setFeedback(null);
   }
 
@@ -388,6 +537,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     setSession(nextSession);
     setCurrentIndex(0);
     setSelectedActionId(null);
+    setAnswerPhase("idle");
     setFeedback(null);
     setAttemptIds([]);
     setCorrectCount(0);
@@ -395,8 +545,11 @@ export function useTrainingSession<T extends TrainingScenario>(
     setCompletionTimestamp(null);
     setIsComplete(activeScenarioIds.length === 0);
     setPersistenceError(null);
-    setIsPersistingAttempt(false);
-    setIsPersistingSession(false);
+    pendingVisibleSaveCountRef.current = 0;
+    shouldShowNextSessionSaveRef.current = false;
+    clearSaveIndicatorTimers();
+    saveIndicatorShownAtRef.current = null;
+    setSaveIndicatorVisibility(false);
   }
 
   return {
@@ -407,6 +560,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     currentScenario,
     currentIndex,
     selectedActionId,
+    answerPhase,
     feedback,
     isComplete,
     questionNumber: currentIndex + 1,
@@ -415,13 +569,14 @@ export function useTrainingSession<T extends TrainingScenario>(
     correctCount,
     accuracy:
       calculateAccuracy(correctCount, attemptIds.length),
-    hasSubmitted: Boolean(feedback),
+    hasSubmitted:
+      answerPhase === "revealed" || answerPhase === "next-ready",
     isLastScenario: currentIndex === activeScenarios.length - 1,
-    canSubmit: Boolean(selectedActionId) && !feedback,
+    canSubmit: answerPhase === "selected" && Boolean(selectedActionId),
+    canAdvance: answerPhase === "next-ready" && Boolean(feedback),
     completionTimestamp,
     storageMode,
-    isPersisting:
-      storageMode === "account" && (isPersistingAttempt || isPersistingSession),
+    isPersisting: storageMode === "account" && isSaveIndicatorVisible,
     persistenceError,
     overallProgressSummary,
     currentSessionSummary,

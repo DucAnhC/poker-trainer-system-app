@@ -6,6 +6,7 @@ import type {
   PersistenceMode,
   PreflopScenario,
   SourceType,
+  TrainingAnswerPhase,
   TrainerQueueMode,
   TrainingDifficultyFilter,
 } from "@/types/training";
@@ -265,6 +266,7 @@ type PreflopDrillCopy = {
   decisionEyebrow: string;
   decisionTitle: string;
   decisionHint: string;
+  decisionSelectedHint: string;
   decisionLockedHint: string;
   selectedLineLabel: string;
   noLineSelected: string;
@@ -324,6 +326,7 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     decisionEyebrow: "Quyết định",
     decisionTitle: "Chọn line",
     decisionHint: "Bấm 1 line rồi chốt.",
+    decisionSelectedHint: "Line đã sẵn. Bấm chốt để mở kết quả.",
     decisionLockedHint: "Line đã khóa. Xem sửa nhanh rồi qua tình huống tiếp.",
     selectedLineLabel: "Line đang chọn",
     noLineSelected: "Chưa chọn line",
@@ -332,7 +335,7 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     finishSessionLabel: "Kết thúc loạt",
     restartLabel: "Làm lại loạt",
     reviewEyebrow: "Sửa nhanh",
-    reviewPlaceholder: "Chọn line rồi xem giải thích ngắn.",
+    reviewPlaceholder: "Chốt line để mở kết quả ngắn.",
     resultLabel: "Kết quả",
     recommendedLineLabel: "Line chuẩn",
     whyLabel: "Vì sao",
@@ -381,6 +384,7 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     decisionEyebrow: "Decision",
     decisionTitle: "Choose the line",
     decisionHint: "Pick one line and lock it.",
+    decisionSelectedHint: "The line is ready. Lock it to open the result.",
     decisionLockedHint: "The line is locked. Review and move on.",
     selectedLineLabel: "Current line",
     noLineSelected: "No line selected",
@@ -389,7 +393,7 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     finishSessionLabel: "Finish set",
     restartLabel: "Restart set",
     reviewEyebrow: "Review",
-    reviewPlaceholder: "Lock a line to open the result, best action, and short notes.",
+    reviewPlaceholder: "Lock a line to open the short result and best line.",
     resultLabel: "Result",
     recommendedLineLabel: "Best line",
     whyLabel: "Why",
@@ -415,4 +419,21 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
 
 export function getPreflopDrillCopy(language: PreflopUiLanguage) {
   return preflopDrillCopy[language];
+}
+
+export function getPreflopDecisionHint(
+  phase: TrainingAnswerPhase,
+  language: PreflopUiLanguage,
+) {
+  const copy = getPreflopDrillCopy(language);
+
+  if (phase === "selected") {
+    return copy.decisionSelectedHint;
+  }
+
+  if (phase === "revealed" || phase === "next-ready") {
+    return copy.decisionLockedHint;
+  }
+
+  return copy.decisionHint;
 }

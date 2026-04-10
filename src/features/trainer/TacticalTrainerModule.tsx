@@ -9,6 +9,7 @@ import { TacticalCardRow } from "@/features/trainer/TacticalCardVisual";
 import { useTrainerModuleSession } from "@/features/trainer/useTrainerModuleSession";
 import {
   getTacticalBoardLabels,
+  getTacticalDecisionHint,
   getTacticalDifficultyLabel,
   getTacticalDrillCopy,
   getTacticalModuleMeta,
@@ -33,6 +34,7 @@ import type {
   ProgressSummary,
   RetryQueueItem,
   SubmittedAnswerFeedback,
+  TrainingAnswerPhase,
   TrainingDifficultyFilter,
   TrainingScenario,
   TrainerQueueMode,
@@ -1429,7 +1431,9 @@ function TacticalDecisionPanel({
   scenario,
   feedback,
   selectedActionId,
+  answerPhase,
   canSubmit,
+  canAdvance,
   hasSubmitted,
   isLastScenario,
   onSelectAction,
@@ -1442,7 +1446,9 @@ function TacticalDecisionPanel({
   scenario: TrainingScenario;
   feedback: SubmittedAnswerFeedback | null;
   selectedActionId: string | null;
+  answerPhase: TrainingAnswerPhase;
   canSubmit: boolean;
+  canAdvance: boolean;
   hasSubmitted: boolean;
   isLastScenario: boolean;
   onSelectAction: (actionId: string) => void;
@@ -1455,6 +1461,11 @@ function TacticalDecisionPanel({
   const highTension = shouldUseHighTensionDecisionPanel(moduleId);
   const selectedAction =
     scenario.candidateActions.find((action) => action.id === selectedActionId) ?? null;
+  const decisionHint = getTacticalDecisionHint(
+    answerPhase,
+    moduleMeta.decisionHint,
+    language,
+  );
   const primaryButtonLabel = hasSubmitted
     ? isLastScenario
       ? copy.finishSetLabel
@@ -1473,7 +1484,7 @@ function TacticalDecisionPanel({
           {moduleMeta.decisionTitle}
         </h2>
         <p className="text-sm leading-6 text-slate-300">
-          {hasSubmitted ? copy.reviewPlaceholder : moduleMeta.decisionHint}
+          {decisionHint}
         </p>
       </div>
 
@@ -1524,11 +1535,11 @@ function TacticalDecisionPanel({
           <button
             type="button"
             onClick={hasSubmitted ? onNext : onSubmit}
-            disabled={!hasSubmitted && !canSubmit}
+            disabled={hasSubmitted ? !canAdvance : !canSubmit}
             className={cn(
               "w-full rounded-full px-5 text-sm font-semibold uppercase tracking-[0.16em] transition active:scale-[0.99]",
               highTension ? "py-5" : "py-4",
-              !hasSubmitted && !canSubmit
+              (hasSubmitted ? !canAdvance : !canSubmit)
                 ? "cursor-not-allowed bg-slate-600/60 text-slate-300"
                 : "bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] text-white shadow-[0_24px_50px_-24px_rgba(34,197,94,0.72)] hover:brightness-105",
             )}
@@ -1955,7 +1966,9 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
           scenario={session.currentScenario}
           feedback={session.feedback}
           selectedActionId={session.selectedActionId}
+          answerPhase={session.answerPhase}
           canSubmit={session.canSubmit}
+          canAdvance={session.canAdvance}
           hasSubmitted={session.hasSubmitted}
           isLastScenario={session.isLastScenario}
           onSelectAction={session.handleSelectAction}

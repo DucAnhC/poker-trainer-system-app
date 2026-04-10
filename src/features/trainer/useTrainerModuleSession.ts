@@ -52,27 +52,32 @@ export function useTrainerModuleSession<T extends TrainingScenario>(
   const requestedPackIsValid = availableContentPacks.some(
     (contentPack) => contentPack.id === requestedPackId,
   );
+  const requestedOrDefaultPackId = requestedPackIsValid
+    ? requestedPackId
+    : defaultPackId;
 
   const [selectedContentPackId, setSelectedContentPackId] = useState<string | null>(
-    requestedPackIsValid ? requestedPackId : defaultPackId,
+    requestedOrDefaultPackId,
   );
   const [selectedDifficulty, setSelectedDifficulty] =
     useState<TrainingDifficultyFilter>(requestedDifficulty ?? "all");
   const [queueMode, setQueueMode] = useState<TrainerQueueMode>("adaptive");
 
   useEffect(() => {
-    const nextPackId = requestedPackIsValid ? requestedPackId : defaultPackId;
-
-    if (nextPackId && nextPackId !== selectedContentPackId) {
-      setSelectedContentPackId(nextPackId);
-    }
-  }, [defaultPackId, requestedPackId, requestedPackIsValid, selectedContentPackId]);
+    setSelectedContentPackId((currentPackId) =>
+      currentPackId === requestedOrDefaultPackId
+        ? currentPackId
+        : requestedOrDefaultPackId,
+    );
+  }, [requestedOrDefaultPackId]);
 
   useEffect(() => {
-    if (requestedDifficulty && requestedDifficulty !== selectedDifficulty) {
-      setSelectedDifficulty(requestedDifficulty);
-    }
-  }, [requestedDifficulty, selectedDifficulty]);
+    const nextDifficulty = requestedDifficulty ?? "all";
+
+    setSelectedDifficulty((currentDifficulty) =>
+      currentDifficulty === nextDifficulty ? currentDifficulty : nextDifficulty,
+    );
+  }, [requestedDifficulty]);
 
   const filteredScenarios = useMemo(
     () =>
