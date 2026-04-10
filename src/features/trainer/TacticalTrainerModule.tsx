@@ -12,6 +12,7 @@ import {
   getTacticalDifficultyLabel,
   getTacticalDrillCopy,
   getTacticalModuleMeta,
+  getTacticalPackLabel,
   getTacticalPlayerTypeLabel,
   getTacticalQueueModeLabel,
   getTacticalSourceTypeLabel,
@@ -152,24 +153,24 @@ function getBoardTextureCue(
 ) {
   if (!board) {
     return language === "vi"
-      ? "Đọc texture trước, rồi mới chốt takeaway."
+      ? "Đọc kết cấu board trước, rồi mới chốt ý chính."
       : "Read the texture first, then lock the takeaway.";
   }
 
   if (board.dynamicLevel === "dynamic") {
     return language === "vi"
-      ? "Board động, nhiều turn đổi nhịp và caller giữ nhiều draw."
+      ? "Board động, nhiều turn đổi nhịp và người call giữ nhiều draw."
       : "Dynamic board: many turns swing the node and the caller keeps more draws.";
   }
 
   if (board.dynamicLevel === "medium") {
     return language === "vi"
-      ? "Board trung tính, vẫn có đủ turn làm range pressure đổi hướng."
+      ? "Board trung tính, vẫn có đủ turn làm áp lực range đổi hướng."
       : "Medium texture: enough turn cards still redirect the pressure.";
   }
 
   return language === "vi"
-    ? "Board tĩnh, ít lá turn làm spot đổi mạnh."
+    ? "Board tĩnh, ít lá turn làm tình huống đổi mạnh."
     : "Static board: fewer turns swing the spot sharply.";
 }
 
@@ -181,7 +182,7 @@ function getTextureStateChips(
 
   return [
     {
-      label: language === "vi" ? "Suits" : "Suits",
+      label: language === "vi" ? "Màu" : "Suits",
       value: labels[0],
     },
     {
@@ -189,7 +190,7 @@ function getTextureStateChips(
       value: labels[1],
     },
     {
-      label: language === "vi" ? "Pair" : "Pairing",
+      label: language === "vi" ? "Đôi" : "Pairing",
       value: labels[2],
     },
     {
@@ -220,14 +221,14 @@ function getPlayerTypeScene(
   language: TacticalUiLanguage,
 ) {
   const fallback = {
-    eyebrow: language === "vi" ? "Villain read" : "Villain read",
+    eyebrow: language === "vi" ? "Đọc villain" : "Villain read",
     read:
       language === "vi"
-        ? "Giữ baseline cho tới khi read đủ mạnh."
+        ? "Giữ cơ bản trước khi có read đủ mạnh."
         : "Stay close to baseline until the read is strong enough.",
     exploit:
       language === "vi"
-        ? "Chỉ exploit khi tendency thật sự lộ ra."
+        ? "Chỉ exploit khi xu hướng thật sự lộ ra."
         : "Exploit only when the tendency is actually clear.",
     accent:
       "border-cyan-300/28 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
@@ -245,7 +246,7 @@ function getPlayerTypeScene(
           nit: {
             eyebrow: "Nit",
             read: "Ít bluff ở node lớn, line mạnh thường nặng value.",
-            exploit: "Tôn trọng strength hơn và fold kỷ luật hơn.",
+            exploit: "Tôn trọng lực tay hơn và fold kỷ luật hơn.",
             accent:
               "border-amber-300/28 bg-[radial-gradient(circle_at_top,rgba(251,191,36,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
             badge:
@@ -254,7 +255,7 @@ function getPlayerTypeScene(
           tag: {
             eyebrow: "TAG",
             read: "Profile chắc tay, ít node nào đáng bẻ mạnh nếu read còn mỏng.",
-            exploit: "Giữ baseline trước, chỉ lệch khi có dữ liệu rõ.",
+            exploit: "Giữ cơ bản trước, chỉ lệch khi có dữ liệu rõ.",
             accent:
               "border-cyan-300/28 bg-[radial-gradient(circle_at_top,rgba(34,211,238,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
             badge:
@@ -288,9 +289,9 @@ function getPlayerTypeScene(
               "border-rose-200/20 bg-rose-300/12 text-rose-100",
           },
           "passive-rec": {
-            eyebrow: "Passive rec",
-            read: "Chậm nhịp, under-bluff và hay telegraph strength.",
-            exploit: "Bet chủ động hơn, đừng level chính mình.",
+            eyebrow: "Rec thụ động",
+            read: "Chậm nhịp, under-bluff và hay lộ lực tay.",
+            exploit: "Bet chủ động hơn, đừng tự level chính mình.",
             accent:
               "border-sky-300/28 bg-[radial-gradient(circle_at_top,rgba(56,189,248,0.24),rgba(8,23,42,0.2)_58%,rgba(3,7,18,0.96)_100%)]",
             badge:
@@ -372,82 +373,15 @@ function getSpotTiles(
   }
 
   if (scenario.module === "postflop") {
-    const tiles: SpotTile[] = [];
-    const spotLabel = language === "vi" ? "Spot" : "Spot";
-
-    if (scenario.heroPosition || scenario.villainPosition) {
-      tiles.push({
-        label: spotLabel,
-        value: `${scenario.heroPosition ?? "-"} vs ${scenario.villainPosition ?? "-"}`,
-      });
-    }
-
-    if (typeof scenario.effectiveStackBb === "number") {
-      tiles.push({
-        label: copy.stackLabel,
-        value: `${scenario.effectiveStackBb}bb`,
-      });
-    }
-
-    if (scenario.board) {
-      tiles.push({
-        label: copy.textureLabel,
-        value: getTacticalBoardLabels(scenario.board, language).join(" / "),
-        wide: true,
-      });
-    }
-
-    return tiles;
+    return [] satisfies SpotTile[];
   }
 
   if (scenario.module === "board-texture") {
-    const tiles: SpotTile[] = [];
-    const spotLabel = language === "vi" ? "Spot" : "Spot";
-
-    if (scenario.heroPosition || scenario.villainPosition) {
-      tiles.push({
-        label: spotLabel,
-        value: `${scenario.heroPosition ?? "-"} vs ${scenario.villainPosition ?? "-"}`,
-      });
-    }
-
-    if (typeof scenario.effectiveStackBb === "number") {
-      tiles.push({
-        label: copy.stackLabel,
-        value: `${scenario.effectiveStackBb}bb`,
-      });
-    }
-
-    return tiles;
+    return [] satisfies SpotTile[];
   }
 
   if (scenario.module === "player-types") {
-    const tiles: SpotTile[] = [];
-    const spotLabel = language === "vi" ? "Spot" : "Spot";
-
-    if (scenario.heroPosition || scenario.villainPosition) {
-      tiles.push({
-        label: spotLabel,
-        value: `${scenario.heroPosition ?? "-"} vs ${scenario.villainPosition ?? "-"}`,
-      });
-    }
-
-    if (typeof scenario.effectiveStackBb === "number") {
-      tiles.push({
-        label: copy.stackLabel,
-        value: `${scenario.effectiveStackBb}bb`,
-      });
-    }
-
-    if (scenario.board) {
-      tiles.push({
-        label: copy.textureLabel,
-        value: getTacticalBoardLabels(scenario.board, language).join(" / "),
-        wide: true,
-      });
-    }
-
-    return tiles;
+    return [] satisfies SpotTile[];
   }
 
   const tiles: SpotTile[] = [{ label: copy.streetLabel, value: scenario.street.toUpperCase() }];
@@ -606,7 +540,11 @@ function TacticalSessionStrip({
               {moduleMeta.title}
             </span>
             <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-              {activeContentPack.focusLabel}
+              {getTacticalPackLabel(
+                activeContentPack.id,
+                activeContentPack.focusLabel,
+                language,
+              )}
             </span>
             <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
               {getTacticalStorageLabel(storageMode, language)}
@@ -634,7 +572,12 @@ function TacticalSessionStrip({
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
               <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
-                {copy.packLabel}: {activeContentPack.focusLabel}
+                {copy.packLabel}:{" "}
+                {getTacticalPackLabel(
+                  activeContentPack.id,
+                  activeContentPack.focusLabel,
+                  language,
+                )}
               </span>
               <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
                 {copy.levelLabel}: {getTacticalDifficultyLabel(selectedDifficulty, language)}
@@ -664,7 +607,7 @@ function TacticalSessionStrip({
               isActive={selectedContentPackId === contentPack.id}
               onClick={() => onSelectContentPack(contentPack.id)}
             >
-              {contentPack.focusLabel}{" "}
+              {getTacticalPackLabel(contentPack.id, contentPack.focusLabel, language)}{" "}
               <span className="text-slate-300/75">
                 ({scenarioCountByPackId[contentPack.id] ?? 0})
               </span>
@@ -742,13 +685,13 @@ function ActionLane({
       <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
         {label}
       </p>
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
         {steps.map((step, index) => (
-          <div key={`${step}-${index}`} className="flex items-center gap-2">
+          <div key={`${step}-${index}`} className="flex shrink-0 items-center gap-2">
             {index > 0 ? (
               <span className="h-px w-4 rounded-full bg-gradient-to-r from-cyan-300/45 to-emerald-300/25" />
             ) : null}
-            <div className="flex items-center gap-2 rounded-[18px] border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+            <div className="flex items-center gap-2 whitespace-nowrap rounded-[18px] border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
               <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-black/15 text-[10px] uppercase tracking-[0.16em] text-slate-300">
                 {index + 1}
               </span>
@@ -772,7 +715,7 @@ function PotOddsHeroObject({
   const breakEvenPercent =
     getBreakEvenPercent(scenario.potSizeBb, scenario.betToCallBb) ?? "-";
   const finalPotBb = getFinalPotBb(scenario.potSizeBb, scenario.betToCallBb);
-  const mathLineLabel = language === "vi" ? "Nhịp giá" : "Math line";
+  const mathLineLabel = language === "vi" ? "Dòng tính nhanh" : "Math line";
 
   return (
     <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.28),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
@@ -888,35 +831,53 @@ function PostflopHeroObject({
         ) : null}
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_240px]">
-        <div className="rounded-[26px] border border-white/12 bg-black/16 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-            {copy.boardLabel}
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <TacticalCardRow cards={boardCards} size="xl" />
-          </div>
-
-          <div className="mt-5">
-            <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
-          </div>
+      <div className="mt-5 rounded-[26px] border border-white/12 bg-black/16 p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+          {copy.boardLabel}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <TacticalCardRow cards={boardCards} size="xl" />
         </div>
 
-        <div className="space-y-4">
-          {heroHandCards.length > 0 ? (
-            <div className="rounded-[24px] border border-white/12 bg-black/16 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-                {copy.handLabel}
-              </p>
-              <div className="mt-4">
-                <TacticalCardRow cards={heroHandCards} size="lg" />
-              </div>
-            </div>
-          ) : null}
+        <div className="mt-5">
+          <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
+        </div>
+      </div>
 
+      <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(260px,0.78fr)_minmax(0,1.22fr)]">
+        {heroHandCards.length > 0 ? (
+          <div className="rounded-[24px] border border-white/12 bg-black/16 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+              {copy.handLabel}
+            </p>
+            <div className="mt-4">
+              <TacticalCardRow cards={heroHandCards} size="lg" />
+            </div>
+          </div>
+        ) : null}
+
+        <div className="rounded-[24px] border border-white/12 bg-black/16 p-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            {copy.focusLabel}
+          </p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+              {(scenario.heroPosition ?? "-") + " vs " + (scenario.villainPosition ?? "-")}
+            </span>
+            {typeof scenario.effectiveStackBb === "number" ? (
+              <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+                {scenario.effectiveStackBb}bb
+              </span>
+            ) : null}
+            {scenario.playerArchetypeId ? (
+              <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-2 text-sm font-semibold text-amber-100">
+                {getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)}
+              </span>
+            ) : null}
+          </div>
           {scenario.board ? (
-            <div className="rounded-[24px] border border-white/12 bg-black/16 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            <div className="mt-4 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 {copy.textureLabel}
               </p>
               <p className="mt-2 text-sm font-semibold leading-6 text-white">
@@ -963,51 +924,44 @@ function BoardTextureHeroObject({
         ) : null}
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,1fr)_280px]">
-        <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-            {copy.boardLabel}
-          </p>
-          <div className="mt-4 flex flex-wrap items-center gap-3">
-            <TacticalCardRow cards={boardCards} size="xl" />
-          </div>
-
-          <div className="mt-5">
-            <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
-          </div>
+      <div className="mt-5 rounded-[26px] border border-white/12 bg-black/18 p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+          {copy.boardLabel}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center gap-3">
+          <TacticalCardRow cards={boardCards} size="xl" />
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-              {copy.textureLabel}
-            </p>
-            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-1">
-              {textureChips.map((chip) => (
-                <div
-                  key={`${chip.label}-${chip.value}`}
-                  className="rounded-[20px] border border-white/10 bg-black/18 px-4 py-3"
-                >
-                  <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                    {chip.label}
-                  </p>
-                  <p className="mt-1 text-sm font-semibold text-white">{chip.value}</p>
-                </div>
-              ))}
-            </div>
-          </div>
+        <div className="mt-5">
+          <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
+        </div>
+      </div>
 
-          <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/80">
-              {copy.whyLabel}
+      <div className="mt-4 rounded-[24px] border border-white/12 bg-black/18 p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+          {copy.textureLabel}
+        </p>
+        <div className="mt-3 flex flex-wrap gap-2">
+          {textureChips.map((chip) => (
+            <span
+              key={`${chip.label}-${chip.value}`}
+              className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92"
+            >
+              {chip.value}
+            </span>
+          ))}
+        </div>
+
+        <div className="mt-4 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/80">
+            {copy.whyLabel}
+          </p>
+          <p className="mt-2 text-sm font-semibold leading-6 text-white">{boardCue}</p>
+          {scenario.board?.notes[0] ? (
+            <p className="mt-3 text-xs leading-5 text-slate-400">
+              {scenario.board.notes[0]}
             </p>
-            <p className="mt-2 text-sm font-semibold leading-6 text-white">{boardCue}</p>
-            {scenario.board?.notes[0] ? (
-              <p className="mt-3 text-xs leading-5 text-slate-400">
-                {scenario.board.notes[0]}
-              </p>
-            ) : null}
-          </div>
+          ) : null}
         </div>
       </div>
     </div>
@@ -1025,8 +979,9 @@ function PlayerTypeHeroObject({
   const boardCards = getVisibleBoardCards(scenario);
   const heroHandCards = getHeroHandCards(scenario);
   const playerScene = getPlayerTypeScene(scenario.playerArchetypeId, language);
-  const readLabel = language === "vi" ? "Read" : "Read";
-  const exploitLabel = language === "vi" ? "Exploit" : "Exploit";
+  const readLabel = language === "vi" ? "Xu hướng" : "Read";
+  const exploitLabel = language === "vi" ? "Hướng exploit" : "Exploit";
+  const tendencyLabel = language === "vi" ? "Xu hướng" : "Tendency";
 
   return (
     <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.16),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
@@ -1049,7 +1004,7 @@ function PlayerTypeHeroObject({
         ) : null}
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(280px,0.86fr)_minmax(0,1.14fr)]">
+      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(320px,0.86fr)_minmax(0,1.14fr)]">
         <div className={cn("rounded-[26px] border p-4 shadow-[0_18px_34px_-24px_rgba(15,23,42,0.9)]", playerScene.accent)}>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
             {copy.playerTypeLabel}
@@ -1066,7 +1021,7 @@ function PlayerTypeHeroObject({
               </p>
             </div>
             <span className={cn("rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]", playerScene.badge)}>
-              {language === "vi" ? "Tendency" : "Tendency"}
+              {tendencyLabel}
             </span>
           </div>
 
@@ -1090,8 +1045,7 @@ function PlayerTypeHeroObject({
           </div>
         </div>
 
-        <div className="space-y-4">
-          <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
+        <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
             {boardCards.length > 0 ? (
               <>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
@@ -1119,8 +1073,9 @@ function PlayerTypeHeroObject({
               </>
             )}
 
+          <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(220px,0.72fr)_minmax(0,1.28fr)]">
             {heroHandCards.length > 0 ? (
-              <div className="mt-5">
+              <div>
                 <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
                   {copy.handLabel}
                 </p>
@@ -1130,27 +1085,27 @@ function PlayerTypeHeroObject({
               </div>
             ) : null}
 
-            <div className="mt-5">
-              <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
-            </div>
-          </div>
-
-          {scenario.board ? (
-            <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/80">
-                {copy.textureLabel}
-              </p>
-              <p className="mt-2 text-sm font-semibold leading-6 text-white">
-                {getTacticalBoardLabels(scenario.board, language).join(" / ")}
-              </p>
-              {scenario.board.notes[0] ? (
-                <p className="mt-3 text-xs leading-5 text-slate-400">
-                  {scenario.board.notes[0]}
+            {scenario.board ? (
+              <div className="rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/80">
+                  {copy.textureLabel}
                 </p>
-              ) : null}
-            </div>
-          ) : null}
+                <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                  {getTacticalBoardLabels(scenario.board, language).join(" / ")}
+                </p>
+                {scenario.board.notes[0] ? (
+                  <p className="mt-3 text-xs leading-5 text-slate-400">
+                    {scenario.board.notes[0]}
+                  </p>
+                ) : null}
+              </div>
+            ) : null}
+          </div>
         </div>
+      </div>
+
+      <div className="mt-4">
+        <ActionLane label={copy.actionLabel} steps={scenario.actionHistory ?? []} />
       </div>
     </div>
   );
@@ -1281,7 +1236,7 @@ function TacticalSpotPanel({
           {getTacticalSourceTypeLabel(scenario.sourceType, language)}
         </span>
         <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-          {activeContentPack.focusLabel}
+          {getTacticalPackLabel(activeContentPack.id, activeContentPack.focusLabel, language)}
         </span>
         {retryHint ? (
           <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
@@ -1325,7 +1280,7 @@ function TacticalSpotPanel({
         className={cn(
           "mt-4 grid gap-4",
           showBottomActionLane
-            ? "lg:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]"
+            ? "xl:grid-cols-[minmax(0,1.16fr)_minmax(0,0.84fr)]"
             : "",
         )}
       >
@@ -1623,8 +1578,13 @@ function TacticalFeedbackPanel({
           </h2>
         </div>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {[copy.resultLabel, copy.bestLineLabel, copy.whyLabel, copy.learnLabel].map((label) => (
+        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-2">
+          {[
+            [copy.resultLabel, language === "vi" ? "Chưa chốt line" : "No line locked yet"],
+            [copy.bestLineLabel, language === "vi" ? "Mở sau khi nộp" : "Opens after submit"],
+            [copy.whyLabel, language === "vi" ? "Giải thích ngắn" : "Short correction"],
+            [copy.learnLabel, language === "vi" ? "Điểm học chính" : "Main takeaway"],
+          ].map(([label, value]) => (
             <div
               key={label}
               className="rounded-[24px] border border-white/10 bg-black/14 px-4 py-5"
@@ -1632,8 +1592,7 @@ function TacticalFeedbackPanel({
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                 {label}
               </p>
-              <div className="mt-3 h-3 w-24 rounded-full bg-white/10" />
-              <div className="mt-2 h-3 w-32 rounded-full bg-white/5" />
+              <p className="mt-3 text-sm font-semibold text-white/86">{value}</p>
             </div>
           ))}
         </div>
@@ -1688,7 +1647,7 @@ function TacticalFeedbackPanel({
         </span>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
         <ReviewBlock
           label={copy.resultLabel}
           className={cn(
@@ -1870,7 +1829,7 @@ function CompletionPanel({
           {moduleCopy.restartButton}
         </button>
         <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-2 text-sm font-semibold text-slate-200">
-          {activeContentPack.focusLabel}
+          {getTacticalPackLabel(activeContentPack.id, activeContentPack.focusLabel, language)}
         </span>
         <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-2 text-sm font-semibold text-slate-200">
           {getTacticalStorageLabel(storageMode, language)}
@@ -1964,7 +1923,7 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
         persistenceError={session.persistenceError}
       />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_360px]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(390px,0.92fr)]">
         <TacticalSpotPanel
           language={language}
           moduleId={moduleId}

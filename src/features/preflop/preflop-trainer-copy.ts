@@ -47,8 +47,8 @@ const difficultyLabelsEn: Record<TrainingDifficultyFilter, string> = {
 };
 
 const sourceTypeLabelsVi: Record<SourceType, string> = {
-  simplification: "Simplified",
-  baseline: "Baseline",
+  simplification: "Rút gọn",
+  baseline: "Cơ bản",
   exploit: "Exploit",
 };
 
@@ -59,7 +59,7 @@ const sourceTypeLabelsEn: Record<SourceType, string> = {
 };
 
 const queueModeLabelsVi: Record<TrainerQueueMode, string> = {
-  adaptive: "Adaptive",
+  adaptive: "Thích ứng",
   default: "Tuần tự",
 };
 
@@ -69,7 +69,7 @@ const queueModeLabelsEn: Record<TrainerQueueMode, string> = {
 };
 
 const potTypeLabelsVi: Record<PreflopScenario["potType"], string> = {
-  unopened: "Unopened",
+  unopened: "Chưa open",
   "vs-open": "Vs Open",
   "vs-3bet": "Vs 3-bet",
   "vs-4bet": "Vs 4-bet",
@@ -166,7 +166,7 @@ export function getPreflopStorageLabel(
   language: PreflopUiLanguage,
 ) {
   if (language === "vi") {
-    return storageMode === "account" ? "Cloud save" : "Local save";
+    return storageMode === "account" ? "Đồng bộ đám mây" : "Máy này";
   }
 
   return storageMode === "account" ? "Cloud save" : "Local save";
@@ -298,41 +298,41 @@ type PreflopDrillCopy = {
 
 const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
   vi: {
-    pageEyebrow: "Preflop Decision Drill",
+    pageEyebrow: "Bài luyện quyết định Preflop",
     pageTitle: "Đọc nhanh. Chốt nhanh.",
-    sessionLabel: "Session",
-    sessionProgress: "Spot",
+    sessionLabel: "Nhịp học",
+    sessionProgress: "Tình huống",
     sessionAccuracy: "Đúng",
-    allTimeAttempts: "All-time",
-    packLabel: "Gói",
-    difficultyLabel: "Mức",
-    queueLabel: "Nhịp",
-    retryLabel: "Spot yếu",
+    allTimeAttempts: "Tổng lượt thử",
+    packLabel: "Gói học",
+    difficultyLabel: "Mức độ",
+    queueLabel: "Thứ tự",
+    retryLabel: "Cần ôn",
     savingLabel: "Đang lưu",
-    syncIssueLabel: "Lỗi sync",
-    tableStateEyebrow: "Table State",
-    focusLabel: "Focus",
-    actionLaneLabel: "Action trước đó",
+    syncIssueLabel: "Lỗi đồng bộ",
+    tableStateEyebrow: "Trạng thái bàn",
+    focusLabel: "Trọng tâm",
+    actionLaneLabel: "Line trước đó",
     heroLabel: "Hero",
     heroValueLabel: "Bạn",
     positionLabel: "Vị trí",
     villainLabel: "Villain",
     handLabel: "Hand",
     stackLabel: "Stack",
-    spotLabel: "Spot",
+    spotLabel: "Tình huống",
     noVillainLabel: "Blinds",
-    decisionEyebrow: "Decision",
+    decisionEyebrow: "Quyết định",
     decisionTitle: "Chọn line",
     decisionHint: "Bấm 1 line rồi chốt.",
-    decisionLockedHint: "Line đã khóa. Review rồi qua spot tiếp.",
+    decisionLockedHint: "Line đã khóa. Xem sửa nhanh rồi qua tình huống tiếp.",
     selectedLineLabel: "Line đang chọn",
     noLineSelected: "Chưa chọn line",
     submitLabel: "Chốt",
-    nextSpotLabel: "Spot tiếp",
+    nextSpotLabel: "Tình huống tiếp",
     finishSessionLabel: "Kết thúc set",
     restartLabel: "Làm lại set",
-    reviewEyebrow: "Review",
-    reviewPlaceholder: "Khóa line để mở kết quả, line chuẩn và note ngắn.",
+    reviewEyebrow: "Sửa nhanh",
+    reviewPlaceholder: "Chọn line rồi xem giải thích ngắn.",
     resultLabel: "Kết quả",
     recommendedLineLabel: "Line chuẩn",
     whyLabel: "Vì sao",
@@ -343,16 +343,16 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     incorrectLabel: "Sai",
     driftLabel: "Line đã lệch",
     assumptionLabel: "Giả định",
-    emptyTitle: "Chưa có spot phù hợp",
+    emptyTitle: "Chưa có tình huống phù hợp",
     emptyBody: "Đổi gói hoặc mức để tiếp tục drill.",
     completionTitle: "Set preflop hoàn tất",
-    completionBody: "Nhịp đã xong. Có thể chạy lại ngay để lock decision flow.",
-    completionAccuracy: "Accuracy",
+    completionBody: "Nhịp đã xong. Có thể chạy lại ngay để khóa nhịp quyết định.",
+    completionAccuracy: "Độ chính xác",
     completionCorrect: "Đúng / tổng",
-    completionSaved: "Tiến độ",
+    completionSaved: "Lưu lúc",
     completionRestart: "Chạy set mới",
-    completionModeAccount: "Đã lưu cloud",
-    completionModeLocal: "Đã lưu local",
+    completionModeAccount: "Đã lưu đám mây",
+    completionModeLocal: "Đã lưu máy này",
   },
   en: {
     pageEyebrow: "Preflop Decision Drill",
