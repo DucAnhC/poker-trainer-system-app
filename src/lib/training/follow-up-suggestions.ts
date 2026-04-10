@@ -73,9 +73,9 @@ export function getScenarioFollowUpSuggestions(input: {
       id: `${scenario.id}-retry-current-pack`,
       moduleId: currentPack.moduleId,
       contentPackId: currentPack.id,
-      title: `Retry ${currentPack.title}`,
+      title: `Ôn lại ${currentPack.title}`,
       reason:
-        "Adaptive order will resurface similar weak spots from this pack sooner, which is the cleanest first response after a miss.",
+        "Chế độ thích ứng sẽ đẩy các tình huống yếu tương tự của gói này lên sớm hơn, nên đây là phản xạ ôn lại gọn nhất sau một lần sai.",
       route: getContentPackRoute(currentPack.id),
       tone: "review",
       score: 120,
@@ -91,7 +91,7 @@ export function getScenarioFollowUpSuggestions(input: {
           contentPackId: foundationalPack.id,
           title: foundationalPack.title,
           reason:
-            "Step down one layer and isolate the cleaner foundational version of the same concept before coming back to the tougher spot.",
+            "Lùi xuống một tầng để học lại phiên bản nền tảng sạch hơn của cùng concept trước khi quay lại tình huống khó hơn.",
           route: getContentPackRoute(foundationalPack.id),
           tone: "review",
           score: 105,
@@ -108,7 +108,7 @@ export function getScenarioFollowUpSuggestions(input: {
         contentPackId: nextSameModulePack.id,
         title: nextSameModulePack.title,
         reason:
-          "You handled the current concept cleanly, so the next logical step is a nearby pack that adds a little more judgment.",
+          "Bạn đã xử lý sạch concept hiện tại, nên bước hợp lý tiếp theo là một gói liền kề đòi hỏi thêm một chút phán đoán.",
         route: getContentPackRoute(nextSameModulePack.id),
         tone: "advance",
         score: 100,
@@ -142,8 +142,8 @@ export function getScenarioFollowUpSuggestions(input: {
       reason:
         matchingRecommendation?.reason ??
         (hasWeakSignal
-          ? `This related pack is already trending weak, so revisiting the linked concept should help the next study block stay coherent.`
-          : `This pack trains the adjacent concept that most naturally supports the spot you just worked on.`),
+          ? `Gói liên quan này đang có dấu hiệu yếu, nên ôn lại concept nối trực tiếp với nó sẽ giúp nhịp học tiếp theo mạch lạc hơn.`
+          : `Gói này luyện concept liền kề hỗ trợ tự nhiên nhất cho tình huống bạn vừa làm.`),
       route: getContentPackRoute(relatedPack.id),
       tone: isCorrect ? "advance" : "related",
       score: matchingRecommendation ? 96 : hasWeakSignal ? 88 : 74,

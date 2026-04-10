@@ -31,9 +31,13 @@ const keywordRecommendations: Array<{
       "flop",
       "turn",
       "river",
+      "kìm pot",
+      "kiểm soát pot",
+      "barrel turn",
+      "bắt bluff",
     ],
     reason:
-      "This review note points to later-street action selection, pot control, or barreling decisions.",
+      "Ghi chú này đang trỏ tới quyết định ở street sau, kìm cỡ pot hoặc nhịp barrel.",
     score: 70,
   },
   {
@@ -48,9 +52,12 @@ const keywordRecommendations: Array<{
       "gutshot",
       "open-ended",
       "equity",
+      "giá",
+      "outs",
+      "draw",
     ],
     reason:
-      "This review note sounds driven by draw math, price, or continue-versus-fold uncertainty.",
+      "Ghi chú này nghe như đang vướng ở toán draw, giá call hoặc quyết định tiếp tục hay fold.",
     score: 68,
   },
   {
@@ -65,9 +72,11 @@ const keywordRecommendations: Array<{
       "squeeze",
       "position",
       "blind vs blind",
+      "vị trí",
+      "mù đối đầu mù",
     ],
     reason:
-      "This review note points back to preflop discipline, position, or re-raise structure.",
+      "Ghi chú này đang quay về kỷ luật preflop, vị trí hoặc cấu trúc re-raise.",
     score: 62,
   },
   {
@@ -82,9 +91,13 @@ const keywordRecommendations: Array<{
       "two-tone",
       "monotone",
       "coordinated",
+      "kết cấu board",
+      "board khô",
+      "board động",
+      "liên kết",
     ],
     reason:
-      "This review note sounds tied to reading the board correctly before choosing a postflop line.",
+      "Ghi chú này gắn với việc đọc đúng kết cấu board trước khi chốt line postflop.",
     score: 60,
   },
   {
@@ -99,9 +112,12 @@ const keywordRecommendations: Array<{
       "passive",
       "recreational",
       "population",
+      "kiểu người chơi",
+      "read",
+      "xu hướng",
     ],
     reason:
-      "This review note looks connected to opponent-profile adjustments rather than a pure baseline spot.",
+      "Ghi chú này có vẻ liên quan tới điều chỉnh theo kiểu đối thủ hơn là một tình huống cơ bản thuần túy.",
     score: 60,
   },
 ];
@@ -154,8 +170,8 @@ export function getReviewNoteFocusAreas(
       moduleId: "postflop",
       title: moduleLabels.postflop,
       reason:
-        "This saved review is centered on a later-street decision, so the postflop module is the cleanest follow-up study path.",
-      heuristicLabel: "Review note heuristic",
+        "Ghi chú đã lưu này xoay quanh một quyết định ở street sau, nên bài luyện Postflop là bước ôn tiếp sạch nhất.",
+      heuristicLabel: "Gợi ý từ ghi chú",
       supportingLeakTagIds: note.leakTagIds,
       score: 64,
     });
@@ -171,7 +187,7 @@ export function getReviewNoteFocusAreas(
         moduleId: keywordRecommendation.moduleId,
         title: moduleLabels[keywordRecommendation.moduleId],
         reason: keywordRecommendation.reason,
-        heuristicLabel: "Review note heuristic",
+        heuristicLabel: "Gợi ý từ ghi chú",
         supportingLeakTagIds: note.leakTagIds,
         score: keywordRecommendation.score,
       });
@@ -193,8 +209,8 @@ export function getReviewNoteFocusAreas(
       addCandidate(candidates, {
         moduleId,
         title: moduleLabels[moduleId],
-        reason: `The review note was tagged with ${leakTag.label.toLowerCase()}, which this module trains directly.`,
-        heuristicLabel: "Leak-tag heuristic",
+        reason: `Ghi chú này đã được gắn nhãn ${leakTag.label.toLowerCase()}, và module này luyện trực tiếp đúng leak đó.`,
+        heuristicLabel: "Gợi ý từ leak",
         supportingLeakTagIds: [leakTag.id],
         score: 58,
       });

@@ -153,8 +153,8 @@ export function useTrainingSession<T extends TrainingScenario>(
     } catch {
       setPersistenceError(
         storageMode === "account"
-          ? "Saved account progress could not be refreshed right now."
-          : "Local progress could not be refreshed right now.",
+          ? "Chưa thể làm mới tiến độ đã lưu trên tài khoản ngay lúc này."
+          : "Chưa thể làm mới tiến độ đang lưu trên trình duyệt ngay lúc này.",
       );
     }
   }, [authStatus, storageMode]);
@@ -200,7 +200,7 @@ export function useTrainingSession<T extends TrainingScenario>(
           setPersistenceError(
             error instanceof Error
               ? error.message
-              : "Failed to sync the current session to the signed-in account.",
+              : "Không thể đồng bộ nhịp học hiện tại lên tài khoản đang đăng nhập.",
           );
         })
         .finally(() => {
@@ -220,7 +220,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     try {
       recordTrainingSession(session);
     } catch {
-      setPersistenceError("Local progress could not be written in this browser.");
+      setPersistenceError("Không thể ghi tiến độ lên trình duyệt này.");
     }
   }, [authStatus, isAuthenticated, refreshPersistedProgressSummary, session]);
 
@@ -328,7 +328,7 @@ export function useTrainingSession<T extends TrainingScenario>(
           setPersistenceError(
             error instanceof Error
               ? error.message
-              : "Failed to sync the latest answer to the signed-in account.",
+              : "Không thể đồng bộ câu trả lời mới nhất lên tài khoản đang đăng nhập.",
           );
         })
         .finally(() => {
@@ -339,7 +339,7 @@ export function useTrainingSession<T extends TrainingScenario>(
         recordQuizAttempt(attempt);
         setPersistenceError(null);
       } catch {
-        setPersistenceError("Local progress could not be written in this browser.");
+        setPersistenceError("Không thể ghi tiến độ lên trình duyệt này.");
       }
     }
 

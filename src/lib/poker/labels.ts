@@ -6,62 +6,62 @@ import type {
 import type { Difficulty, SourceType, TrainingModuleId } from "@/types/training";
 
 export const positionLabels: Record<PositionId, string> = {
-  UTG: "Under the Gun",
-  HJ: "Hijack",
-  CO: "Cutoff",
-  BTN: "Button",
-  SB: "Small Blind",
-  BB: "Big Blind",
+  UTG: "UTG",
+  HJ: "HJ",
+  CO: "CO",
+  BTN: "BTN",
+  SB: "SB",
+  BB: "BB",
 };
 
 export const sourceTypeLabels: Record<SourceType, string> = {
-  simplification: "Beginner simplification",
-  baseline: "Baseline",
+  simplification: "Rút gọn",
+  baseline: "Cơ bản",
   exploit: "Exploit",
 };
 
 export const sourceTypeDescriptions: Record<SourceType, string> = {
   simplification:
-    "This answer uses a deliberate training shortcut to keep the core lesson clear before adding more edge cases.",
+    "Đáp án này dùng một lối rút gọn có chủ ý để giữ bài học chính thật rõ trước khi thêm các nhánh khó hơn.",
   baseline:
-    "This answer is the product's practical default line for the stated assumptions, not a claim that every combo always plays this way.",
+    "Đáp án này là line thực chiến mặc định của bài luyện dưới các giả định đã nêu, không phải khẳng định mọi combo đều luôn chơi như vậy.",
   exploit:
-    "This answer is an adjustment to a specific tendency or player profile, so it depends on the read being meaningful.",
+    "Đáp án này là một điều chỉnh exploit theo xu hướng hoặc kiểu người chơi cụ thể, nên nó chỉ đúng khi read đủ đáng tin.",
 };
 
 export const difficultyLabels: Record<Difficulty, string> = {
-  beginner: "Beginner",
-  intermediate: "Intermediate",
-  "advanced-lite": "Advanced-lite",
+  beginner: "Cơ bản",
+  intermediate: "Trung cấp",
+  "advanced-lite": "Nâng cao nhẹ",
 };
 
 export const moduleLabels: Record<TrainingModuleId, string> = {
-  preflop: "Preflop Trainer",
-  "pot-odds": "Pot Odds Quiz",
-  "board-texture": "Board Texture Quiz",
-  "player-types": "Player Types Quiz",
-  postflop: "Postflop Trainer",
-  "hand-review": "Hand Review",
+  preflop: "Bài luyện Preflop",
+  "pot-odds": "Bài luyện Pot Odds",
+  "board-texture": "Bài luyện đọc board",
+  "player-types": "Bài luyện exploit",
+  postflop: "Bài luyện Postflop",
+  "hand-review": "Xem lại hand",
 };
 
 export const playerArchetypeLabels: Record<PlayerArchetypeId, string> = {
   nit: "Nit",
-  tag: "Tight-aggressive regular",
-  lag: "Loose-aggressive player",
+  tag: "TAG",
+  lag: "LAG",
   "calling-station": "Calling station",
   maniac: "Maniac",
-  "passive-rec": "Passive recreational player",
+  "passive-rec": "Rec thụ động",
 };
 
 export const handCategoryLabels: Record<HandCategoryId, string> = {
-  "premium-pair": "Premium pair",
-  "strong-broadway": "Strong Broadway",
-  "offsuit-broadway": "Offsuit Broadway",
-  "suited-broadway": "Suited Broadway",
-  "suited-ace": "Suited ace",
-  "small-pair": "Small pair",
-  "suited-connector": "Suited connector",
-  "suited-gapper": "Suited gapper",
-  "weak-offsuit": "Weak offsuit hand",
-  trash: "Low-equity trash",
+  "premium-pair": "Đôi lớn",
+  "strong-broadway": "Broadway mạnh",
+  "offsuit-broadway": "Broadway offsuit",
+  "suited-broadway": "Broadway suited",
+  "suited-ace": "A suited",
+  "small-pair": "Đôi nhỏ",
+  "suited-connector": "Connector suited",
+  "suited-gapper": "Gapper suited",
+  "weak-offsuit": "Offsuit yếu",
+  trash: "Bài rác low-equity",
 };

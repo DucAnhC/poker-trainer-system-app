@@ -500,14 +500,14 @@ function buildRetryQueue(
         return null;
       }
 
-      let reason = "You missed similar concepts in this module recently.";
+      let reason = "Bạn vừa sai ở các concept gần giống nhau trong module này.";
 
       if (recentWrongCount >= 2) {
-        reason = "You missed this exact spot more than once recently.";
+        reason = "Bạn đã sai đúng tình huống này hơn một lần trong thời gian gần đây.";
       } else if (exactWrongCount >= 2) {
-        reason = "This exact scenario has produced repeat misses.";
+        reason = "Tình huống này đang lặp lại lỗi sai nhiều lần.";
       } else if (supportingLeakTagIds.length > 0) {
-        reason = "This scenario matches one of your repeat leak themes.";
+        reason = "Tình huống này khớp với một leak đang lặp lại của bạn.";
       }
 
       return {
