@@ -3,11 +3,13 @@
 import Link from "next/link";
 
 import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
+import { BoardCards } from "@/components/poker-room/PokerRoom";
 import { LeakTagBadge } from "@/components/ui/LeakTagBadge";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { StatusPill } from "@/components/ui/StatusPill";
 import { trainingModules } from "@/data/training-modules";
 import { getReviewCopy, getReviewUiLanguage } from "@/features/review/review-copy";
+import { extractCardCodes } from "@/lib/poker/cards";
 import { positionLabels } from "@/lib/poker/labels";
 import { getReviewNoteFocusAreas } from "@/lib/review/review-focus";
 import { formatDateTimeLabel } from "@/lib/utils";
@@ -65,6 +67,7 @@ export function ReviewDetailCard({
   }
 
   const reviewFocusAreas = getReviewNoteFocusAreas(note, 2);
+  const boardCards = extractCardCodes(note.board).slice(0, 5);
   const spotLabel =
     note.heroPosition || note.villainPosition
       ? `${note.heroPosition ? positionLabels[note.heroPosition] : copy.detailLabels.hero} vs ${
@@ -109,6 +112,12 @@ export function ReviewDetailCard({
               </span>
             ) : null}
           </div>
+
+          {boardCards.length > 0 ? (
+            <div className="mt-4">
+              <BoardCards cards={boardCards} size="sm" />
+            </div>
+          ) : null}
 
           <div className="mt-4 grid gap-3 md:grid-cols-2">
             <DetailTile

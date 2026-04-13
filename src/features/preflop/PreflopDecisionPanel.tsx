@@ -1,4 +1,7 @@
-import { cn } from "@/lib/utils";
+import {
+  ActionTray,
+  CoachAnchor,
+} from "@/components/poker-room/PokerRoom";
 import type {
   SubmittedAnswerFeedback,
   TrainingAnswerPhase,
@@ -59,27 +62,43 @@ export function PreflopDecisionPanel({
       ? `${copy.submitLabel} ${selectedActionLabel}`
       : copy.submitLabel;
 
-  return (
-    <aside className="rounded-[32px] border border-slate-900/70 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel xl:sticky xl:top-6">
-      <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-          {copy.decisionEyebrow}
-        </p>
-        <h2 className="text-[1.85rem] font-semibold tracking-tight text-white">
-          {copy.decisionTitle}
-        </h2>
-        <p className="text-sm leading-6 text-slate-300">
-          {decisionHint}
-        </p>
-      </div>
+  const coachActions =
+    language === "vi"
+      ? ["Goi y ngan", "Giai thich them", "Tinh huong tuong tu"]
+      : ["Quick hint", "Explain more", "Similar spot"];
+  const coachTitle =
+    language === "vi" ? "Coach seat da san sang cho vong sau" : "Coach seat is ready for the next pass";
+  const coachBody =
+    language === "vi"
+      ? "Anchor nay giu cho cho AI tutor de nudges, short feedback, va compare spot ma khong day trainer thanh chat sidebar."
+      : "This anchor reserves the table-coach slot for nudges, short feedback, and similar-spot prompts without turning the trainer into a sidebar chat.";
 
-      <div className="mt-5 space-y-3">
+  return (
+    <ActionTray
+      eyebrow={copy.decisionEyebrow}
+      title={copy.decisionTitle}
+      hint={decisionHint}
+      selectedLabel={copy.selectedLineLabel}
+      selectedValue={selectedActionLabel ?? copy.noLineSelected}
+      primaryLabel={primaryButtonLabel}
+      onPrimary={hasSubmitted ? onNext : onSubmit}
+      primaryDisabled={hasSubmitted ? !canAdvance : !canSubmit}
+      secondaryLabel={copy.restartLabel}
+      onSecondary={onRestart}
+      coach={
+        <CoachAnchor
+          title={coachTitle}
+          body={coachBody}
+          modeLabel={language === "vi" ? "Coach anchor" : "Coach anchor"}
+          actions={coachActions}
+        />
+      }
+    >
         {scenario.candidateActions.map((action, index) => (
           <PreflopActionButton
             key={action.id}
             action={action}
             index={index}
-            language={language}
             isSelected={selectedActionId === action.id}
             isLocked={hasSubmitted}
             isRecommended={feedback?.recommendedAction.id === action.id}
@@ -89,42 +108,6 @@ export function PreflopDecisionPanel({
             onSelect={() => onSelectAction(action.id)}
           />
         ))}
-      </div>
-
-      <div className="mt-5 rounded-[28px] border border-white/10 bg-white/[0.05] p-4">
-        <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-            {copy.selectedLineLabel}
-          </p>
-          <p className="text-xl font-semibold text-white">
-            {selectedActionLabel ?? copy.noLineSelected}
-          </p>
-        </div>
-
-        <div className="mt-4 grid gap-3">
-          <button
-            type="button"
-            onClick={hasSubmitted ? onNext : onSubmit}
-            disabled={hasSubmitted ? !canAdvance : !canSubmit}
-            className={cn(
-              "w-full rounded-full px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] transition active:scale-[0.99]",
-              (hasSubmitted ? !canAdvance : !canSubmit)
-                ? "cursor-not-allowed bg-slate-600/60 text-slate-300"
-                : "bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] text-white shadow-[0_18px_42px_-22px_rgba(34,197,94,0.7)] hover:brightness-105",
-            )}
-          >
-            {primaryButtonLabel}
-          </button>
-
-          <button
-            type="button"
-            onClick={onRestart}
-            className="w-full rounded-full border border-white/12 bg-transparent px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-slate-200 transition hover:border-white/22 hover:bg-white/[0.06]"
-          >
-            {copy.restartLabel}
-          </button>
-        </div>
-      </div>
-    </aside>
+    </ActionTray>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
 
 import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
+import { BoardCards } from "@/components/poker-room/PokerRoom";
 import { LeakTagBadge } from "@/components/ui/LeakTagBadge";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { getReviewCopy, getReviewUiLanguage } from "@/features/review/review-copy";
+import { extractCardCodes } from "@/lib/poker/cards";
 import { cn, formatDateTimeLabel } from "@/lib/utils";
 import type { HandReviewNote } from "@/types/training";
 
@@ -16,6 +18,7 @@ type ReviewCardProps = {
 export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
   const uiCopy = useUiCopy();
   const copy = getReviewCopy(getReviewUiLanguage(uiCopy.locale));
+  const boardCards = extractCardCodes(note.board).slice(0, 5);
   const spotLabel =
     note.heroPosition || note.villainPosition
       ? `${note.heroPosition ?? "Hero"} vs ${note.villainPosition ?? "Villain"}`
@@ -63,12 +66,17 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
           </p>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {note.board ? (
+        <div className="space-y-3">
+          {boardCards.length > 0 ? (
+            <BoardCards cards={boardCards} size="sm" />
+          ) : note.board ? (
             <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
               {note.board}
             </span>
           ) : null}
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2">
           {typeof note.effectiveStackBb === "number" ? (
             <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
               {note.effectiveStackBb}bb

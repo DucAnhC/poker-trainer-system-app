@@ -4,6 +4,20 @@ import Link from "next/link";
 import { useMemo, type ReactNode } from "react";
 
 import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
+import {
+  ActionHistory,
+  ActionOptionCard,
+  ActionTray,
+  CoachAnchor,
+  PotDisplay,
+  RevealStatePanel,
+  SceneHeader,
+  SceneStatCard,
+  SeatBadge,
+  SpotTag,
+  StatPill,
+  TableSceneShell,
+} from "@/components/poker-room/PokerRoom";
 import { leakTags } from "@/data/leak-tags";
 import { TacticalCardRow } from "@/features/trainer/TacticalCardVisual";
 import { useTrainerModuleSession } from "@/features/trainer/useTrainerModuleSession";
@@ -143,6 +157,12 @@ function getActionTypeLabel(
         };
 
   return labels[actionType];
+}
+
+function getCoachActions(language: TacticalUiLanguage) {
+  return language === "vi"
+    ? ["Goi y ngan", "Giai thich them", "Tinh huong tuong tu"]
+    : ["Quick hint", "Explain more", "Similar spot"];
 }
 
 function shouldUseHighTensionDecisionPanel(moduleId: InteractiveTrainingModuleId) {
@@ -367,7 +387,25 @@ function getSpotTiles(
   const copy = getTacticalDrillCopy(language);
 
   if (scenario.module === "pot-odds") {
-    return [] satisfies SpotTile[];
+    const tiles: SpotTile[] = [];
+
+    if (typeof scenario.potSizeBb === "number") {
+      tiles.push({ label: copy.potLabel, value: `${scenario.potSizeBb}bb` });
+    }
+
+    if (typeof scenario.betToCallBb === "number") {
+      tiles.push({ label: copy.callLabel, value: `${scenario.betToCallBb}bb` });
+    }
+
+    if (typeof scenario.outsCount === "number") {
+      tiles.push({ label: copy.outsLabel, value: `${scenario.outsCount}` });
+    }
+
+    if (scenario.equityHint) {
+      tiles.push({ label: language === "vi" ? "Equity cue" : "Equity cue", value: scenario.equityHint, wide: true });
+    }
+
+    return tiles;
   }
 
   if (scenario.module === "preflop") {
@@ -375,15 +413,75 @@ function getSpotTiles(
   }
 
   if (scenario.module === "postflop") {
-    return [] satisfies SpotTile[];
+    const tiles: SpotTile[] = [];
+
+    if (scenario.heroPosition) {
+      tiles.push({ label: copy.heroLabel, value: scenario.heroPosition });
+    }
+
+    if (scenario.villainPosition) {
+      tiles.push({ label: copy.villainLabel, value: scenario.villainPosition });
+    }
+
+    if (typeof scenario.effectiveStackBb === "number") {
+      tiles.push({ label: copy.stackLabel, value: `${scenario.effectiveStackBb}bb` });
+    }
+
+    if (scenario.board) {
+      tiles.push({
+        label: copy.textureLabel,
+        value: getTacticalBoardLabels(scenario.board, language).join(" / "),
+        wide: true,
+      });
+    }
+
+    return tiles;
   }
 
   if (scenario.module === "board-texture") {
-    return [] satisfies SpotTile[];
+    const tiles: SpotTile[] = [];
+
+    if (scenario.board) {
+      getTextureStateChips(scenario.board, language).forEach((chip) => {
+        tiles.push({ label: chip.label, value: chip.value });
+      });
+    }
+
+    if (scenario.board?.notes[0]) {
+      tiles.push({
+        label: copy.whyLabel,
+        value: scenario.board.notes[0],
+        wide: true,
+      });
+    }
+
+    return tiles;
   }
 
   if (scenario.module === "player-types") {
-    return [] satisfies SpotTile[];
+    const tiles: SpotTile[] = [];
+    const playerScene = getPlayerTypeScene(scenario.playerArchetypeId, language);
+
+    if (scenario.playerArchetypeId) {
+      tiles.push({
+        label: copy.playerTypeLabel,
+        value: getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language),
+      });
+    }
+
+    tiles.push({
+      label: language === "vi" ? "Read" : "Read",
+      value: playerScene.read,
+      wide: true,
+    });
+
+    tiles.push({
+      label: language === "vi" ? "Exploit" : "Exploit",
+      value: playerScene.exploit,
+      wide: true,
+    });
+
+    return tiles;
   }
 
   const tiles: SpotTile[] = [{ label: copy.streetLabel, value: scenario.street.toUpperCase() }];
@@ -656,21 +754,7 @@ function TacticalSessionStrip({
 }
 
 function SpotTileCard({ label, value, wide = false }: SpotTile) {
-  return (
-    <div
-      className={cn(
-        "min-w-0 rounded-[22px] border border-white/12 bg-black/14 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]",
-        wide && "sm:col-span-2",
-      )}
-    >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-        {label}
-      </p>
-      <p className="mt-2 break-words text-base font-semibold leading-6 text-white">
-        {value}
-      </p>
-    </div>
-  );
+  return <SceneStatCard label={label} value={value} wide={wide} />;
 }
 
 function ActionLane({
@@ -680,32 +764,7 @@ function ActionLane({
   label: string;
   steps: string[];
 }) {
-  if (steps.length === 0) {
-    return null;
-  }
-
-  return (
-    <div className="min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-        {label}
-      </p>
-      <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
-        {steps.map((step, index) => (
-          <div key={`${step}-${index}`} className="flex shrink-0 items-center gap-2">
-            {index > 0 ? (
-              <span className="h-px w-4 rounded-full bg-gradient-to-r from-cyan-300/45 to-emerald-300/25" />
-            ) : null}
-            <div className="flex items-center gap-2 whitespace-nowrap rounded-[18px] border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-black/15 text-[10px] uppercase tracking-[0.16em] text-slate-300">
-                {index + 1}
-              </span>
-              <span>{step}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
+  return <ActionHistory label={label} steps={steps} />;
 }
 
 function PotOddsHeroObject({
@@ -720,85 +779,63 @@ function PotOddsHeroObject({
     getBreakEvenPercent(scenario.potSizeBb, scenario.betToCallBb) ?? "-";
   const finalPotBb = getFinalPotBb(scenario.potSizeBb, scenario.betToCallBb);
   const mathLineLabel = language === "vi" ? "Dòng tính nhanh" : "Math line";
+  const priceLabel = language === "vi" ? "Facing bet" : "Facing bet";
+  const spotLabel = language === "vi" ? "Pot odds spot" : "Pot odds spot";
 
   return (
-    <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.28),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
+    <div className="space-y-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap gap-2">
-          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-white/88">
-            {scenario.street.toUpperCase()}
-          </span>
-          {scenario.equityHint ? (
-            <span className="rounded-full border border-emerald-200/18 bg-emerald-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-emerald-100">
-              {scenario.equityHint}
-            </span>
-          ) : null}
+          <SpotTag tone="cyan">{scenario.street.toUpperCase()}</SpotTag>
+          <SpotTag>{spotLabel}</SpotTag>
+          {scenario.equityHint ? <SpotTag tone="emerald">{scenario.equityHint}</SpotTag> : null}
         </div>
 
         {typeof scenario.outsCount === "number" ? (
-          <div className="rounded-[22px] border border-cyan-200/20 bg-cyan-300/10 px-4 py-3 text-center">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100/75">
-              {copy.outsLabel}
-            </p>
-            <p className="mt-1 text-2xl font-semibold text-cyan-50">
-              {scenario.outsCount}
-            </p>
-          </div>
+          <StatPill label={copy.outsLabel} value={`${scenario.outsCount}`} />
         ) : null}
       </div>
 
-      <div className="mt-5 grid gap-4 lg:grid-cols-[148px_minmax(0,1fr)_148px] lg:items-center">
-        <div className="rounded-[26px] border border-white/12 bg-black/18 px-4 py-5 text-center shadow-[0_18px_34px_-24px_rgba(15,23,42,0.9)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-            {copy.potLabel}
-          </p>
-          <p className="mt-3 text-4xl font-semibold tracking-tight text-white">
-            {typeof scenario.potSizeBb === "number" ? `${scenario.potSizeBb}` : "-"}
-          </p>
-          <p className="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-slate-300">
-            bb
-          </p>
-        </div>
-
-        <div className="mx-auto flex h-[220px] w-[220px] items-center justify-center rounded-full border border-cyan-200/22 bg-[radial-gradient(circle,rgba(6,182,212,0.24),rgba(15,23,42,0.4)_56%,rgba(3,7,18,0.96)_100%)] shadow-[0_28px_64px_-36px_rgba(6,182,212,0.75)]">
-          <div className="flex h-[172px] w-[172px] flex-col items-center justify-center rounded-full border border-white/10 bg-black/25 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100/80">
-              {copy.needLabel}
-            </p>
-            <p className="mt-2 text-5xl font-semibold tracking-tight text-white">
-              {breakEvenPercent}
-            </p>
-            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-              {finalPotBb ? `${scenario.betToCallBb ?? "-"}bb -> ${finalPotBb}bb` : copy.callLabel}
-            </p>
-          </div>
-        </div>
-
-        <div className="rounded-[26px] border border-white/12 bg-black/18 px-4 py-5 text-center shadow-[0_18px_34px_-24px_rgba(15,23,42,0.9)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-            {copy.callLabel}
-          </p>
-          <p className="mt-3 text-4xl font-semibold tracking-tight text-white">
-            {typeof scenario.betToCallBb === "number" ? `${scenario.betToCallBb}` : "-"}
-          </p>
-          <p className="mt-1 text-sm font-semibold uppercase tracking-[0.14em] text-slate-300">
-            bb
-          </p>
-        </div>
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SeatBadge role={copy.heroLabel} position={language === "vi" ? "Facing bet" : "Facing bet"} tone="cyan" />
+        <SeatBadge role={copy.villainLabel} position={priceLabel} tone="slate" />
       </div>
 
-      {finalPotBb ? (
-        <div className="mt-5 rounded-[24px] border border-white/10 bg-black/16 px-4 py-4 text-center">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-            {mathLineLabel}
-          </p>
-          <p className="mt-2 text-lg font-semibold text-white">
-            {language === "vi"
-              ? `${scenario.betToCallBb}bb để tranh ${finalPotBb}bb`
-              : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`}
-          </p>
-        </div>
-      ) : null}
+      <PotDisplay
+        potLabel={copy.potLabel}
+        potValue={typeof scenario.potSizeBb === "number" ? `${scenario.potSizeBb}bb` : "-"}
+        callLabel={copy.callLabel}
+        callValue={typeof scenario.betToCallBb === "number" ? `${scenario.betToCallBb}bb` : "-"}
+        centerLabel={copy.needLabel}
+        centerValue={breakEvenPercent}
+        footer={finalPotBb ? `${scenario.betToCallBb ?? "-"}bb -> ${finalPotBb}bb` : copy.callLabel}
+      />
+
+      <div className="grid gap-4 xl:grid-cols-3">
+        <SceneStatCard
+          label={mathLineLabel}
+          value={
+            finalPotBb
+              ? language === "vi"
+                ? `${scenario.betToCallBb}bb de tranh ${finalPotBb}bb`
+                : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`
+              : "-"
+          }
+        />
+        <SceneStatCard
+          label={language === "vi" ? "Decision frame" : "Decision frame"}
+          value={
+            language === "vi"
+              ? "Cam giac dung la Hero dang doi mat mot gia call that, roi moi reveal ve equity."
+              : "The scene should feel like Hero is facing a real price first, then the equity lesson reveals."
+          }
+        />
+        <SceneStatCard
+          label={copy.focusLabel}
+          value={scenario.learningGoal}
+          wide
+        />
+      </div>
     </div>
   );
 }
@@ -1233,95 +1270,96 @@ function TacticalSpotPanel({
     !["postflop", "board-texture", "player-types"].includes(scenario.module) &&
     actionLane.length > 0;
   const showSupportRail = spotTiles.length > 0;
+  const coachActions = getCoachActions(language);
 
   return (
-    <section className="rounded-[34px] border border-emerald-950/20 bg-[linear-gradient(180deg,rgba(7,30,28,0.97),rgba(8,23,32,0.96))] p-5 text-white shadow-panel sm:p-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
-          {moduleMeta.stateEyebrow}
-        </span>
-        <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-          {questionNumber}/{totalQuestions}
-        </span>
-        <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-          {getTacticalSourceTypeLabel(scenario.sourceType, language)}
-        </span>
-        <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-          {getTacticalPackLabel(activeContentPack.id, activeContentPack.focusLabel, language)}
-        </span>
-        {retryHint ? (
-          <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
-            {copy.retryLabel}
-          </span>
-        ) : null}
-      </div>
-
-      <div className="mt-4 min-w-0 rounded-[28px] border border-white/12 bg-black/14 p-4 sm:p-5">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-          {moduleMeta.title}
-        </p>
-        <h1 className="mt-2 text-2xl font-semibold tracking-tight text-white sm:text-[2rem]">
-          {scenario.title}
-        </h1>
-        <p className="mt-3 max-w-3xl break-words text-sm leading-6 text-slate-300">
-          {scenario.prompt}
-        </p>
-      </div>
-
-      <div
-        className={cn(
-          "mt-4 grid gap-4",
-          showSupportRail
-            ? "xl:grid-cols-[minmax(0,1.12fr)_minmax(260px,0.88fr)]"
-            : "",
-        )}
-      >
-        <div className="min-w-0">
-          <ScenarioPrimaryVisual language={language} scenario={scenario} />
-        </div>
-
-        {showSupportRail ? (
-          <div className="min-w-0 grid gap-3 sm:grid-cols-2">
+    <TableSceneShell
+      header={
+        <SceneHeader
+          eyebrow={moduleMeta.stateEyebrow}
+          title={scenario.title}
+          description={scenario.prompt}
+          tags={
+            <>
+              <SpotTag tone="cyan">{questionNumber}/{totalQuestions}</SpotTag>
+              <SpotTag>{getTacticalSourceTypeLabel(scenario.sourceType, language)}</SpotTag>
+              <SpotTag>{getTacticalPackLabel(activeContentPack.id, activeContentPack.focusLabel, language)}</SpotTag>
+              {retryHint ? <SpotTag tone="amber">{copy.retryLabel}</SpotTag> : null}
+            </>
+          }
+          aside={
+            <div className="grid gap-3 sm:grid-cols-2">
+              <StatPill
+                label={copy.sessionLabel}
+                value={`${questionNumber}/${totalQuestions}`}
+                note={moduleMeta.title}
+              />
+              <StatPill
+                label={copy.focusLabel}
+                value={scenario.street.toUpperCase()}
+                note={getTacticalSourceTypeLabel(scenario.sourceType, language)}
+              />
+            </div>
+          }
+        />
+      }
+      rail={
+        showSupportRail ? (
+          <div className="min-w-0 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
             {spotTiles.map((tile) => (
               <SpotTileCard key={`${tile.label}-${tile.value}`} {...tile} />
             ))}
           </div>
-        ) : null}
-      </div>
+        ) : undefined
+      }
+      footer={
+        <div
+          className={cn(
+            "grid gap-4",
+            showBottomActionLane
+              ? "xl:grid-cols-[minmax(0,1.16fr)_minmax(0,0.84fr)]"
+              : "",
+          )}
+        >
+          {showBottomActionLane ? (
+            <ActionLane label={copy.actionLabel} steps={actionLane} />
+          ) : null}
 
-      <div
-        className={cn(
-          "mt-4 grid gap-4",
-          showBottomActionLane
-            ? "xl:grid-cols-[minmax(0,1.16fr)_minmax(0,0.84fr)]"
-            : "",
-        )}
-      >
-        {showBottomActionLane ? (
-          <ActionLane label={copy.actionLabel} steps={actionLane} />
-        ) : null}
-
-        <div className="min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-            {copy.focusLabel}
-          </p>
-          <p className="mt-2 break-words text-sm leading-6 text-slate-300">
-            {scenario.learningGoal}
-          </p>
+          <div className="min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+              {copy.focusLabel}
+            </p>
+            <p className="mt-2 break-words text-sm leading-6 text-slate-300">
+              {scenario.learningGoal}
+            </p>
+            {retryHint ? (
+              <div className="mt-4 rounded-[20px] border border-amber-200/18 bg-amber-300/10 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+                  {copy.retryLabel}
+                </p>
+                <p className="mt-2 break-words text-sm leading-6 text-amber-50/90">
+                  {retryHint.reason}
+                </p>
+              </div>
+            ) : null}
+          </div>
         </div>
-      </div>
-
-      {retryHint ? (
-        <div className="mt-4 rounded-[24px] border border-amber-200/18 bg-amber-300/10 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
-            {copy.retryLabel}
-          </p>
-          <p className="mt-2 break-words text-sm leading-6 text-amber-50/90">
-            {retryHint.reason}
-          </p>
-        </div>
-      ) : null}
-    </section>
+      }
+      coach={
+        <CoachAnchor
+          title={language === "vi" ? "Table coach anchor cho tactical modules" : "Table coach anchor for tactical modules"}
+          body={
+            language === "vi"
+              ? "Nhung module nay da co vi tri ro rang de AI tutor cho feedback ngan, explain them, hoac dua tinh huong tuong tu ma khong pha vo nhac choi."
+              : "These modules now have a dedicated table-coach seat for short feedback, deeper explanation, or similar spots without breaking the play rhythm."
+          }
+          modeLabel={language === "vi" ? "Coach anchor" : "Coach anchor"}
+          actions={coachActions}
+        />
+      }
+    >
+      <ScenarioPrimaryVisual language={language} scenario={scenario} />
+    </TableSceneShell>
   );
 }
 
@@ -1350,78 +1388,27 @@ function TacticalActionButton({
   isSubmittedChoice: boolean;
   onSelect: () => void;
 }) {
-  const showSubmittedState = isLocked && (isRecommended || isSubmittedChoice);
-  const isIncorrectSubmitted = isSubmittedChoice && !isRecommended;
   const actionTypeLabel = getActionTypeLabel(action.actionType, language);
 
   return (
-    <button
-      type="button"
-      onClick={onSelect}
-      disabled={isLocked}
-      aria-pressed={isSelected}
-      className={cn(
-        "group w-full rounded-[28px] border px-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 active:scale-[0.99]",
-        highTension ? "min-h-[118px] py-5" : "min-h-[96px] py-4",
-        "bg-white/[0.04] text-white/92 shadow-[0_14px_34px_-24px_rgba(15,23,42,0.85)]",
-        !isLocked &&
-          "hover:-translate-y-0.5 hover:border-cyan-200/30 hover:bg-white/[0.09] hover:shadow-[0_24px_48px_-28px_rgba(6,182,212,0.5)]",
-        !isSelected && !showSubmittedState && "border-white/10",
-        isSelected &&
-          !isLocked &&
-          "border-cyan-300/70 bg-[linear-gradient(135deg,rgba(8,47,73,0.95),rgba(8,145,178,0.3))] shadow-[0_24px_48px_-24px_rgba(103,232,249,0.55)]",
-        isLocked &&
-          isRecommended &&
-          "border-emerald-300/65 bg-[linear-gradient(135deg,rgba(6,78,59,0.95),rgba(52,211,153,0.26))] shadow-[0_20px_46px_-24px_rgba(52,211,153,0.55)]",
-        isIncorrectSubmitted &&
-          "border-rose-300/60 bg-[linear-gradient(135deg,rgba(76,5,25,0.96),rgba(251,113,133,0.18))] shadow-[0_18px_44px_-24px_rgba(251,113,133,0.45)]",
-        isLocked && !isRecommended && !isSubmittedChoice && "border-white/10 opacity-75",
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex min-w-0 items-start gap-3">
-          <div
-            className={cn(
-              "mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold uppercase tracking-[0.18em]",
-              isSelected || showSubmittedState
-                ? "border-white/35 bg-white/12 text-white"
-                : "border-white/12 bg-black/10 text-slate-300",
-            )}
-          >
-            {`${index + 1}`.padStart(2, "0")}
-          </div>
-
-          <div className="min-w-0 flex-1">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-white/12 bg-black/18 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">
-                {actionTypeLabel}
-              </span>
-            </div>
-            <p className="mt-3 break-words text-lg font-semibold leading-6 text-white sm:text-xl">
-              {action.label}
-            </p>
-            {action.feedbackHint && isLocked && !isRecommended && isSubmittedChoice ? (
-              <p className="mt-3 break-words text-sm leading-5 text-rose-100/90">
-                {action.feedbackHint}
-              </p>
-            ) : null}
-          </div>
-        </div>
-
-        <div className="flex flex-col items-end gap-2">
-          {isSubmittedChoice ? (
-            <span className="rounded-full border border-white/18 bg-black/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-white/90">
-              {selectedTag}
-            </span>
-          ) : null}
-          {isRecommended ? (
-            <span className="rounded-full border border-emerald-200/35 bg-emerald-100/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100">
-              {bestTag}
-            </span>
-          ) : null}
-        </div>
-      </div>
-    </button>
+    <ActionOptionCard
+      index={index}
+      label={action.label}
+      metaLabel={actionTypeLabel}
+      note={
+        action.feedbackHint && isLocked && !isRecommended && isSubmittedChoice
+          ? action.feedbackHint
+          : undefined
+      }
+      isSelected={isSelected}
+      isLocked={isLocked}
+      isRecommended={isRecommended}
+      isSubmittedChoice={isSubmittedChoice}
+      selectedTag={selectedTag}
+      bestTag={bestTag}
+      onSelect={onSelect}
+      highTension={highTension}
+    />
   );
 }
 
@@ -1473,22 +1460,37 @@ function TacticalDecisionPanel({
     : selectedAction
       ? `${copy.lockLabel} ${selectedAction.label}`
       : copy.lockLabel;
+  const coachActions = getCoachActions(language);
 
   return (
-    <aside className="min-w-0 rounded-[32px] border border-slate-900/70 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel xl:sticky xl:top-6">
-      <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-          {moduleMeta.eyebrow}
-        </p>
-        <h2 className="text-[1.8rem] font-semibold tracking-tight text-white">
-          {moduleMeta.decisionTitle}
-        </h2>
-        <p className="text-sm leading-6 text-slate-300">
-          {decisionHint}
-        </p>
-      </div>
-
-      <div className="mt-5 space-y-3">
+    <ActionTray
+      eyebrow={moduleMeta.eyebrow}
+      title={moduleMeta.decisionTitle}
+      hint={decisionHint}
+      selectedLabel={copy.selectedLineLabel}
+      selectedValue={selectedAction?.label ?? copy.noLineSelectedLabel}
+      selectedMeta={
+        selectedAction ? getActionTypeLabel(selectedAction.actionType, language) : undefined
+      }
+      primaryLabel={primaryButtonLabel}
+      onPrimary={hasSubmitted ? onNext : onSubmit}
+      primaryDisabled={hasSubmitted ? !canAdvance : !canSubmit}
+      secondaryLabel={copy.restartLabel}
+      onSecondary={onRestart}
+      coach={
+        <CoachAnchor
+          title={language === "vi" ? "Coach seat san sang cho tactical table" : "Coach seat ready for the tactical table"}
+          body={
+            language === "vi"
+              ? "Action tray nay da duoc chua cho AI coach de nudge truoc khi tra loi, hoac reveal them context sau khi hand ket thuc."
+              : "This action tray already reserves a seat for an AI coach to nudge before the answer or add context after the hand resolves."
+          }
+          modeLabel={language === "vi" ? "Nudge coach" : "Nudge coach"}
+          actions={coachActions}
+        />
+      }
+      highTension={highTension}
+    >
         {scenario.candidateActions.map((action, index) => (
           <TacticalActionButton
             key={action.id}
@@ -1505,58 +1507,7 @@ function TacticalDecisionPanel({
             onSelect={() => onSelectAction(action.id)}
           />
         ))}
-      </div>
-
-      <div
-        className={cn(
-          "mt-5 rounded-[28px] border p-4",
-          selectedAction
-            ? "border-cyan-300/22 bg-cyan-300/[0.07]"
-            : "border-white/10 bg-white/[0.05]",
-        )}
-      >
-        <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-            {copy.selectedLineLabel}
-          </p>
-          <p className="break-words text-xl font-semibold text-white">
-            {selectedAction?.label ?? copy.noLineSelectedLabel}
-          </p>
-          {selectedAction ? (
-            <div className="pt-1">
-              <span className="rounded-full border border-white/12 bg-black/18 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100/90">
-                {getActionTypeLabel(selectedAction.actionType, language)}
-              </span>
-            </div>
-          ) : null}
-        </div>
-
-        <div className="mt-4 grid gap-3">
-          <button
-            type="button"
-            onClick={hasSubmitted ? onNext : onSubmit}
-            disabled={hasSubmitted ? !canAdvance : !canSubmit}
-            className={cn(
-              "w-full rounded-full px-5 text-sm font-semibold uppercase tracking-[0.16em] transition active:scale-[0.99]",
-              highTension ? "py-5" : "py-4",
-              (hasSubmitted ? !canAdvance : !canSubmit)
-                ? "cursor-not-allowed bg-slate-600/60 text-slate-300"
-                : "bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] text-white shadow-[0_24px_50px_-24px_rgba(34,197,94,0.72)] hover:brightness-105",
-            )}
-          >
-            {primaryButtonLabel}
-          </button>
-
-          <button
-            type="button"
-            onClick={onRestart}
-            className="w-full rounded-full border border-white/12 bg-transparent px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-slate-200 transition hover:border-white/22 hover:bg-white/[0.06]"
-          >
-            {copy.restartLabel}
-          </button>
-        </div>
-      </div>
-    </aside>
+    </ActionTray>
   );
 }
 
@@ -1591,38 +1542,40 @@ function TacticalFeedbackPanel({
   progressSummary: ProgressSummary;
 }) {
   const copy = getTacticalDrillCopy(language);
+  const coachActions = getCoachActions(language);
 
   if (!feedback) {
     return (
-      <section className="rounded-[32px] border border-white/12 bg-[linear-gradient(180deg,rgba(8,20,35,0.98),rgba(3,10,24,0.96))] p-5 text-white shadow-panel sm:p-6">
-        <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-            {copy.nextLabel}
-          </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-white">
-            {copy.reviewPlaceholder}
-          </h2>
-        </div>
-
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-2">
-          {[
-            [copy.resultLabel, language === "vi" ? "Chưa chốt line" : "No line locked yet"],
-            [copy.bestLineLabel, language === "vi" ? "Mở sau khi nộp" : "Opens after submit"],
-            [copy.whyLabel, language === "vi" ? "Giải thích ngắn" : "Short correction"],
-            [copy.learnLabel, language === "vi" ? "Điểm học chính" : "Main takeaway"],
-          ].map(([label, value]) => (
-            <div
-              key={label}
-              className="rounded-[24px] border border-white/10 bg-black/14 px-4 py-5"
-            >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                {label}
-              </p>
-              <p className="mt-3 text-sm font-semibold text-white/86">{value}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <RevealStatePanel
+        eyebrow={copy.nextLabel}
+        title={copy.reviewPlaceholder}
+        description={
+          language === "vi"
+            ? "Scene van uu tien quyet dinh. Reveal chi mo sau khi nguoi hoc da commit line."
+            : "The scene still prioritizes the decision. The reveal opens only after the learner commits to a line."
+        }
+        revealed={false}
+        placeholderLabels={[
+          copy.resultLabel,
+          copy.bestLineLabel,
+          copy.whyLabel,
+          copy.learnLabel,
+        ]}
+        coach={
+          <CoachAnchor
+            title={language === "vi" ? "Coach cho sau khi hand ket thuc" : "Coach waits for the hand to resolve"}
+            body={
+              language === "vi"
+                ? "Foundation nay cho phep tactical modules nhan feedback ngan sau hand ma khong day action tray thanh text wall."
+                : "This foundation lets the tactical modules deliver short post-hand feedback without turning the action tray into a text wall."
+            }
+            modeLabel={language === "vi" ? "Silent coach" : "Silent coach"}
+            actions={coachActions}
+          />
+        }
+      >
+        <div />
+      </RevealStatePanel>
     );
   }
 
@@ -1650,30 +1603,45 @@ function TacticalFeedbackPanel({
   }).slice(0, 2);
 
   return (
-    <section className="rounded-[32px] border border-white/12 bg-[linear-gradient(180deg,rgba(8,20,35,0.98),rgba(3,10,24,0.96))] p-5 text-white shadow-panel sm:p-6">
+    <RevealStatePanel
+      eyebrow={copy.nextLabel}
+      title={language === "vi" ? "Reveal va correction sau spot" : "Reveal and correction after the spot"}
+      description={
+        language === "vi"
+          ? "Sau khi line da bi khoa, panel nay moi dua ket qua, line tot hon, va next lesson theo dung nhip choi."
+          : "Once the line is locked, this panel reveals the result, the cleaner line, and the next lesson without breaking the play rhythm."
+      }
+      revealed
+      placeholderLabels={[]}
+      coach={
+        <CoachAnchor
+          title={language === "vi" ? "Coach seat cho post-hand feedback" : "Coach seat for post-hand feedback"}
+          body={
+            language === "vi"
+              ? "Reveal layer nay la noi hop ly de AI tutor tom tat sai lech, goi y explain them, hoac dua ra hand tuong tu."
+              : "This reveal layer is the right place for an AI tutor to summarize the miss, expand the why, or suggest a similar hand."
+          }
+          modeLabel={language === "vi" ? "Coach ready" : "Coach ready"}
+          actions={coachActions}
+        />
+      }
+    >
       <div className="flex flex-wrap items-center gap-2">
-        <span
-          className={cn(
-            "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
-            isCorrect
-              ? "border-emerald-200/30 bg-emerald-300/10 text-emerald-100"
-              : "border-rose-200/30 bg-rose-300/10 text-rose-100",
-          )}
-        >
+        <SpotTag tone={isCorrect ? "emerald" : "rose"}>
           {isCorrect ? copy.correctLabel : copy.incorrectLabel}
-        </span>
-        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-200">
+        </SpotTag>
+        <SpotTag tone="slate">
           {copy.selectedLineLabel}: {feedback.selectedAction.label}
-        </span>
-        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+        </SpotTag>
+        <SpotTag tone="cyan">
           {copy.bestLineLabel}: {feedback.recommendedAction.label}
-        </span>
-        <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+        </SpotTag>
+        <SpotTag tone="amber">
           {getTacticalSourceTypeLabel(scenario.sourceType, language)}
-        </span>
+        </SpotTag>
       </div>
 
-      <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
         <ReviewBlock
           label={copy.resultLabel}
           className={cn(
@@ -1720,12 +1688,9 @@ function TacticalFeedbackPanel({
           {!isCorrect && surfacedLeakTags.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {surfacedLeakTags.map((leakLabel) => (
-                <span
-                  key={`${scenario.id}-${leakLabel}`}
-                  className="rounded-full border border-rose-200/30 bg-rose-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-rose-100"
-                >
+                <SpotTag key={`${scenario.id}-${leakLabel}`} tone="rose">
                   {leakLabel}
-                </span>
+                </SpotTag>
               ))}
             </div>
           ) : null}
@@ -1733,7 +1698,7 @@ function TacticalFeedbackPanel({
       </div>
 
       {!isCorrect && feedback.selectedAction.feedbackHint ? (
-        <div className="mt-4 rounded-[26px] border border-rose-200/30 bg-rose-300/10 p-4">
+        <div className="rounded-[26px] border border-rose-200/30 bg-rose-300/10 p-4">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-100">
             {copy.driftLabel}
           </p>
@@ -1744,7 +1709,7 @@ function TacticalFeedbackPanel({
       ) : null}
 
       {firstAssumption ? (
-        <div className="mt-4 rounded-[26px] border border-amber-200/20 bg-amber-300/10 p-4">
+        <div className="rounded-[26px] border border-amber-200/20 bg-amber-300/10 p-4">
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
             {copy.assumptionsLabel}
           </p>
@@ -1755,16 +1720,14 @@ function TacticalFeedbackPanel({
       ) : null}
 
       {followUpSuggestions.length > 0 ? (
-        <div className="mt-4 grid gap-3 lg:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-2">
           {followUpSuggestions.map((suggestion) => (
             <div
               key={suggestion.id}
               className="min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4"
             >
               <div className="flex flex-wrap items-center gap-2">
-                <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
-                  {copy.nextLabel}
-                </span>
+                <SpotTag tone="cyan">{copy.nextLabel}</SpotTag>
               </div>
               <p className="mt-3 break-words text-lg font-semibold text-white">
                 {suggestion.title}
@@ -1782,7 +1745,7 @@ function TacticalFeedbackPanel({
           ))}
         </div>
       ) : null}
-    </section>
+    </RevealStatePanel>
   );
 }
 

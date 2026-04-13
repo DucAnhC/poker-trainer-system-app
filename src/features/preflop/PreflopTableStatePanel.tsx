@@ -1,3 +1,13 @@
+import {
+  ActionHistory,
+  CoachAnchor,
+  SceneHeader,
+  SceneStatCard,
+  SeatBadge,
+  SpotTag,
+  StatPill,
+  TableSceneShell,
+} from "@/components/poker-room/PokerRoom";
 import type { ContentPack, RetryQueueItem } from "@/types/training";
 
 import { PreflopHandVisual } from "@/features/preflop/PreflopHandVisual";
@@ -33,23 +43,6 @@ type PreflopTableStatePanelProps = {
   retryHint?: RetryQueueItem | null;
 };
 
-function FactTile({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
-  return (
-    <div className="rounded-[20px] border border-white/12 bg-black/14 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-        {label}
-      </p>
-      <p className="mt-2 text-lg font-semibold text-white">{value}</p>
-    </div>
-  );
-}
-
 export function PreflopTableStatePanel({
   language,
   scenario,
@@ -62,123 +55,156 @@ export function PreflopTableStatePanel({
   const conceptLabels = scenario.keyConcepts.map((conceptId) =>
     getPreflopConceptLabel(conceptId, language),
   );
+  const formattedHistory = scenario.actionHistory.map((step) =>
+    formatPreflopHistoryStep(step, language),
+  );
+  const coachActions =
+    language === "vi"
+      ? ["Goi y ngan", "Vi sao line nay", "Tinh huong tuong tu"]
+      : ["Quick hint", "Why this line", "Similar spot"];
 
   return (
-    <section className="rounded-[34px] border border-emerald-950/20 bg-[linear-gradient(180deg,rgba(7,30,28,0.97),rgba(8,23,32,0.96))] p-5 text-white shadow-panel sm:p-6">
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
-          {copy.tableStateEyebrow}
-        </span>
-        <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-          {questionNumber}/{totalQuestions}
-        </span>
-        <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-          {getPreflopSourceTypeLabel(scenario.sourceType, language)}
-        </span>
-        <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-          {getPreflopPackLabel(activeContentPack.id, language)}
-        </span>
-        {retryHint ? (
-          <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
-            {copy.retryLabel}
-          </span>
-        ) : null}
-      </div>
-
-      <div className="mt-4 flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-white/12 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
-          {scenario.title}
-        </span>
-        {conceptLabels.map((conceptLabel) => (
-          <span
-            key={`${scenario.id}-${conceptLabel}`}
-            className="rounded-full border border-white/12 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200"
-          >
-            {conceptLabel}
-          </span>
-        ))}
-      </div>
-
-      <div className="mt-4 rounded-[30px] border border-emerald-300/14 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.22),rgba(15,23,42,0.08)_42%,rgba(3,7,18,0.18)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
-        <div className="grid gap-4 xl:grid-cols-[260px_minmax(0,1fr)]">
-          <div className="space-y-3">
-            <div className="flex flex-wrap items-center justify-center gap-2">
-              <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
-                {copy.heroLabel}
-              </span>
-              <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-100">
-                {scenario.heroPosition}
-              </span>
-              <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-100">
-                {scenario.effectiveStackBb}bb
-              </span>
-            </div>
-
-            <PreflopHandVisual handLabel={scenario.handLabel} language={language} />
-          </div>
-
-          <div className="space-y-4">
-            <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-              <FactTile label={copy.heroLabel} value={copy.heroValueLabel} />
-              <FactTile label={copy.positionLabel} value={scenario.heroPosition} />
-              <FactTile label={copy.handLabel} value={scenario.handLabel} />
-              <FactTile
-                label={copy.villainLabel}
-                value={scenario.villainPosition ?? copy.noVillainLabel}
-              />
-              <FactTile
+    <TableSceneShell
+      header={
+        <SceneHeader
+          eyebrow={copy.tableStateEyebrow}
+          title={scenario.title}
+          description={scenario.learningGoal}
+          tags={
+            <>
+              <SpotTag tone="cyan">{questionNumber}/{totalQuestions}</SpotTag>
+              <SpotTag>{getPreflopSourceTypeLabel(scenario.sourceType, language)}</SpotTag>
+              <SpotTag>{getPreflopPackLabel(activeContentPack.id, language)}</SpotTag>
+              <SpotTag tone="emerald">
+                {getPreflopPotTypeLabel(scenario.potType, language)}
+              </SpotTag>
+              {retryHint ? <SpotTag tone="amber">{copy.retryLabel}</SpotTag> : null}
+            </>
+          }
+          aside={
+            <div className="grid gap-3 sm:grid-cols-2">
+              <StatPill label={copy.handLabel} value={scenario.handLabel} />
+              <StatPill
                 label={copy.stackLabel}
                 value={`${scenario.effectiveStackBb}bb`}
               />
-              <FactTile
-                label={copy.spotLabel}
-                value={getPreflopPotTypeLabel(scenario.potType, language)}
-              />
             </div>
+          }
+        />
+      }
+      rail={
+        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <SceneStatCard label={copy.heroLabel} value={scenario.heroPosition} />
+          <SceneStatCard
+            label={copy.villainLabel}
+            value={scenario.villainPosition ?? copy.noVillainLabel}
+          />
+          <SceneStatCard
+            label={copy.spotLabel}
+            value={getPreflopPotTypeLabel(scenario.potType, language)}
+          />
+          <SceneStatCard
+            label={copy.focusLabel}
+            value={conceptLabels.join(" / ")}
+            wide
+          />
+        </div>
+      }
+      footer={
+        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
+          <ActionHistory label={copy.actionLaneLabel} steps={formattedHistory} />
+          <div className="rounded-[24px] border border-white/12 bg-black/14 p-4">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+              {copy.focusLabel}
+            </p>
+            <p className="mt-2 text-sm leading-6 text-slate-300">
+              {scenario.learningGoal}
+            </p>
+            {retryHint ? (
+              <div className="mt-4 rounded-[20px] border border-amber-200/18 bg-amber-300/10 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+                  {copy.retryLabel}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-amber-50/90">
+                  {retryHint.reason}
+                </p>
+              </div>
+            ) : null}
+          </div>
+        </div>
+      }
+      coach={
+        <CoachAnchor
+          title={language === "vi" ? "Coach ngoi canh ban" : "Coach seat by the table"}
+          body={
+            language === "vi"
+              ? "Cho nay duoc de san cho AI tutor dang nudge, reveal feedback, va compare spot ma van giu scene poker la trung tam."
+              : "This reserves the table-coach slot for nudges, reveal feedback, and similar spots while keeping the poker scene in the center."
+          }
+          modeLabel={language === "vi" ? "Silent coach" : "Silent coach"}
+          actions={coachActions}
+        />
+      }
+    >
+      <div className="space-y-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <SeatBadge
+            role={copy.heroValueLabel}
+            position={scenario.heroPosition}
+            stack={`${scenario.effectiveStackBb}bb`}
+            tone="cyan"
+          />
+          <SeatBadge
+            role={copy.villainLabel}
+            position={scenario.villainPosition ?? copy.noVillainLabel}
+            tone="slate"
+          />
+        </div>
 
-            <div className="rounded-[24px] border border-white/12 bg-black/14 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-emerald-100/55">
-                {copy.actionLaneLabel}
+        <div className="grid gap-5 xl:grid-cols-[minmax(0,320px)_minmax(0,1fr)] xl:items-center">
+          <PreflopHandVisual handLabel={scenario.handLabel} language={language} />
+
+          <div className="space-y-4">
+            <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                {copy.positionLabel}
               </p>
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                {scenario.actionHistory.map((step, index) => (
-                  <div
-                    key={`${scenario.id}-${step}-${index}`}
-                    className="flex items-center gap-2"
-                  >
-                    {index > 0 ? (
-                      <span className="text-xs font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-                        {"->"}
-                      </span>
-                    ) : null}
-                    <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
-                      {formatPreflopHistoryStep(step, language)}
-                    </span>
-                  </div>
-                ))}
+              <div className="mt-4 flex flex-wrap gap-3">
+                <SeatBadge
+                  role={copy.heroValueLabel}
+                  position={scenario.heroPosition}
+                  tone="emerald"
+                />
+                <SeatBadge
+                  role={copy.villainLabel}
+                  position={scenario.villainPosition ?? copy.noVillainLabel}
+                />
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-white/12 bg-black/14 p-4">
+            <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
               <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-                {copy.focusLabel}
+                {copy.handLabel}
               </p>
-              <p className="mt-2 text-sm leading-6 text-slate-300">
-                {scenario.learningGoal}
+              <div className="mt-3 flex flex-wrap gap-2">
+                <SpotTag tone="cyan" className="text-sm tracking-[0.08em] normal-case">
+                  {scenario.handLabel}
+                </SpotTag>
+                {conceptLabels.map((conceptLabel) => (
+                  <SpotTag key={`${scenario.id}-${conceptLabel}`} tone="slate">
+                    {conceptLabel}
+                  </SpotTag>
+                ))}
+              </div>
+              <p className="mt-4 text-sm leading-6 text-slate-300">
+                {language === "vi"
+                  ? "Hero hand la protagonist cua scene nay. Chot line dua tren vi tri, lich su action, va stack depth truoc khi reveal bai hoc."
+                  : "Hero hand is the protagonist of this scene. Lock the line using seat, action history, and stack depth before the lesson reveals."}
               </p>
             </div>
           </div>
         </div>
       </div>
-
-      {retryHint ? (
-        <div className="mt-4 rounded-[24px] border border-amber-200/18 bg-amber-300/10 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
-            {copy.focusLabel}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-amber-50/90">{retryHint.reason}</p>
-        </div>
-      ) : null}
-    </section>
+    </TableSceneShell>
   );
 }

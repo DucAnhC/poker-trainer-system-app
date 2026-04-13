@@ -3,6 +3,7 @@
 import { useState } from "react";
 
 import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
+import { BoardCards } from "@/components/poker-room/PokerRoom";
 import { LeakTagBadge } from "@/components/ui/LeakTagBadge";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import { leakTags } from "@/data/leak-tags";
@@ -14,6 +15,7 @@ import {
   reviewStreetFocusOptions,
   type HandReviewDraft,
 } from "@/features/review/review-constants";
+import { extractCardCodes } from "@/lib/poker/cards";
 import { cn } from "@/lib/utils";
 import type { PositionId } from "@/types/poker";
 import type { HandReviewNote } from "@/types/training";
@@ -88,6 +90,7 @@ export function ReviewForm({
     copy.notSpecified;
   const selectedLeakCount = formState.leakTagIds.length;
   const boardPreview = formState.board.trim();
+  const boardPreviewCards = extractCardCodes(boardPreview).slice(0, 5);
   const chosenActionPreview = formState.chosenAction.trim();
   const uncertaintyPreview = formState.uncertainty.trim();
 
@@ -192,9 +195,15 @@ export function ReviewForm({
                 <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
                   {copy.boardLabel}
                 </p>
-                <p className="mt-2 text-sm font-semibold text-white">
-                  {boardPreview || copy.boardPlaceholder}
-                </p>
+                {boardPreviewCards.length > 0 ? (
+                  <div className="mt-3">
+                    <BoardCards cards={boardPreviewCards} size="sm" />
+                  </div>
+                ) : (
+                  <p className="mt-2 text-sm font-semibold text-white">
+                    {boardPreview || copy.boardPlaceholder}
+                  </p>
+                )}
               </div>
             </div>
 

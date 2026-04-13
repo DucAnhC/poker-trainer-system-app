@@ -3,10 +3,21 @@
 import { useEffect, useMemo, useState } from "react";
 
 import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
+import {
+  ActionHistory,
+  BoardCards,
+  CoachAnchor,
+  SceneHeader,
+  SeatBadge,
+  SpotTag,
+  StatPill,
+  TableSceneShell,
+} from "@/components/poker-room/PokerRoom";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
 import {
   createHandReviewNoteId,
 } from "@/lib/review/local-hand-review-storage";
+import { extractCardCodes } from "@/lib/poker/cards";
 import { cn, formatDateTimeLabel } from "@/lib/utils";
 import type { HandReviewNote } from "@/types/training";
 import { ReviewCard } from "@/features/review/ReviewCard";
@@ -26,6 +37,15 @@ function getMostTaggedLeakCount(notes: HandReviewNote[]) {
   }
 
   return [...counts.values()].sort((left, right) => right - left)[0] ?? 0;
+}
+
+function getReviewActionSteps(summary: string) {
+  const steps = summary
+    .split(/\r?\n|->|>/)
+    .map((step) => step.trim())
+    .filter(Boolean);
+
+  return steps.length > 0 ? steps : [summary.trim()].filter(Boolean);
 }
 
 function WorkspaceStat({
@@ -50,7 +70,8 @@ function WorkspaceStat({
 
 export function HandReviewWorkspace() {
   const uiCopy = useUiCopy();
-  const copy = getReviewCopy(getReviewUiLanguage(uiCopy.locale));
+  const language = getReviewUiLanguage(uiCopy.locale);
+  const copy = getReviewCopy(language);
   const {
     notes,
     hasLoaded,
@@ -161,120 +182,168 @@ export function HandReviewWorkspace() {
   }
 
   const lastUpdatedAt = notes[0]?.updatedAt ?? null;
+  const selectedBoardCards = selectedNote ? extractCardCodes(selectedNote.board).slice(0, 5) : [];
+  const selectedActionSteps = selectedNote
+    ? getReviewActionSteps(selectedNote.actionHistorySummary)
+    : [];
+  const coachActions =
+    language === "vi"
+      ? ["Goi y ngan", "Giai thich them", "Tinh huong tuong tu"]
+      : ["Quick hint", "Explain more", "Similar spot"];
 
   return (
     <div className="space-y-5">
-      <section className="rounded-[34px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-5 text-white shadow-panel sm:p-6">
-        <div className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_340px] xl:items-start">
-          <div className="space-y-4">
+      <TableSceneShell
+        header={
+          <SceneHeader
+            eyebrow={copy.pageEyebrow}
+            title={copy.pageTitle}
+            description={copy.pageBody}
+            tags={
+              <>
+                <SpotTag tone="cyan">{storageMode === "account" ? copy.accountMode : copy.localMode}</SpotTag>
+                {userEmail && storageMode === "account" ? <SpotTag>{userEmail}</SpotTag> : null}
+                {isSaving || deletingNoteId ? <SpotTag tone="amber">{copy.saving}</SpotTag> : null}
+              </>
+            }
+            aside={
+              <div className="grid gap-3 sm:grid-cols-3">
+                <WorkspaceStat
+                  label={copy.savedReviews}
+                  value={`${notes.length}`}
+                  note={storageMode === "account" ? copy.accountMode : copy.localMode}
+                />
+                <WorkspaceStat
+                  label={copy.lastUpdated}
+                  value={hasLoaded ? formatDateTimeLabel(lastUpdatedAt) : "..."}
+                  note={hasLoaded ? copy.pageBody : copy.loadingBody}
+                />
+                <WorkspaceStat
+                  label={copy.leakPeak}
+                  value={`${getMostTaggedLeakCount(notes)}`}
+                  note={copy.followUpLabel}
+                />
+              </div>
+            }
+          />
+        }
+        rail={
+          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <StatPill label={copy.savedReviews} value={`${notes.length}`} />
+            <StatPill
+              label={copy.lastUpdated}
+              value={hasLoaded ? formatDateTimeLabel(lastUpdatedAt) : "..."}
+            />
+            <StatPill label={copy.leakPeak} value={`${getMostTaggedLeakCount(notes)}`} />
+          </div>
+        }
+        footer={
+          selectedNote ? (
+            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
+              <ActionHistory label={copy.detailLabels.actionHistory} steps={selectedActionSteps} />
+              <div className="rounded-[24px] border border-white/12 bg-black/14 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                  {copy.uncertaintyLabel}
+                </p>
+                <p className="mt-2 text-sm leading-6 text-slate-300">
+                  {selectedNote.uncertainty}
+                </p>
+              </div>
+            </div>
+          ) : undefined
+        }
+        coach={
+          <CoachAnchor
+            title={copy.pageEyebrow}
+            body={
+              language === "vi"
+                ? "Review module nay da duoc to chuc nhu mot replay station, va coach seat nay duoc de san cho next hand suggestions, leak recap, va explain follow-up."
+                : "This review module is now framed as a replay station, and this coach seat is reserved for next-hand suggestions, leak recaps, and follow-up explanations."
+            }
+            modeLabel={language === "vi" ? "Study coach" : "Study coach"}
+            actions={coachActions}
+          />
+        }
+      >
+        {selectedNote ? (
+          <div className="space-y-5">
             <div className="flex flex-wrap items-center gap-2">
-              <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
-                {copy.pageEyebrow}
-              </span>
-              <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-                {storageMode === "account" ? copy.accountMode : copy.localMode}
-              </span>
-              {userEmail && storageMode === "account" ? (
-                <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
-                  {userEmail}
-                </span>
-              ) : null}
-              {isSaving || deletingNoteId ? (
-                <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
-                  {copy.saving}
-                </span>
+              <SpotTag tone="cyan">{copy.streetFocusLabels[selectedNote.streetFocus]}</SpotTag>
+              {typeof selectedNote.effectiveStackBb === "number" ? (
+                <SpotTag>{selectedNote.effectiveStackBb}bb</SpotTag>
               ) : null}
             </div>
 
-            <div className="space-y-2">
-              <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
-                {copy.pageTitle}
-              </h1>
-              <p className="max-w-2xl text-sm leading-6 text-slate-300">
-                {copy.pageBody}
-              </p>
-            </div>
-
-            <div className="grid gap-3 sm:grid-cols-3">
-              <WorkspaceStat
-                label={copy.savedReviews}
-                value={`${notes.length}`}
-                note={storageMode === "account" ? copy.accountMode : copy.localMode}
+            <div className="flex flex-wrap items-center justify-between gap-3">
+              <SeatBadge
+                role={copy.heroLabel}
+                position={selectedNote.heroPosition ?? copy.notSpecified}
+                stack={
+                  typeof selectedNote.effectiveStackBb === "number"
+                    ? `${selectedNote.effectiveStackBb}bb`
+                    : undefined
+                }
+                tone="cyan"
               />
-              <WorkspaceStat
-                label={copy.lastUpdated}
-                value={hasLoaded ? formatDateTimeLabel(lastUpdatedAt) : "..."}
-                note={hasLoaded ? copy.pageBody : copy.loadingBody}
-              />
-              <WorkspaceStat
-                label={copy.leakPeak}
-                value={`${getMostTaggedLeakCount(notes)}`}
-                note={copy.followUpLabel}
+              <SeatBadge
+                role={copy.villainLabel}
+                position={selectedNote.villainPosition ?? copy.notSpecified}
+                tone="slate"
               />
             </div>
-          </div>
 
-          <div className="rounded-[28px] border border-white/10 bg-black/14 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
-              {selectedNote ? copy.detailEyebrow : copy.snapshotLabel}
-            </p>
-            <div className="mt-3 space-y-3">
-              {selectedNote ? (
-                <>
-                  <h2 className="text-2xl font-semibold tracking-tight text-white">
-                    {selectedNote.title}
-                  </h2>
-                  <div className="flex flex-wrap gap-2">
-                    <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
-                      {copy.streetFocusLabels[selectedNote.streetFocus]}
-                    </span>
-                    {selectedNote.heroPosition || selectedNote.villainPosition ? (
-                      <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
-                        {(selectedNote.heroPosition ?? "Hero") +
-                          " vs " +
-                          (selectedNote.villainPosition ?? "Villain")}
-                      </span>
-                    ) : null}
-                    {typeof selectedNote.effectiveStackBb === "number" ? (
-                      <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
-                        {selectedNote.effectiveStackBb}bb
-                      </span>
-                    ) : null}
+            <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] xl:items-center">
+              <div className="rounded-[28px] border border-white/12 bg-black/18 p-4">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                  {copy.snapshotLabel}
+                </p>
+                {selectedBoardCards.length > 0 ? (
+                  <div className="mt-4">
+                    <BoardCards cards={selectedBoardCards} size="lg" />
                   </div>
-
-                  <div className="grid gap-3">
-                    <div className="rounded-[22px] border border-cyan-300/20 bg-cyan-300/[0.07] p-4">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-cyan-100/85">
-                        {copy.chosenActionLabel}
-                      </p>
-                      <p className="mt-2 text-sm font-semibold leading-6 text-white">
-                        {selectedNote.chosenAction}
-                      </p>
-                    </div>
-                    <div className="rounded-[22px] border border-white/10 bg-black/16 p-4">
-                      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                        {copy.uncertaintyLabel}
-                      </p>
-                      <p className="mt-2 text-sm leading-6 text-slate-200">
-                        {selectedNote.uncertainty}
-                      </p>
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  <h2 className="text-2xl font-semibold tracking-tight text-white">
-                    {copy.detailTitle}
-                  </h2>
-                  <p className="text-sm leading-6 text-slate-300">
-                    {copy.detailBody}
+                ) : (
+                  <p className="mt-4 text-sm leading-6 text-slate-300">
+                    {selectedNote.board || copy.boardPlaceholder}
                   </p>
-                </>
-              )}
+                )}
+              </div>
+
+              <div className="grid gap-4">
+                <div className="rounded-[24px] border border-cyan-300/20 bg-cyan-300/[0.07] p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/85">
+                    {copy.chosenActionLabel}
+                  </p>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-white">
+                    {selectedNote.chosenAction}
+                  </p>
+                </div>
+
+                <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                    {copy.detailEyebrow}
+                  </p>
+                  <p className="mt-2 text-xl font-semibold tracking-tight text-white">
+                    {selectedNote.title}
+                  </p>
+                  <p className="mt-3 text-sm leading-6 text-slate-300">
+                    {selectedNote.note || copy.detailBody}
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
-        </div>
-      </section>
+        ) : (
+          <div className="rounded-[28px] border border-white/12 bg-black/18 p-5">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+              {copy.snapshotLabel}
+            </p>
+            <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">
+              {copy.detailTitle}
+            </h2>
+            <p className="mt-3 text-sm leading-6 text-slate-300">{copy.detailBody}</p>
+          </div>
+        )}
+      </TableSceneShell>
 
       <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_360px]">
         <ReviewForm
