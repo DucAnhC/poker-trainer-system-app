@@ -142,7 +142,7 @@ export function ReviewForm({
   return (
     <SurfaceCard className="rounded-[34px] border-slate-900/70 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel sm:p-6">
       <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-200/80">
           {copy.formEyebrow}
         </p>
         <h2 className="text-[1.9rem] font-semibold tracking-tight text-white">
@@ -154,14 +154,14 @@ export function ReviewForm({
       <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
         <div className="rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(34,197,94,0.18),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.22)_100%)] p-4 sm:p-5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
               {copy.snapshotLabel}
             </span>
-            <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            <span className="max-w-full break-words rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
               {copy.streetFocusLabels[formState.streetFocus]}
             </span>
             {selectedLeakCount > 0 ? (
-              <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+              <span className="max-w-full break-words rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100 text-pretty">
                 {copy.leakTagsLabel} x{selectedLeakCount}
               </span>
             ) : null}
@@ -169,7 +169,7 @@ export function ReviewForm({
 
           <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.05fr)_minmax(0,0.95fr)]">
             <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300">
                 {copy.titleLabel}
               </p>
               <p className="mt-2 text-xl font-semibold tracking-tight text-white">
@@ -192,7 +192,7 @@ export function ReviewForm({
               </div>
 
               <div className="mt-4 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
                   {copy.boardLabel}
                 </p>
                 {boardPreviewCards.length > 0 ? (
@@ -209,7 +209,7 @@ export function ReviewForm({
 
             <div className="grid gap-4">
               <div className="rounded-[24px] border border-cyan-300/20 bg-cyan-300/[0.07] p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/85">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100/85">
                   {copy.chosenActionLabel}
                 </p>
                 <p className="mt-2 text-sm font-semibold leading-6 text-white">
@@ -218,7 +218,7 @@ export function ReviewForm({
               </div>
 
               <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300">
                   {copy.uncertaintyLabel}
                 </p>
                 <p className="mt-2 text-sm font-semibold leading-6 text-white">
@@ -231,7 +231,7 @@ export function ReviewForm({
 
         <div className="rounded-[28px] border border-white/10 bg-black/12 p-4 sm:p-5">
           <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-200/80">
               {copy.snapshotLabel}
             </p>
           </div>
@@ -350,7 +350,7 @@ export function ReviewForm({
 
         <div className="rounded-[28px] border border-white/10 bg-black/12 p-4 sm:p-5">
           <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-200/80">
               {copy.decisionNoteLabel}
             </p>
           </div>
@@ -423,7 +423,7 @@ export function ReviewForm({
 
         <div className="rounded-[28px] border border-white/10 bg-black/12 p-4 sm:p-5">
           <div className="space-y-2">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-200/80">
               {copy.leakTagsLabel}
             </p>
           </div>
@@ -464,14 +464,14 @@ export function ReviewForm({
             <p className="text-xs leading-5 text-slate-400">
               {storageMode === "account" ? copy.storageAccount : copy.storageLocal}
             </p>
-            <p className="text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-500">
               {copy.leakTagsLabel}: {selectedLeakCount}
             </p>
           </div>
           <button
             type="submit"
             disabled={isSubmitting}
-            className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.16em] text-white shadow-[0_24px_50px_-24px_rgba(34,197,94,0.72)] transition hover:brightness-105"
+            className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] px-6 py-3.5 text-sm font-semibold uppercase tracking-[0.12em] text-white shadow-[0_24px_50px_-24px_rgba(34,197,94,0.72)] transition hover:brightness-105"
           >
             {isSubmitting ? copy.savingLabel : copy.saveLabel}
           </button>

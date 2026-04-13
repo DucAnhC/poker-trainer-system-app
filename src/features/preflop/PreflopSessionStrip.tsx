@@ -126,33 +126,33 @@ export function PreflopSessionStrip({
 
   return (
     <section className="rounded-[32px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-4 text-white shadow-panel sm:p-5">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+            <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
               {copy.pageEyebrow}
             </span>
-            <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
+            <span className="max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty">
               {copy.pageTitle}
             </span>
-            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+            <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
               {getPreflopPackLabel(activeContentPack.id, language)}
             </span>
-            <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
+            <span className="max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty">
               {getPreflopStorageLabel(storageMode, language)}
             </span>
             {retryItemCount > 0 ? (
-              <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+              <span className="max-w-full break-words rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100 text-pretty">
                 {copy.retryLabel} x{retryItemCount}
               </span>
             ) : null}
             {isPersisting ? (
-              <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+              <span className="max-w-full break-words rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100 text-pretty">
                 {copy.savingLabel}
               </span>
             ) : null}
             {persistenceError ? (
-              <span className="rounded-full border border-rose-200/25 bg-rose-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-100">
+              <span className="max-w-full break-words rounded-full border border-rose-200/25 bg-rose-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-100 text-pretty">
                 {copy.syncIssueLabel}
               </span>
             ) : null}
@@ -169,17 +169,17 @@ export function PreflopSessionStrip({
         </div>
 
         <div className="rounded-[22px] border border-white/10 bg-black/10 p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
             {copy.sessionLabel}
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
-            <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
               {copy.packLabel}: {getPreflopPackLabel(activeContentPack.id, language)}
             </span>
-            <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
               {copy.queueLabel}: {getPreflopQueueModeLabel(queueMode, language)}
             </span>
-            <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
               {copy.difficultyLabel}: {getPreflopDifficultyLabel(selectedDifficulty, language)}
             </span>
           </div>

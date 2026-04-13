@@ -34,7 +34,7 @@ function ReviewCard({
 }) {
   return (
     <div className={cn("rounded-[28px] border p-5", className)}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300">
         {label}
       </p>
       <div className="mt-3 space-y-3">{children}</div>
@@ -240,7 +240,7 @@ export function PreflopFeedbackPanel({
 
       {!isCorrect && feedback.selectedAction.feedbackHint ? (
         <div className="rounded-[26px] border border-rose-200/30 bg-rose-300/10 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-100">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-100">
             {copy.driftLabel}
           </p>
           <p className="mt-2 text-sm leading-6 text-rose-50/90">
@@ -251,7 +251,7 @@ export function PreflopFeedbackPanel({
 
       {firstAssumption ? (
         <div className="rounded-[26px] border border-amber-200/20 bg-amber-300/10 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100">
             {copy.assumptionLabel}
           </p>
           <p className="mt-2 text-sm leading-6 text-slate-200/90">{firstAssumption}</p>

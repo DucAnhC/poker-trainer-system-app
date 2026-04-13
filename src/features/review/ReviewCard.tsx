@@ -38,15 +38,15 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
         )}
       >
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+          <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
             {copy.streetFocusLabels[note.streetFocus]}
           </span>
           {spotLabel ? (
-            <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            <span className="max-w-full break-words rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
               {spotLabel}
             </span>
           ) : null}
-          <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+          <span className="max-w-full break-words rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
             {formatDateTimeLabel(note.updatedAt)}
           </span>
         </div>
@@ -54,7 +54,7 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
         <div className="space-y-2">
           <h3 className="text-lg font-semibold text-white">{note.title}</h3>
           <div className="rounded-[20px] border border-white/10 bg-black/16 px-4 py-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
               {copy.chosenActionLabel}
             </p>
             <p className="mt-2 text-sm font-semibold leading-6 text-white">
@@ -70,7 +70,7 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
           {boardCards.length > 0 ? (
             <BoardCards cards={boardCards} size="sm" />
           ) : note.board ? (
-            <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
+            <span className="max-w-full break-words rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300 text-pretty">
               {note.board}
             </span>
           ) : null}
@@ -78,7 +78,7 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
 
         <div className="flex flex-wrap items-center gap-2">
           {typeof note.effectiveStackBb === "number" ? (
-            <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
+            <span className="max-w-full break-words rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300 text-pretty">
               {note.effectiveStackBb}bb
             </span>
           ) : null}
@@ -87,7 +87,7 @@ export function ReviewCard({ note, isSelected, onSelect }: ReviewCardProps) {
               <LeakTagBadge key={leakTagId} leakTagId={leakTagId} />
             ))
           ) : (
-            <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
+            <span className="max-w-full break-words rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300 text-pretty">
               {copy.noLeakTags}
             </span>
           )}

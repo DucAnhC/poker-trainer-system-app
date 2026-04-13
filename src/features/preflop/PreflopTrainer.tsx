@@ -25,12 +25,14 @@ function CompletionStat({
   note: string;
 }) {
   return (
-    <div className="rounded-[24px] border border-white/10 bg-black/14 px-4 py-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+    <div className="min-w-0 rounded-[24px] border border-white/10 bg-black/14 px-4 py-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
         {label}
       </p>
-      <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-300">{note}</p>
+      <p className="mt-2 break-words text-3xl font-semibold text-white text-pretty">
+        {value}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-slate-300 text-pretty">{note}</p>
     </div>
   );
 }
@@ -57,7 +59,7 @@ export function PreflopTrainer() {
     return (
       <section className="rounded-[36px] border border-emerald-950/20 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-5 text-white shadow-panel sm:p-6">
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/75">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-200/75">
             {drillCopy.pageEyebrow}
           </p>
           <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -94,7 +96,7 @@ export function PreflopTrainer() {
           <button
             type="button"
             onClick={session.handleRestartSession}
-            className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.96),rgba(13,148,136,0.96))] px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:brightness-105"
+            className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.96),rgba(13,148,136,0.96))] px-5 py-4 text-sm font-semibold uppercase tracking-[0.12em] text-white transition hover:brightness-105"
           >
             {drillCopy.completionRestart}
           </button>
@@ -109,7 +111,7 @@ export function PreflopTrainer() {
   if (!session.currentScenario) {
     return (
       <section className="rounded-[32px] border border-border/70 bg-surface/90 p-6 shadow-panel">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-strong">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent-strong">
           {drillCopy.pageEyebrow}
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
@@ -146,7 +148,7 @@ export function PreflopTrainer() {
         persistenceError={session.persistenceError}
       />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.15fr)_360px]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(390px,0.92fr)]">
         <PreflopTableStatePanel
           language={language}
           scenario={session.currentScenario}

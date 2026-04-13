@@ -20,8 +20,8 @@ const toneClasses: Record<Tone, string> = {
 };
 
 const microLabelClassName =
-  "text-[11px] font-semibold uppercase tracking-[0.12em]";
-const labelTextClassName = "text-[10px] font-semibold uppercase tracking-[0.14em]";
+  "text-[11px] font-semibold uppercase tracking-[0.1em]";
+const labelTextClassName = "text-[10px] font-semibold uppercase tracking-[0.12em]";
 const panelTitleClassName =
   "text-2xl font-semibold tracking-tight text-white text-pretty sm:text-[2rem]";
 const bodyTextClassName = "text-sm leading-6 text-slate-300 text-pretty";
@@ -185,7 +185,7 @@ export function SceneHeader({
   return (
     <div
       className={cn(
-        "grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]",
+        "grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,440px)]",
         className,
       )}
     >
@@ -237,7 +237,7 @@ export function TableSceneShell({
             className={cn(
               "grid gap-4",
               rail
-                ? "xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
+                ? "xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,440px)]"
                 : "",
             )}
           >
@@ -603,15 +603,17 @@ export function CoachAnchor({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
         {actions.map((action) => (
           <div
             key={action.label}
             className="min-w-0 rounded-[18px] border border-white/12 bg-black/18 p-3"
           >
-            <p className="text-sm font-semibold text-white text-pretty">{action.label}</p>
+            <p className="break-words text-sm font-semibold text-white text-pretty">
+              {action.label}
+            </p>
             {action.helper ? (
-              <p className="mt-1 text-xs leading-5 text-slate-400 text-pretty">
+              <p className="mt-1 break-words text-xs leading-5 text-slate-400 text-pretty">
                 {action.helper}
               </p>
             ) : null}

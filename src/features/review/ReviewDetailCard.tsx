@@ -55,7 +55,7 @@ export function ReviewDetailCard({
   if (!note) {
     return (
       <SurfaceCard className="rounded-[32px] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-200/80">
           {copy.detailEyebrow}
         </p>
         <h2 className="mt-2 text-2xl font-semibold text-white">
@@ -82,10 +82,10 @@ export function ReviewDetailCard({
       <div className="flex flex-wrap items-start justify-between gap-4">
         <div className="space-y-2">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
               {copy.streetFocusLabels[note.streetFocus]}
             </span>
-            <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+            <span className="max-w-full break-words rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
               {formatDateTimeLabel(note.updatedAt)}
             </span>
           </div>
@@ -105,11 +105,11 @@ export function ReviewDetailCard({
       <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.94fr)_minmax(0,1.06fr)]">
         <div className="rounded-[26px] border border-white/10 bg-black/12 p-4">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+            <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
               {copy.snapshotLabel}
             </span>
             {spotLabel ? (
-              <span className="rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              <span className="max-w-full break-words rounded-full border border-white/12 bg-black/15 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
                 {spotLabel}
               </span>
             ) : null}
@@ -143,7 +143,7 @@ export function ReviewDetailCard({
         </div>
 
         <div className="rounded-[26px] border border-white/10 bg-black/12 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-200/80">
             {copy.decisionNoteLabel}
           </p>
           <div className="mt-4 grid gap-3">
@@ -155,7 +155,7 @@ export function ReviewDetailCard({
       </div>
 
       <div className="mt-4 rounded-[26px] border border-white/10 bg-black/12 p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
           {copy.detailLabels.actionHistory}
         </p>
         <p className="mt-3 text-sm leading-6 text-slate-200">
@@ -164,7 +164,7 @@ export function ReviewDetailCard({
       </div>
 
       <div className="mt-4 space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
           {copy.detailLabels.leakTags}
         </p>
         <div className="flex flex-wrap gap-2">
@@ -173,7 +173,7 @@ export function ReviewDetailCard({
               <LeakTagBadge key={leakTagId} leakTagId={leakTagId} />
             ))
           ) : (
-            <span className="rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-300">
+            <span className="max-w-full break-words rounded-full border border-white/10 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300 text-pretty">
               {copy.noLeakTagsAssigned}
             </span>
           )}
@@ -182,7 +182,7 @@ export function ReviewDetailCard({
 
       {reviewFocusAreas.length > 0 ? (
         <div className="mt-5 rounded-[26px] border border-white/10 bg-black/12 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-200/80">
             {copy.followUpLabel}
           </p>
           <div className="mt-4 space-y-3">

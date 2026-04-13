@@ -140,7 +140,7 @@ export function PreflopTableStatePanel({
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
           <ActionHistory label={copy.actionLaneLabel} steps={formattedHistory} />
           <div className="rounded-[24px] border border-white/12 bg-black/14 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
               {copy.focusLabel}
             </p>
             <p className="mt-2 text-sm leading-6 text-slate-300">
@@ -148,7 +148,7 @@ export function PreflopTableStatePanel({
             </p>
             {retryHint ? (
               <div className="mt-4 rounded-[20px] border border-amber-200/18 bg-amber-300/10 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100">
                   {copy.retryLabel}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-amber-50/90">
@@ -192,7 +192,7 @@ export function PreflopTableStatePanel({
 
           <div className="space-y-4">
             <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                 {copy.positionLabel}
               </p>
               <div className="mt-4 flex flex-wrap gap-3">
@@ -209,7 +209,7 @@ export function PreflopTableStatePanel({
             </div>
 
             <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                 {copy.handLabel}
               </p>
               <div className="mt-3 flex flex-wrap gap-2">

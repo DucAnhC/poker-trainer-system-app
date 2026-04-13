@@ -13,7 +13,7 @@ export function ReviewFieldGroup({
 }: ReviewFieldGroupProps) {
   return (
     <label className="space-y-3">
-      <span className="block text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+      <span className="block text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300 text-pretty">
         {label}
       </span>
       {hint ? (

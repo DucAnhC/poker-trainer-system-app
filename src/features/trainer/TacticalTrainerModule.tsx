@@ -658,48 +658,48 @@ function TacticalSessionStrip({
 
   return (
     <section className="rounded-[32px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-4 text-white shadow-panel sm:p-5">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_320px] xl:items-start">
+      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100">
+            <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
               {moduleMeta.eyebrow}
             </span>
-            <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
+            <span className="max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty">
               {moduleMeta.title}
             </span>
-            <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
+            <span className="max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty">
               {getTacticalPackLabel(
                 activeContentPack.id,
                 activeContentPack.focusLabel,
                 language,
               )}
             </span>
-            <span className="rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-white/85">
+            <span className="max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty">
               {getTacticalStorageLabel(storageMode, language)}
             </span>
             {retryItemCount > 0 ? (
-              <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+              <span className="max-w-full break-words rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100 text-pretty">
                 {copy.retryLabel} x{retryItemCount}
               </span>
             ) : null}
             {isPersisting ? (
-              <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+              <span className="max-w-full break-words rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100 text-pretty">
                 {copy.savingLabel}
               </span>
             ) : null}
             {persistenceError ? (
-              <span className="rounded-full border border-rose-200/25 bg-rose-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-100">
+              <span className="max-w-full break-words rounded-full border border-rose-200/25 bg-rose-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-100 text-pretty">
                 {copy.syncIssueLabel}
               </span>
             ) : null}
           </div>
 
           <div className="rounded-[22px] border border-white/10 bg-black/12 p-3">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
               {copy.sessionLabel}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
-              <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
                 {copy.packLabel}:{" "}
                 {getTacticalPackLabel(
                   activeContentPack.id,
@@ -707,10 +707,10 @@ function TacticalSessionStrip({
                   language,
                 )}
               </span>
-              <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
                 {copy.levelLabel}: {getTacticalDifficultyLabel(selectedDifficulty, language)}
               </span>
-              <span className="rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+              <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
                 {copy.orderLabel}: {getTacticalQueueModeLabel(queueMode, language)}
               </span>
             </div>
@@ -882,26 +882,26 @@ function PostflopHeroObject({
   return (
     <div className="min-w-0 overflow-hidden rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.26),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
           {scenario.street.toUpperCase()}
         </span>
         {scenario.playerArchetypeId ? (
-          <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+          <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100">
             {getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)}
           </span>
         ) : null}
-        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200">
           {(scenario.heroPosition ?? "-") + " vs " + (scenario.villainPosition ?? "-")}
         </span>
         {typeof scenario.effectiveStackBb === "number" ? (
-          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200">
             {scenario.effectiveStackBb}bb
           </span>
         ) : null}
       </div>
 
       <div className="mt-5 min-w-0 rounded-[26px] border border-white/12 bg-black/16 p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
           {copy.boardLabel}
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -916,7 +916,7 @@ function PostflopHeroObject({
       <div className="mt-4 grid gap-4 xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)]">
         {heroHandCards.length > 0 ? (
           <div className="min-w-0 rounded-[24px] border border-white/12 bg-black/16 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
               {copy.handLabel}
             </p>
             <div className="mt-4">
@@ -926,7 +926,7 @@ function PostflopHeroObject({
         ) : null}
 
         <div className="min-w-0 rounded-[24px] border border-white/12 bg-black/16 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
             {copy.focusLabel}
           </p>
           <div className="mt-3 flex flex-wrap gap-2">
@@ -946,7 +946,7 @@ function PostflopHeroObject({
           </div>
           {scenario.board ? (
             <div className="mt-4 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-400">
                 {copy.textureLabel}
               </p>
               <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
@@ -980,21 +980,21 @@ function BoardTextureHeroObject({
       )}
     >
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
           {scenario.street.toUpperCase()}
         </span>
-        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200">
           {(scenario.heroPosition ?? "-") + " vs " + (scenario.villainPosition ?? "-")}
         </span>
         {typeof scenario.effectiveStackBb === "number" ? (
-          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200">
             {scenario.effectiveStackBb}bb
           </span>
         ) : null}
       </div>
 
       <div className="mt-5 min-w-0 rounded-[26px] border border-white/12 bg-black/18 p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
           {copy.boardLabel}
         </p>
         <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -1007,7 +1007,7 @@ function BoardTextureHeroObject({
       </div>
 
       <div className="mt-4 min-w-0 rounded-[24px] border border-white/12 bg-black/18 p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
           {copy.textureLabel}
         </p>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -1022,7 +1022,7 @@ function BoardTextureHeroObject({
         </div>
 
         <div className="mt-4 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/80">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100/80">
             {copy.whyLabel}
           </p>
           <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
@@ -1057,19 +1057,19 @@ function PlayerTypeHeroObject({
   return (
     <div className="min-w-0 overflow-hidden rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.16),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
           {scenario.street.toUpperCase()}
         </span>
         {scenario.playerArchetypeId ? (
-          <span className={cn("rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em]", playerScene.badge)}>
+          <span className={cn("rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em]", playerScene.badge)}>
             {getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)}
           </span>
         ) : null}
-        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+        <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200">
           {(scenario.heroPosition ?? "-") + " vs " + (scenario.villainPosition ?? "-")}
         </span>
         {typeof scenario.effectiveStackBb === "number" ? (
-          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200">
+          <span className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200">
             {scenario.effectiveStackBb}bb
           </span>
         ) : null}
@@ -1082,7 +1082,7 @@ function PlayerTypeHeroObject({
             playerScene.accent,
           )}
         >
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-white/70">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/70">
             {copy.playerTypeLabel}
           </p>
           <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
@@ -1096,14 +1096,14 @@ function PlayerTypeHeroObject({
                   : copy.playerTypeLabel}
               </p>
             </div>
-            <span className={cn("rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.18em]", playerScene.badge)}>
+            <span className={cn("rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.12em]", playerScene.badge)}>
               {tendencyLabel}
             </span>
           </div>
 
           <div className="mt-4 grid gap-3">
             <div className="min-w-0 rounded-[20px] border border-white/12 bg-black/18 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
                 {readLabel}
               </p>
               <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
@@ -1111,7 +1111,7 @@ function PlayerTypeHeroObject({
               </p>
             </div>
             <div className="min-w-0 rounded-[20px] border border-white/12 bg-black/18 p-4">
-              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
                 {exploitLabel}
               </p>
               <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
@@ -1124,7 +1124,7 @@ function PlayerTypeHeroObject({
         <div className="min-w-0 rounded-[26px] border border-white/12 bg-black/18 p-4">
             {boardCards.length > 0 ? (
               <>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                   {copy.boardLabel}
                 </p>
                 <div className="mt-4 flex flex-wrap items-center gap-3">
@@ -1133,7 +1133,7 @@ function PlayerTypeHeroObject({
               </>
             ) : (
               <>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                   {copy.focusLabel}
                 </p>
                 <div className="mt-3 flex flex-wrap gap-2">
@@ -1152,7 +1152,7 @@ function PlayerTypeHeroObject({
           <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
             {heroHandCards.length > 0 ? (
               <div className="min-w-0">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                   {copy.handLabel}
                 </p>
                 <div className="mt-3">
@@ -1163,7 +1163,7 @@ function PlayerTypeHeroObject({
 
             {scenario.board ? (
               <div className="min-w-0 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/80">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100/80">
                   {copy.textureLabel}
                 </p>
                 <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
@@ -1221,11 +1221,11 @@ function ScenarioPrimaryVisual({
   return (
     <div className="rounded-[28px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.2),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.18)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)] sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-cyan-100">
+        <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
           {scenario.street.toUpperCase()}
         </span>
         {scenario.playerArchetypeId ? (
-          <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-amber-100">
+          <span className="rounded-full border border-amber-200/20 bg-amber-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100">
             {getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)}
           </span>
         ) : null}
@@ -1233,7 +1233,7 @@ function ScenarioPrimaryVisual({
           ? getTacticalBoardLabels(scenario.board, language).map((label) => (
               <span
                 key={`${scenario.id}-${label}`}
-                className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.16em] text-slate-200"
+                className="rounded-full border border-white/12 bg-black/16 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200"
               >
                 {label}
               </span>
@@ -1243,7 +1243,7 @@ function ScenarioPrimaryVisual({
 
       {boardCards.length > 0 ? (
         <div className="mt-4 space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
             {copy.boardLabel}
           </p>
           <TacticalCardRow cards={boardCards} size="lg" />
@@ -1252,7 +1252,7 @@ function ScenarioPrimaryVisual({
 
       {heroHandCards.length > 0 ? (
         <div className="mt-4 space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
             {copy.handLabel}
           </p>
           <TacticalCardRow cards={heroHandCards} size="md" />
@@ -1261,7 +1261,7 @@ function ScenarioPrimaryVisual({
 
       {boardCards.length === 0 && heroHandCards.length === 0 ? (
         <div className="mt-4 rounded-[22px] border border-white/12 bg-black/16 p-5">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
             {copy.focusLabel}
           </p>
           <p className="mt-2 text-xl font-semibold text-white">{scenario.title}</p>
@@ -1354,7 +1354,7 @@ function TacticalSpotPanel({
           ) : null}
 
           <div className="min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
               {copy.focusLabel}
             </p>
             <p className="mt-2 break-words text-sm leading-6 text-slate-300">
@@ -1362,7 +1362,7 @@ function TacticalSpotPanel({
             </p>
             {retryHint ? (
               <div className="mt-4 rounded-[20px] border border-amber-200/18 bg-amber-300/10 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100">
                   {copy.retryLabel}
                 </p>
                 <p className="mt-2 break-words text-sm leading-6 text-amber-50/90">
@@ -1575,7 +1575,7 @@ function ReviewBlock({
 }) {
   return (
     <div className={cn("rounded-[28px] border border-white/12 bg-black/14 p-5", className)}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300">
         {label}
       </p>
       <div className="mt-3 space-y-3">{children}</div>
@@ -1752,7 +1752,7 @@ function TacticalFeedbackPanel({
 
       {!isCorrect && feedback.selectedAction.feedbackHint ? (
         <div className="rounded-[26px] border border-rose-200/30 bg-rose-300/10 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-rose-100">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-rose-100">
             {copy.driftLabel}
           </p>
           <p className="mt-2 break-words text-sm leading-6 text-rose-50/90">
@@ -1763,7 +1763,7 @@ function TacticalFeedbackPanel({
 
       {firstAssumption ? (
         <div className="rounded-[26px] border border-amber-200/20 bg-amber-300/10 p-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100">
             {copy.assumptionsLabel}
           </p>
           <p className="mt-2 break-words text-sm leading-6 text-slate-200/90">
@@ -1831,7 +1831,7 @@ function CompletionPanel({
   return (
     <section className="rounded-[36px] border border-emerald-950/20 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-5 text-white shadow-panel sm:p-6">
       <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/75">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-200/75">
           {moduleMeta.eyebrow}
         </p>
         <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-4xl">
@@ -1866,7 +1866,7 @@ function CompletionPanel({
         <button
           type="button"
           onClick={onRestart}
-          className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.96),rgba(13,148,136,0.96))] px-5 py-4 text-sm font-semibold uppercase tracking-[0.16em] text-white transition hover:brightness-105"
+          className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.96),rgba(13,148,136,0.96))] px-5 py-4 text-sm font-semibold uppercase tracking-[0.12em] text-white transition hover:brightness-105"
         >
           {moduleCopy.restartButton}
         </button>
@@ -1923,7 +1923,7 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
   if (!session.currentScenario) {
     return (
       <section className="rounded-[32px] border border-border/70 bg-surface/90 p-6 shadow-panel">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-strong">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent-strong">
           {moduleMeta.eyebrow}
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">

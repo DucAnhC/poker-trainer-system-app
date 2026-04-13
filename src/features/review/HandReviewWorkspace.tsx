@@ -270,7 +270,7 @@ export function HandReviewWorkspace() {
             <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
               <ActionHistory label={copy.detailLabels.actionHistory} steps={selectedActionSteps} />
               <div className="rounded-[24px] border border-white/12 bg-black/14 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                   {copy.uncertaintyLabel}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-slate-300">
@@ -322,7 +322,7 @@ export function HandReviewWorkspace() {
 
             <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.95fr)] xl:items-center">
               <div className="rounded-[28px] border border-white/12 bg-black/18 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                   {copy.snapshotLabel}
                 </p>
                 {selectedBoardCards.length > 0 ? (
@@ -338,7 +338,7 @@ export function HandReviewWorkspace() {
 
               <div className="grid gap-4">
                 <div className="rounded-[24px] border border-cyan-300/20 bg-cyan-300/[0.07] p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-100/85">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100/85">
                     {copy.chosenActionLabel}
                   </p>
                   <p className="mt-2 text-sm font-semibold leading-6 text-white">
@@ -347,7 +347,7 @@ export function HandReviewWorkspace() {
                 </div>
 
                 <div className="rounded-[24px] border border-white/12 bg-black/18 p-4">
-                  <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-300">
                     {copy.detailEyebrow}
                   </p>
                   <p className="mt-2 text-xl font-semibold tracking-tight text-white">
@@ -362,7 +362,7 @@ export function HandReviewWorkspace() {
           </div>
         ) : (
           <div className="rounded-[28px] border border-white/12 bg-black/18 p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-cyan-200/80">
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-200/80">
               {copy.snapshotLabel}
             </p>
             <h2 className="mt-2 text-2xl font-semibold tracking-tight text-white">
@@ -373,7 +373,7 @@ export function HandReviewWorkspace() {
         )}
       </TableSceneShell>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.1fr)_360px]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(390px,0.92fr)]">
         <ReviewForm
           onSave={handleSaveReview}
           isSubmitting={isSaving}
@@ -383,7 +383,7 @@ export function HandReviewWorkspace() {
         <div className="space-y-5">
           <SurfaceCard className="rounded-[32px] border-white/10 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel">
             <div className="space-y-2">
-              <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-cyan-200/80">
                 {copy.listEyebrow}
               </p>
               <h2 className="text-2xl font-semibold text-white">{copy.listTitle}</h2>
@@ -396,7 +396,7 @@ export function HandReviewWorkspace() {
 
             {errorMessage ? (
               <div className="mt-4 rounded-[24px] border border-amber-200/20 bg-amber-300/10 p-4">
-                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-amber-100">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100">
                   {copy.loadIssue}
                 </p>
                 <p className="mt-2 text-sm leading-6 text-amber-50/90">
@@ -423,7 +423,7 @@ export function HandReviewWorkspace() {
               >
                 <p
                   className={cn(
-                    "text-[11px] font-semibold uppercase tracking-[0.18em]",
+                    "text-[11px] font-semibold uppercase tracking-[0.12em]",
                     actionMessage.tone === "danger"
                       ? "text-rose-100"
                       : "text-emerald-100",
