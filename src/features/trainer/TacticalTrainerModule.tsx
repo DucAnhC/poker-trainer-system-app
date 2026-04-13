@@ -161,8 +161,34 @@ function getActionTypeLabel(
 
 function getCoachActions(language: TacticalUiLanguage) {
   return language === "vi"
-    ? ["Goi y ngan", "Giai thich them", "Tinh huong tuong tu"]
-    : ["Quick hint", "Explain more", "Similar spot"];
+    ? [
+        {
+          label: "Goi y ngan",
+          helper: "Nudge ngan, dung van tay trong nhac choi.",
+        },
+        {
+          label: "Giai thich them",
+          helper: "Tom tat vi sao line nay tot hon trong node nay.",
+        },
+        {
+          label: "Tinh huong tuong tu",
+          helper: "Du phong cho follow-up hand cung family.",
+        },
+      ]
+    : [
+        {
+          label: "Quick hint",
+          helper: "A short nudge that stays inside the play rhythm.",
+        },
+        {
+          label: "Explain more",
+          helper: "A tighter why for this exact node.",
+        },
+        {
+          label: "Similar spot",
+          helper: "Reserved for a follow-up hand from the same family.",
+        },
+      ];
 }
 
 function shouldUseHighTensionDecisionPanel(moduleId: InteractiveTrainingModuleId) {
@@ -556,11 +582,13 @@ function SessionStat({
   value: string;
 }) {
   return (
-    <div className="rounded-[20px] border border-white/10 bg-black/14 px-4 py-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+    <div className="min-w-0 rounded-[20px] border border-white/10 bg-black/14 px-4 py-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/55">
         {label}
       </p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
+      <p className="mt-2 break-words text-xl font-semibold leading-7 text-white text-pretty sm:text-2xl">
+        {value}
+      </p>
     </div>
   );
 }
@@ -574,7 +602,7 @@ function SessionFilterGroup({
 }) {
   return (
     <div className="space-y-2">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
         {label}
       </p>
       <div className="flex flex-wrap gap-2">{children}</div>
@@ -689,7 +717,7 @@ function TacticalSessionStrip({
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
           <SessionStat
             label={copy.sessionProgressLabel}
             value={`${answeredCount}/${totalQuestions}`}
@@ -1461,6 +1489,28 @@ function TacticalDecisionPanel({
       ? `${copy.lockLabel} ${selectedAction.label}`
       : copy.lockLabel;
   const coachActions = getCoachActions(language);
+  const stateLabel = hasSubmitted
+    ? language === "vi"
+      ? "Line da khoa"
+      : "Line locked"
+    : selectedAction
+      ? language === "vi"
+        ? "Da chon line"
+        : "Line selected"
+      : language === "vi"
+        ? "Cho quyet dinh"
+        : "Awaiting decision";
+  const stateHint = hasSubmitted
+    ? language === "vi"
+      ? "Reveal panel tiep theo se dua correction, coach recap, va next spot."
+      : "The reveal panel now carries the correction, coach recap, and next spot."
+    : selectedAction
+      ? language === "vi"
+        ? "Line da duoc chon. Khoa no lai de mo reveal."
+        : "A line is selected. Lock it to open the reveal."
+      : language === "vi"
+        ? "Chon mot action truoc. Coach seat chi giu vai tro nudge ngan."
+        : "Choose an action first. The coach seat stays limited to short nudges.";
 
   return (
     <ActionTray
@@ -1472,6 +1522,9 @@ function TacticalDecisionPanel({
       selectedMeta={
         selectedAction ? getActionTypeLabel(selectedAction.actionType, language) : undefined
       }
+      stateLabel={stateLabel}
+      stateHint={stateHint}
+      stateTone={hasSubmitted ? "emerald" : selectedAction ? "cyan" : "slate"}
       primaryLabel={primaryButtonLabel}
       onPrimary={hasSubmitted ? onNext : onSubmit}
       primaryDisabled={hasSubmitted ? !canAdvance : !canSubmit}

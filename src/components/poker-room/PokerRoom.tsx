@@ -5,6 +5,11 @@ import { cn } from "@/lib/utils";
 type Tone = "cyan" | "emerald" | "amber" | "rose" | "slate" | "ghost";
 type CardSize = "sm" | "md" | "lg" | "xl";
 
+export type CoachActionItem = {
+  label: string;
+  helper?: string;
+};
+
 const toneClasses: Record<Tone, string> = {
   cyan: "border-cyan-200/20 bg-cyan-300/10 text-cyan-100",
   emerald: "border-emerald-200/20 bg-emerald-300/10 text-emerald-100",
@@ -13,6 +18,16 @@ const toneClasses: Record<Tone, string> = {
   slate: "border-white/12 bg-black/18 text-slate-200",
   ghost: "border-white/12 bg-white/[0.06] text-white/85",
 };
+
+const microLabelClassName =
+  "text-[11px] font-semibold uppercase tracking-[0.12em]";
+const labelTextClassName = "text-[10px] font-semibold uppercase tracking-[0.14em]";
+const panelTitleClassName =
+  "text-2xl font-semibold tracking-tight text-white text-pretty sm:text-[2rem]";
+const bodyTextClassName = "text-sm leading-6 text-slate-300 text-pretty";
+const cardValueClassName =
+  "break-words text-[15px] font-semibold leading-6 text-white text-pretty sm:text-base";
+const buttonTextClassName = "text-sm font-semibold tracking-[0.08em]";
 
 function getSuitSymbol(suit: string) {
   if (suit === "s") {
@@ -89,7 +104,8 @@ export function SpotTag({
   return (
     <span
       className={cn(
-        "rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.18em]",
+        "inline-flex max-w-full items-center justify-center rounded-full border px-3 py-1 text-center leading-5 break-words text-pretty",
+        microLabelClassName,
         toneClasses[tone],
         className,
       )}
@@ -113,17 +129,15 @@ export function StatPill({
   return (
     <div
       className={cn(
-        "rounded-[22px] border border-white/10 bg-black/14 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]",
+        "min-w-0 rounded-[22px] border border-white/10 bg-black/14 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]",
         className,
       )}
     >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-        {label}
+      <p className={cn(labelTextClassName, "text-emerald-100/55")}>{label}</p>
+      <p className="mt-2 break-words text-xl font-semibold leading-7 text-white text-pretty sm:text-2xl">
+        {value}
       </p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
-      {note ? (
-        <p className="mt-2 text-sm leading-6 text-slate-300">{note}</p>
-      ) : null}
+      {note ? <p className={cn("mt-2", bodyTextClassName)}>{note}</p> : null}
     </div>
   );
 }
@@ -147,12 +161,8 @@ export function SceneStatCard({
         className,
       )}
     >
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-        {label}
-      </p>
-      <p className="mt-2 break-words text-base font-semibold leading-6 text-white">
-        {value}
-      </p>
+      <p className={cn(microLabelClassName, "text-emerald-100/55")}>{label}</p>
+      <p className={cn("mt-2", cardValueClassName)}>{value}</p>
     </div>
   );
 }
@@ -175,24 +185,18 @@ export function SceneHeader({
   return (
     <div
       className={cn(
-        "grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(260px,0.78fr)] xl:items-start",
+        "grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]",
         className,
       )}
     >
-      <div className="space-y-3">
+      <div className="min-w-0 space-y-3">
         <div className="flex flex-wrap items-center gap-2">{tags}</div>
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/75">
-            {eyebrow}
-          </p>
-          <h1 className="text-3xl font-semibold tracking-tight text-white sm:text-[2.15rem]">
+          <p className={cn(microLabelClassName, "text-cyan-200/75")}>{eyebrow}</p>
+          <h1 className="text-3xl font-semibold tracking-tight text-white text-pretty sm:text-[2.15rem]">
             {title}
           </h1>
-          {description ? (
-            <p className="max-w-3xl text-sm leading-6 text-slate-300">
-              {description}
-            </p>
-          ) : null}
+          {description ? <p className={cn("max-w-3xl", bodyTextClassName)}>{description}</p> : null}
         </div>
       </div>
 
@@ -232,7 +236,9 @@ export function TableSceneShell({
           <div
             className={cn(
               "grid gap-4",
-              rail ? "xl:grid-cols-[minmax(0,1.1fr)_minmax(260px,0.9fr)]" : "",
+              rail
+                ? "xl:grid-cols-[minmax(0,1fr)_minmax(320px,380px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]"
+                : "",
             )}
           >
             <div
@@ -367,7 +373,9 @@ export function HeroHand({
       )}
     >
       <div className="relative mx-auto flex h-44 w-[13.75rem] items-center justify-center">
-        {firstCard ? <PokerCard card={firstCard} size="xl" className="-rotate-6 translate-x-4" /> : null}
+        {firstCard ? (
+          <PokerCard card={firstCard} size="xl" className="-rotate-6 translate-x-4" />
+        ) : null}
         {secondCard ? (
           <PokerCard
             card={secondCard}
@@ -378,7 +386,7 @@ export function HeroHand({
       </div>
 
       <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-        <SpotTag tone="cyan" className="text-sm tracking-[0.08em] normal-case">
+        <SpotTag tone="cyan" className="text-sm tracking-[0.06em] normal-case">
           {label}
         </SpotTag>
         {detail ? <SpotTag tone="slate">{detail}</SpotTag> : null}
@@ -403,20 +411,20 @@ export function SeatBadge({
   return (
     <div
       className={cn(
-        "inline-flex min-w-[132px] items-center gap-3 rounded-full border px-4 py-3 shadow-[0_18px_34px_-26px_rgba(8,15,28,0.85)]",
+        "inline-flex min-w-[160px] max-w-full items-center gap-3 rounded-full border px-4 py-3 shadow-[0_18px_34px_-26px_rgba(8,15,28,0.85)]",
         toneClasses[tone],
         className,
       )}
     >
-      <span className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/14 bg-black/20 text-[11px] font-semibold uppercase tracking-[0.18em] text-white">
+      <span className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-white/14 bg-black/20 text-[10px] font-semibold tracking-[0.12em] text-white">
         {role}
       </span>
-      <span className="space-y-0.5">
-        <span className="block text-sm font-semibold uppercase tracking-[0.14em] text-white">
+      <span className="min-w-0 space-y-0.5">
+        <span className="block break-words text-sm font-semibold leading-5 text-white text-pretty">
           {position}
         </span>
         {stack ? (
-          <span className="block text-[11px] font-semibold uppercase tracking-[0.14em] text-white/70">
+          <span className="block break-words text-[11px] font-semibold leading-5 text-white/70">
             {stack}
           </span>
         ) : null}
@@ -450,7 +458,7 @@ export function ChipStack({
   return (
     <div
       className={cn(
-        "rounded-[24px] border border-white/12 bg-black/18 px-4 py-4 text-center shadow-[0_18px_34px_-24px_rgba(8,15,28,0.9)]",
+        "min-w-0 rounded-[24px] border border-white/12 bg-black/18 px-4 py-4 text-center shadow-[0_18px_34px_-24px_rgba(8,15,28,0.9)]",
         className,
       )}
     >
@@ -466,10 +474,10 @@ export function ChipStack({
           />
         ))}
       </div>
-      <p className="mt-4 text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-        {label}
+      <p className={cn("mt-4", microLabelClassName, "text-emerald-100/55")}>{label}</p>
+      <p className="mt-2 break-words text-3xl font-semibold tracking-tight text-white text-pretty">
+        {value}
       </p>
-      <p className="mt-2 text-3xl font-semibold tracking-tight text-white">{value}</p>
     </div>
   );
 }
@@ -494,19 +502,20 @@ export function PotDisplay({
   className?: string;
 }) {
   return (
-    <div className={cn("grid gap-4 lg:grid-cols-[148px_minmax(0,1fr)_148px] lg:items-center", className)}>
+    <div
+      className={cn(
+        "grid gap-4 lg:grid-cols-[minmax(140px,180px)_minmax(0,1fr)_minmax(140px,180px)] lg:items-center",
+        className,
+      )}
+    >
       <ChipStack label={potLabel} value={potValue} accent="emerald" />
 
       <div className="mx-auto flex h-[220px] w-[220px] items-center justify-center rounded-full border border-cyan-200/22 bg-[radial-gradient(circle,rgba(6,182,212,0.24),rgba(15,23,42,0.4)_56%,rgba(3,7,18,0.96)_100%)] shadow-[0_28px_64px_-36px_rgba(6,182,212,0.75)]">
-        <div className="flex h-[172px] w-[172px] flex-col items-center justify-center rounded-full border border-white/10 bg-black/25 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.2em] text-cyan-100/80">
-            {centerLabel}
-          </p>
-          <p className="mt-2 text-5xl font-semibold tracking-tight text-white">
-            {centerValue}
-          </p>
+        <div className="flex h-[172px] w-[172px] flex-col items-center justify-center rounded-full border border-white/10 bg-black/25 px-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+          <p className={cn(microLabelClassName, "text-cyan-100/80")}>{centerLabel}</p>
+          <p className="mt-2 text-5xl font-semibold tracking-tight text-white">{centerValue}</p>
           {footer ? (
-            <p className="mt-2 text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
+            <p className="mt-2 break-words text-[11px] font-semibold leading-5 text-slate-300 text-pretty">
               {footer}
             </p>
           ) : null}
@@ -533,20 +542,18 @@ export function ActionHistory({
 
   return (
     <div className={cn("min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4", className)}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
-        {label}
-      </p>
+      <p className={cn(microLabelClassName, "text-emerald-100/55")}>{label}</p>
       <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
         {steps.map((step, index) => (
           <div key={`${step}-${index}`} className="flex shrink-0 items-center gap-2">
             {index > 0 ? (
               <span className="h-px w-5 rounded-full bg-gradient-to-r from-cyan-300/45 to-emerald-300/25" />
             ) : null}
-            <div className="flex items-center gap-2 whitespace-nowrap rounded-[18px] border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
-              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full border border-white/10 bg-black/15 text-[10px] uppercase tracking-[0.16em] text-slate-300">
+            <div className="flex items-center gap-2 rounded-[18px] border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+              <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/15 text-[10px] font-semibold tracking-[0.12em] text-slate-300">
                 {index + 1}
               </span>
-              <span>{step}</span>
+              <span className="text-pretty">{step}</span>
             </div>
           </div>
         ))}
@@ -566,7 +573,7 @@ export function CoachAnchor({
   title: string;
   body: string;
   modeLabel: string;
-  actions: string[];
+  actions: CoachActionItem[];
   tone?: Tone;
   className?: string;
 }) {
@@ -580,7 +587,7 @@ export function CoachAnchor({
       <div className="flex items-start gap-3">
         <div
           className={cn(
-            "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border bg-black/25 text-[11px] font-semibold uppercase tracking-[0.18em]",
+            "inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-full border bg-black/25 text-[11px] font-semibold tracking-[0.12em]",
             toneClasses[tone],
           )}
         >
@@ -591,21 +598,24 @@ export function CoachAnchor({
             <SpotTag tone={tone}>{modeLabel}</SpotTag>
             <SpotTag tone="slate">Coach seat</SpotTag>
           </div>
-          <p className="text-lg font-semibold text-white">{title}</p>
-          <p className="text-sm leading-6 text-slate-300">{body}</p>
+          <p className="text-lg font-semibold text-white text-pretty">{title}</p>
+          <p className={bodyTextClassName}>{body}</p>
         </div>
       </div>
 
-      <div className="mt-4 flex flex-wrap gap-2">
+      <div className="mt-4 grid gap-3 sm:grid-cols-3">
         {actions.map((action) => (
-          <button
-            key={action}
-            type="button"
-            disabled
-            className="rounded-full border border-white/12 bg-black/18 px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-slate-300"
+          <div
+            key={action.label}
+            className="min-w-0 rounded-[18px] border border-white/12 bg-black/18 p-3"
           >
-            {action}
-          </button>
+            <p className="text-sm font-semibold text-white text-pretty">{action.label}</p>
+            {action.helper ? (
+              <p className="mt-1 text-xs leading-5 text-slate-400 text-pretty">
+                {action.helper}
+              </p>
+            ) : null}
+          </div>
         ))}
       </div>
     </div>
@@ -653,7 +663,7 @@ export function ActionOptionCard({
       disabled={isLocked}
       aria-pressed={isSelected}
       className={cn(
-        "group w-full rounded-[28px] border px-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 active:scale-[0.99]",
+        "group w-full min-w-0 rounded-[28px] border px-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 active:scale-[0.99]",
         highTension ? "min-h-[118px] py-5" : "min-h-[96px] py-4",
         "bg-white/[0.04] text-white/92 shadow-[0_14px_34px_-24px_rgba(15,23,42,0.85)]",
         !isLocked &&
@@ -675,7 +685,7 @@ export function ActionOptionCard({
         <div className="flex min-w-0 items-start gap-3">
           <div
             className={cn(
-              "mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold uppercase tracking-[0.18em]",
+              "mt-1 inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full border text-[11px] font-semibold tracking-[0.12em]",
               isSelected || showSubmittedState
                 ? "border-white/35 bg-white/12 text-white"
                 : "border-white/12 bg-black/10 text-slate-300",
@@ -692,16 +702,18 @@ export function ActionOptionCard({
                 </SpotTag>
               </div>
             ) : null}
-            <p className="mt-3 break-words text-lg font-semibold leading-6 text-white sm:text-xl">
+            <p className="mt-3 break-words text-lg font-semibold leading-7 text-white text-pretty sm:text-xl">
               {label}
             </p>
             {subtitle ? (
-              <p className="mt-1 break-words text-sm font-semibold uppercase tracking-[0.14em] text-cyan-100/85">
+              <p className="mt-1 break-words text-sm font-medium leading-6 text-cyan-100/85 text-pretty">
                 {subtitle}
               </p>
             ) : null}
             {note ? (
-              <p className="mt-3 break-words text-sm leading-5 text-rose-100/90">{note}</p>
+              <p className="mt-3 break-words text-sm leading-6 text-rose-100/90 text-pretty">
+                {note}
+              </p>
             ) : null}
           </div>
         </div>
@@ -736,6 +748,9 @@ export function ActionTray({
   selectedLabel,
   selectedValue,
   selectedMeta,
+  stateLabel,
+  stateHint,
+  stateTone = "slate",
   primaryLabel,
   onPrimary,
   primaryDisabled,
@@ -752,6 +767,9 @@ export function ActionTray({
   selectedLabel: string;
   selectedValue: string;
   selectedMeta?: string;
+  stateLabel?: string;
+  stateHint?: string;
+  stateTone?: Tone;
   primaryLabel: string;
   onPrimary: () => void;
   primaryDisabled: boolean;
@@ -769,26 +787,37 @@ export function ActionTray({
       )}
     >
       <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-          {eyebrow}
-        </p>
-        <h2 className="text-[1.85rem] font-semibold tracking-tight text-white">{title}</h2>
-        <p className="text-sm leading-6 text-slate-300">{hint}</p>
+        <p className={cn(microLabelClassName, "text-cyan-200/80")}>{eyebrow}</p>
+        <h2 className="text-[1.85rem] font-semibold tracking-tight text-white text-pretty">
+          {title}
+        </h2>
+        <p className={bodyTextClassName}>{hint}</p>
       </div>
+
+      {stateLabel ? (
+        <div className="mt-4 rounded-[22px] border border-white/10 bg-black/16 p-4">
+          <div className="flex flex-wrap items-center gap-2">
+            <SpotTag tone={stateTone}>{stateLabel}</SpotTag>
+          </div>
+          {stateHint ? <p className={cn("mt-2", bodyTextClassName)}>{stateHint}</p> : null}
+        </div>
+      ) : null}
 
       <div className="mt-5 space-y-3">{children}</div>
 
       <div
         className={cn(
           "mt-5 rounded-[28px] border p-4",
-          selectedValue ? "border-cyan-300/22 bg-cyan-300/[0.07]" : "border-white/10 bg-white/[0.05]",
+          selectedValue
+            ? "border-cyan-300/22 bg-cyan-300/[0.07]"
+            : "border-white/10 bg-white/[0.05]",
         )}
       >
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-300">
-            {selectedLabel}
+          <p className={cn(microLabelClassName, "text-slate-300")}>{selectedLabel}</p>
+          <p className="break-words text-xl font-semibold leading-7 text-white text-pretty">
+            {selectedValue}
           </p>
-          <p className="break-words text-xl font-semibold text-white">{selectedValue}</p>
           {selectedMeta ? (
             <div className="pt-1">
               <SpotTag tone="cyan" className="bg-black/18 text-[10px] text-cyan-100/90">
@@ -804,7 +833,8 @@ export function ActionTray({
             onClick={onPrimary}
             disabled={primaryDisabled}
             className={cn(
-              "w-full rounded-full px-5 text-sm font-semibold uppercase tracking-[0.16em] transition active:scale-[0.99]",
+              "w-full rounded-full px-5 transition active:scale-[0.99]",
+              buttonTextClassName,
               highTension ? "py-5" : "py-4",
               primaryDisabled
                 ? "cursor-not-allowed bg-slate-600/60 text-slate-300"
@@ -817,7 +847,10 @@ export function ActionTray({
           <button
             type="button"
             onClick={onSecondary}
-            className="w-full rounded-full border border-white/12 bg-transparent px-5 py-3 text-sm font-semibold uppercase tracking-[0.16em] text-slate-200 transition hover:border-white/22 hover:bg-white/[0.06]"
+            className={cn(
+              "w-full rounded-full border border-white/12 bg-transparent px-5 py-3 text-slate-200 transition hover:border-white/22 hover:bg-white/[0.06]",
+              buttonTextClassName,
+            )}
           >
             {secondaryLabel}
           </button>
@@ -857,11 +890,9 @@ export function RevealStatePanel({
         )}
       >
         <div className="space-y-2">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-            {eyebrow}
-          </p>
-          <h2 className="text-2xl font-semibold tracking-tight text-white">{title}</h2>
-          <p className="text-sm leading-6 text-slate-300">{description}</p>
+          <p className={cn(microLabelClassName, "text-cyan-200/80")}>{eyebrow}</p>
+          <h2 className={panelTitleClassName}>{title}</h2>
+          <p className={bodyTextClassName}>{description}</p>
         </div>
 
         <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
@@ -870,9 +901,7 @@ export function RevealStatePanel({
               key={label}
               className="rounded-[24px] border border-white/10 bg-black/14 px-4 py-5"
             >
-              <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
-                {label}
-              </p>
+              <p className={cn(microLabelClassName, "text-slate-400")}>{label}</p>
               <div className="mt-3 h-3 w-24 rounded-full bg-white/8" />
               <div className="mt-2 h-3 w-32 rounded-full bg-white/6" />
             </div>
@@ -892,11 +921,9 @@ export function RevealStatePanel({
       )}
     >
       <div className="space-y-2">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-cyan-200/80">
-          {eyebrow}
-        </p>
-        <h2 className="text-2xl font-semibold tracking-tight text-white">{title}</h2>
-        <p className="text-sm leading-6 text-slate-300">{description}</p>
+        <p className={cn(microLabelClassName, "text-cyan-200/80")}>{eyebrow}</p>
+        <h2 className={panelTitleClassName}>{title}</h2>
+        <p className={bodyTextClassName}>{description}</p>
       </div>
 
       <div className="mt-5 space-y-4">{children}</div>

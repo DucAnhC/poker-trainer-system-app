@@ -49,7 +49,7 @@ function FilterGroup({
 }) {
   return (
     <div className="space-y-2">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-emerald-100/60">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/60">
         {label}
       </p>
       <div className="flex flex-wrap gap-2">{children}</div>
@@ -90,11 +90,13 @@ function StatBlock({
   value: string;
 }) {
   return (
-    <div className="rounded-[20px] border border-white/10 bg-black/14 px-3 py-3">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+    <div className="min-w-0 rounded-[20px] border border-white/10 bg-black/14 px-3 py-3">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/55">
         {label}
       </p>
-      <p className="mt-2 text-xl font-semibold text-white">{value}</p>
+      <p className="mt-2 break-words text-lg font-semibold leading-7 text-white text-pretty sm:text-xl">
+        {value}
+      </p>
     </div>
   );
 }
@@ -157,7 +159,7 @@ export function PreflopSessionStrip({
           </div>
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
           <StatBlock
             label={copy.sessionProgress}
             value={`${answeredCount}/${totalQuestions}`}

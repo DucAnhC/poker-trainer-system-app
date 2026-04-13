@@ -50,8 +50,34 @@ export function PreflopFeedbackPanel({
   const copy = getPreflopDrillCopy(language);
   const coachActions =
     language === "vi"
-      ? ["Goi y ngan", "Giai thich them", "Tinh huong tuong tu"]
-      : ["Quick hint", "Explain more", "Similar spot"];
+      ? [
+          {
+            label: "Goi y ngan",
+            helper: "Feedback ngan neu nguoi hoc muon giu nhip nhanh.",
+          },
+          {
+            label: "Giai thich them",
+            helper: "Dao sau vi sao line nay tot hon trong node nay.",
+          },
+          {
+            label: "Tinh huong tuong tu",
+            helper: "Mo them mot hand gan de lap lai bai hoc.",
+          },
+        ]
+      : [
+          {
+            label: "Quick hint",
+            helper: "A short note for keeping the pace fast.",
+          },
+          {
+            label: "Explain more",
+            helper: "A deeper why for this exact node.",
+          },
+          {
+            label: "Similar spot",
+            helper: "Open a close hand to repeat the takeaway.",
+          },
+        ];
 
   if (!feedback) {
     return (

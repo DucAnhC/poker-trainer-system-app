@@ -58,12 +58,14 @@ function WorkspaceStat({
   note: string;
 }) {
   return (
-    <div className="rounded-[22px] border border-white/10 bg-black/14 px-4 py-4">
-      <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/55">
+    <div className="min-w-0 rounded-[22px] border border-white/10 bg-black/14 px-4 py-4">
+      <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/55">
         {label}
       </p>
-      <p className="mt-2 text-2xl font-semibold text-white">{value}</p>
-      <p className="mt-2 text-sm leading-6 text-slate-300">{note}</p>
+      <p className="mt-2 break-words text-xl font-semibold leading-7 text-white text-pretty sm:text-2xl">
+        {value}
+      </p>
+      <p className="mt-2 text-sm leading-6 text-slate-300 text-pretty">{note}</p>
     </div>
   );
 }
@@ -188,8 +190,34 @@ export function HandReviewWorkspace() {
     : [];
   const coachActions =
     language === "vi"
-      ? ["Goi y ngan", "Giai thich them", "Tinh huong tuong tu"]
-      : ["Quick hint", "Explain more", "Similar spot"];
+      ? [
+          {
+            label: "Goi y ngan",
+            helper: "Tom tat leak hoac next review point rat ngan.",
+          },
+          {
+            label: "Giai thich them",
+            helper: "Mo rong vi sao note nay dang quan trong.",
+          },
+          {
+            label: "Tinh huong tuong tu",
+            helper: "Goi y mot hand tiep theo de replay.",
+          },
+        ]
+      : [
+          {
+            label: "Quick hint",
+            helper: "A short leak or next-review cue.",
+          },
+          {
+            label: "Explain more",
+            helper: "Expand why this note matters.",
+          },
+          {
+            label: "Similar spot",
+            helper: "Suggest the next replay hand.",
+          },
+        ];
 
   return (
     <div className="space-y-5">
@@ -207,7 +235,7 @@ export function HandReviewWorkspace() {
               </>
             }
             aside={
-              <div className="grid gap-3 sm:grid-cols-3">
+              <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
                 <WorkspaceStat
                   label={copy.savedReviews}
                   value={`${notes.length}`}

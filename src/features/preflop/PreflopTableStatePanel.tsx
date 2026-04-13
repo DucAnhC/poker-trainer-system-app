@@ -60,8 +60,34 @@ export function PreflopTableStatePanel({
   );
   const coachActions =
     language === "vi"
-      ? ["Goi y ngan", "Vi sao line nay", "Tinh huong tuong tu"]
-      : ["Quick hint", "Why this line", "Similar spot"];
+      ? [
+          {
+            label: "Goi y ngan",
+            helper: "Nudge ngan dua tren vi tri va action history.",
+          },
+          {
+            label: "Vi sao line nay",
+            helper: "Reveal giai thich tiep theo se bam vao concept chinh.",
+          },
+          {
+            label: "Tinh huong tuong tu",
+            helper: "Chuan bi cho compare spot o cung family hand.",
+          },
+        ]
+      : [
+          {
+            label: "Quick hint",
+            helper: "A short nudge built from seat and action history.",
+          },
+          {
+            label: "Why this line",
+            helper: "The reveal explanation will stay tied to the main concept.",
+          },
+          {
+            label: "Similar spot",
+            helper: "Reserved for a follow-up hand from the same family.",
+          },
+        ];
 
   return (
     <TableSceneShell

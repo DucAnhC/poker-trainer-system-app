@@ -64,14 +64,62 @@ export function PreflopDecisionPanel({
 
   const coachActions =
     language === "vi"
-      ? ["Goi y ngan", "Giai thich them", "Tinh huong tuong tu"]
-      : ["Quick hint", "Explain more", "Similar spot"];
+      ? [
+          {
+            label: "Goi y ngan",
+            helper: "Mot cue ngan truoc khi ban khoa line.",
+          },
+          {
+            label: "Giai thich them",
+            helper: "Tom tat vi sao line tot hon sau reveal.",
+          },
+          {
+            label: "Tinh huong tuong tu",
+            helper: "Mo them mot spot gan voi hand hien tai.",
+          },
+        ]
+      : [
+          {
+            label: "Quick hint",
+            helper: "A short nudge before the line is locked.",
+          },
+          {
+            label: "Explain more",
+            helper: "A tighter why after the reveal opens.",
+          },
+          {
+            label: "Similar spot",
+            helper: "Pull a close follow-up hand from the same node.",
+          },
+        ];
   const coachTitle =
     language === "vi" ? "Coach seat da san sang cho vong sau" : "Coach seat is ready for the next pass";
   const coachBody =
     language === "vi"
       ? "Anchor nay giu cho cho AI tutor de nudges, short feedback, va compare spot ma khong day trainer thanh chat sidebar."
       : "This anchor reserves the table-coach slot for nudges, short feedback, and similar-spot prompts without turning the trainer into a sidebar chat.";
+  const stateLabel = hasSubmitted
+    ? language === "vi"
+      ? "Line da khoa"
+      : "Line locked"
+    : selectedActionLabel
+      ? language === "vi"
+        ? "Da chon line"
+        : "Line selected"
+      : language === "vi"
+        ? "Cho quyet dinh"
+        : "Awaiting decision";
+  const stateHint = hasSubmitted
+    ? language === "vi"
+      ? "Reveal panel dang san sang dua correction, takeaway, va next hand."
+      : "The reveal panel is ready to show the correction, takeaway, and next hand."
+    : selectedActionLabel
+      ? language === "vi"
+        ? "Ban da chon line. Khoa no lai de mo reveal."
+        : "You have a line selected. Lock it to open the reveal."
+      : language === "vi"
+        ? "Chon mot line truoc. Coach seat se chi can thiep bang nudges ngan."
+        : "Pick a line first. The coach seat stays limited to short nudges.";
 
   return (
     <ActionTray
@@ -80,6 +128,9 @@ export function PreflopDecisionPanel({
       hint={decisionHint}
       selectedLabel={copy.selectedLineLabel}
       selectedValue={selectedActionLabel ?? copy.noLineSelected}
+      stateLabel={stateLabel}
+      stateHint={stateHint}
+      stateTone={hasSubmitted ? "emerald" : selectedActionLabel ? "cyan" : "slate"}
       primaryLabel={primaryButtonLabel}
       onPrimary={hasSubmitted ? onNext : onSubmit}
       primaryDisabled={hasSubmitted ? !canAdvance : !canSubmit}

@@ -33,11 +33,13 @@ function DetailTile({
   }
 
   return (
-    <div className="rounded-[22px] border border-white/10 bg-black/14 px-4 py-4">
-      <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-slate-400">
+    <div className="min-w-0 rounded-[22px] border border-white/10 bg-black/14 px-4 py-4">
+      <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-400">
         {label}
       </p>
-      <p className="mt-2 text-sm font-semibold leading-6 text-white">{value}</p>
+      <p className="mt-2 break-words text-sm font-semibold leading-6 text-white text-pretty">
+        {value}
+      </p>
     </div>
   );
 }
