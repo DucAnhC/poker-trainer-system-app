@@ -185,8 +185,8 @@ export function PreflopTableStatePanel({
         <div className="grid gap-5 xl:grid-cols-[minmax(0,320px)_minmax(0,1fr)] xl:items-center">
           <PreflopHandVisual handLabel={scenario.handLabel} language={language} />
 
-          <div className="space-y-4">
-            <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
+          <div className="rounded-[26px] border border-white/12 bg-black/18 p-5">
+            <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                 {copy.positionLabel}
               </p>
@@ -203,7 +203,9 @@ export function PreflopTableStatePanel({
               </div>
             </div>
 
-            <div className="rounded-[26px] border border-white/12 bg-black/18 p-4">
+            <div className="my-5 h-px bg-white/10" />
+
+            <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                 {copy.handLabel}
               </p>

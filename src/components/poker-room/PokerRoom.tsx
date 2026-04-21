@@ -543,17 +543,17 @@ export function ActionHistory({
   return (
     <div className={cn("min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4", className)}>
       <p className={cn(microLabelClassName, "text-emerald-100/55")}>{label}</p>
-      <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
+      <div className="mt-3 flex flex-wrap items-center gap-2">
         {steps.map((step, index) => (
-          <div key={`${step}-${index}`} className="flex shrink-0 items-center gap-2">
+          <div key={`${step}-${index}`} className="flex min-w-0 items-center gap-2">
             {index > 0 ? (
-              <span className="h-px w-5 rounded-full bg-gradient-to-r from-cyan-300/45 to-emerald-300/25" />
+              <span className="hidden h-px w-5 rounded-full bg-gradient-to-r from-cyan-300/45 to-emerald-300/25 sm:block" />
             ) : null}
-            <div className="flex items-center gap-2 rounded-[18px] border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+            <div className="flex min-w-0 items-center gap-2 rounded-[18px] border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
               <span className="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-black/15 text-[10px] font-semibold tracking-[0.12em] text-slate-300">
                 {index + 1}
               </span>
-              <span className="text-pretty">{step}</span>
+              <span className="break-words text-pretty">{step}</span>
             </div>
           </div>
         ))}
@@ -580,7 +580,7 @@ export function CoachAnchor({
   return (
     <div
       className={cn(
-        "rounded-[26px] border border-white/12 bg-[linear-gradient(180deg,rgba(8,20,35,0.98),rgba(3,10,24,0.96))] p-4 text-white shadow-panel",
+        "rounded-[24px] border border-white/10 bg-[linear-gradient(180deg,rgba(8,20,35,0.88),rgba(3,10,24,0.9))] p-4 text-white shadow-[0_18px_44px_-34px_rgba(8,15,28,0.9)]",
         className,
       )}
     >
@@ -603,13 +603,13 @@ export function CoachAnchor({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 flex flex-wrap gap-2">
         {actions.map((action) => (
           <div
             key={action.label}
-            className="min-w-0 rounded-[18px] border border-white/12 bg-black/18 p-3"
+            className="min-w-0 flex-1 basis-[13rem] rounded-[18px] border border-white/10 bg-white/[0.045] px-3 py-2.5"
           >
-            <p className="break-words text-sm font-semibold text-white text-pretty">
+            <p className="break-words text-sm font-semibold leading-5 text-white text-pretty">
               {action.label}
             </p>
             {action.helper ? (
@@ -683,7 +683,7 @@ export function ActionOptionCard({
         className,
       )}
     >
-      <div className="flex items-start justify-between gap-3">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="flex min-w-0 items-start gap-3">
           <div
             className={cn(
@@ -720,7 +720,7 @@ export function ActionOptionCard({
           </div>
         </div>
 
-        <div className="flex flex-col items-end gap-2">
+        <div className="flex shrink-0 flex-wrap items-center justify-end gap-2">
           {isSubmittedChoice ? (
             <SpotTag tone="slate" className="text-[10px]">
               {selectedTag}
@@ -897,17 +897,16 @@ export function RevealStatePanel({
           <p className={bodyTextClassName}>{description}</p>
         </div>
 
-        <div className="mt-5 grid gap-3 md:grid-cols-2 xl:grid-cols-4">
-          {placeholderLabels.map((label) => (
-            <div
-              key={label}
-              className="rounded-[24px] border border-white/10 bg-black/14 px-4 py-5"
-            >
-              <p className={cn(microLabelClassName, "text-slate-400")}>{label}</p>
-              <div className="mt-3 h-3 w-24 rounded-full bg-white/8" />
-              <div className="mt-2 h-3 w-32 rounded-full bg-white/6" />
-            </div>
-          ))}
+        <div className="mt-5 rounded-[24px] border border-white/10 bg-black/14 p-4">
+          <div className="flex flex-wrap gap-2">
+            {placeholderLabels.map((label) => (
+              <SpotTag key={label} tone="slate" className="text-slate-300">
+                {label}
+              </SpotTag>
+            ))}
+          </div>
+          <div className="mt-4 h-3 w-full max-w-md rounded-full bg-white/8" />
+          <div className="mt-2 h-3 w-3/4 max-w-sm rounded-full bg-white/6" />
         </div>
 
         {coach ? <div className="mt-5">{coach}</div> : null}

@@ -855,30 +855,20 @@ function PotOddsHeroObject({
         footer={finalPotBb ? `${scenario.betToCallBb ?? "-"}bb -> ${finalPotBb}bb` : copy.callLabel}
       />
 
-      <div className="grid gap-4 xl:grid-cols-3">
-        <SceneStatCard
-          label={mathLineLabel}
-          value={
-            finalPotBb
-              ? language === "vi"
-                ? `${scenario.betToCallBb}bb de tranh ${finalPotBb}bb`
-                : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`
-              : "-"
-          }
-        />
-        <SceneStatCard
-          label={language === "vi" ? "Decision frame" : "Decision frame"}
-          value={
-            language === "vi"
-              ? "Cam giac dung la Hero dang doi mat mot gia call that, roi moi reveal ve equity."
-              : "The scene should feel like Hero is facing a real price first, then the equity lesson reveals."
-          }
-        />
-        <SceneStatCard
-          label={copy.focusLabel}
-          value={scenario.learningGoal}
-          wide
-        />
+      <div className="rounded-[26px] border border-white/10 bg-black/14 p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
+          {mathLineLabel}
+        </p>
+        <p className="mt-2 break-words text-lg font-semibold leading-7 text-white text-pretty">
+          {finalPotBb
+            ? language === "vi"
+              ? `${scenario.betToCallBb}bb de tranh ${finalPotBb}bb`
+              : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`
+            : "-"}
+        </p>
+        <p className="mt-3 max-w-3xl break-words text-sm leading-6 text-slate-300 text-pretty">
+          {scenario.learningGoal}
+        </p>
       </div>
     </div>
   );
@@ -896,7 +886,7 @@ function PostflopHeroObject({
   const heroHandCards = getHeroHandCards(scenario);
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.26),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
+    <div className="min-w-0 rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(6,182,212,0.26),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
         <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
           {scenario.street.toUpperCase()}
@@ -991,7 +981,7 @@ function BoardTextureHeroObject({
   return (
     <div
       className={cn(
-        "min-w-0 overflow-hidden rounded-[30px] border border-white/12 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5",
+        "min-w-0 rounded-[30px] border border-white/12 p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5",
         getTextureSceneTone(scenario.board),
       )}
     >
@@ -1036,20 +1026,14 @@ function BoardTextureHeroObject({
             </span>
           ))}
         </div>
-
-        <div className="mt-4 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100/80">
-            {copy.whyLabel}
+        <p className="mt-4 max-w-3xl break-words text-sm font-semibold leading-6 text-white text-pretty">
+          {boardCue}
+        </p>
+        {scenario.board?.notes[0] ? (
+          <p className="mt-2 max-w-3xl break-words text-xs leading-5 text-slate-400 text-pretty">
+            {scenario.board.notes[0]}
           </p>
-          <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
-            {boardCue}
-          </p>
-          {scenario.board?.notes[0] ? (
-            <p className="mt-3 break-words text-xs leading-5 text-slate-400">
-              {scenario.board.notes[0]}
-            </p>
-          ) : null}
-        </div>
+        ) : null}
       </div>
     </div>
   );
@@ -1071,7 +1055,7 @@ function PlayerTypeHeroObject({
   const tendencyLabel = language === "vi" ? "Xu hướng" : "Tendency";
 
   return (
-    <div className="min-w-0 overflow-hidden rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.16),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
+    <div className="min-w-0 rounded-[30px] border border-white/12 bg-[radial-gradient(circle_at_top,rgba(251,113,133,0.16),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)] p-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] sm:p-5">
       <div className="flex flex-wrap items-center gap-2">
         <span className="rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
           {scenario.street.toUpperCase()}
@@ -1091,19 +1075,19 @@ function PlayerTypeHeroObject({
         ) : null}
       </div>
 
-      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.82fr)_minmax(0,1.18fr)]">
+      <div className="mt-5 grid gap-4 xl:grid-cols-[minmax(0,0.92fr)_minmax(0,1.08fr)]">
         <div
           className={cn(
-            "min-w-0 rounded-[26px] border p-4 shadow-[0_18px_34px_-24px_rgba(15,23,42,0.9)]",
+            "min-w-0 rounded-[26px] border p-5 shadow-[0_18px_34px_-24px_rgba(15,23,42,0.9)]",
             playerScene.accent,
           )}
         >
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/70">
-            {copy.playerTypeLabel}
-          </p>
-          <div className="mt-3 flex flex-wrap items-center justify-between gap-3">
-            <div>
-              <p className="text-3xl font-semibold tracking-tight text-white">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-white/70">
+                {copy.playerTypeLabel}
+              </p>
+              <p className="mt-2 break-words text-3xl font-semibold tracking-tight text-white text-pretty">
                 {playerScene.eyebrow}
               </p>
               <p className="mt-1 break-words text-sm font-semibold text-white/80">
@@ -1117,55 +1101,49 @@ function PlayerTypeHeroObject({
             </span>
           </div>
 
-          <div className="mt-4 grid gap-3">
-            <div className="min-w-0 rounded-[20px] border border-white/12 bg-black/18 p-4">
+          <div className="mt-5 space-y-4">
+            <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
                 {readLabel}
               </p>
-              <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
+              <p className="mt-2 max-w-xl break-words text-sm font-semibold leading-6 text-white text-pretty">
                 {playerScene.read}
               </p>
             </div>
-            <div className="min-w-0 rounded-[20px] border border-white/12 bg-black/18 p-4">
+            <div className="h-px bg-white/10" />
+            <div>
               <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-slate-300">
                 {exploitLabel}
               </p>
-              <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
+              <p className="mt-2 max-w-xl break-words text-sm font-semibold leading-6 text-white text-pretty">
                 {playerScene.exploit}
               </p>
             </div>
           </div>
         </div>
 
-        <div className="min-w-0 rounded-[26px] border border-white/12 bg-black/18 p-4">
-            {boardCards.length > 0 ? (
-              <>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
-                  {copy.boardLabel}
-                </p>
-                <div className="mt-4 flex flex-wrap items-center gap-3">
-                  <TacticalCardRow cards={boardCards} size="xl" />
-                </div>
-              </>
-            ) : (
-              <>
-                <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
-                  {copy.focusLabel}
-                </p>
-                <div className="mt-3 flex flex-wrap gap-2">
-                  <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
-                    {(scenario.heroPosition ?? "Hero") + " vs " + (scenario.villainPosition ?? "Villain")}
-                  </span>
-                  {typeof scenario.effectiveStackBb === "number" ? (
-                    <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
-                      {scenario.effectiveStackBb}bb
-                    </span>
-                  ) : null}
-                </div>
-              </>
-            )}
+        <div className="min-w-0 rounded-[26px] border border-white/12 bg-black/18 p-5">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
+            {boardCards.length > 0 ? copy.boardLabel : copy.focusLabel}
+          </p>
+          {boardCards.length > 0 ? (
+            <div className="mt-4 flex flex-wrap items-center gap-3">
+              <TacticalCardRow cards={boardCards} size="xl" />
+            </div>
+          ) : (
+            <div className="mt-3 flex flex-wrap gap-2">
+              <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+                {(scenario.heroPosition ?? "Hero") + " vs " + (scenario.villainPosition ?? "Villain")}
+              </span>
+              {typeof scenario.effectiveStackBb === "number" ? (
+                <span className="rounded-full border border-white/12 bg-black/16 px-3 py-2 text-sm font-semibold text-white/92">
+                  {scenario.effectiveStackBb}bb
+                </span>
+              ) : null}
+            </div>
+          )}
 
-          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
+          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,0.58fr)_minmax(0,1.42fr)]">
             {heroHandCards.length > 0 ? (
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
@@ -1178,15 +1156,15 @@ function PlayerTypeHeroObject({
             ) : null}
 
             {scenario.board ? (
-              <div className="min-w-0 rounded-[20px] border border-white/10 bg-black/18 px-4 py-4">
+              <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100/80">
                   {copy.textureLabel}
                 </p>
-                <p className="mt-2 break-words text-sm font-semibold leading-6 text-white">
+                <p className="mt-2 break-words text-sm font-semibold leading-6 text-white text-pretty">
                   {getTacticalBoardLabels(scenario.board, language).join(" / ")}
                 </p>
                 {scenario.board.notes[0] ? (
-                  <p className="mt-3 break-words text-xs leading-5 text-slate-400">
+                  <p className="mt-3 break-words text-xs leading-5 text-slate-400 text-pretty">
                     {scenario.board.notes[0]}
                   </p>
                 ) : null}
@@ -1710,7 +1688,7 @@ function TacticalFeedbackPanel({
         </SpotTag>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-2 2xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <ReviewBlock
           label={copy.resultLabel}
           className={cn(

@@ -178,7 +178,7 @@ export function PreflopFeedbackPanel({
         </SpotTag>
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+      <div className="grid gap-4 md:grid-cols-2">
         <ReviewCard
           label={copy.resultLabel}
           className={cn(

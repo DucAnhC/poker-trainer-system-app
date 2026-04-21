@@ -10,7 +10,6 @@ import {
   SceneHeader,
   SeatBadge,
   SpotTag,
-  StatPill,
   TableSceneShell,
 } from "@/components/poker-room/PokerRoom";
 import { SurfaceCard } from "@/components/ui/SurfaceCard";
@@ -254,16 +253,6 @@ export function HandReviewWorkspace() {
               </div>
             }
           />
-        }
-        rail={
-          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
-            <StatPill label={copy.savedReviews} value={`${notes.length}`} />
-            <StatPill
-              label={copy.lastUpdated}
-              value={hasLoaded ? formatDateTimeLabel(lastUpdatedAt) : "..."}
-            />
-            <StatPill label={copy.leakPeak} value={`${getMostTaggedLeakCount(notes)}`} />
-          </div>
         }
         footer={
           selectedNote ? (
