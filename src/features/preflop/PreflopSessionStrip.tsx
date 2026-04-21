@@ -126,7 +126,7 @@ export function PreflopSessionStrip({
 
   return (
     <section className="rounded-[32px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-4 text-white shadow-panel sm:p-5">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
+      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] 2xl:items-start">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
@@ -159,7 +159,7 @@ export function PreflopSessionStrip({
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3 2xl:grid-cols-1">
           <StatBlock
             label={copy.sessionProgress}
             value={`${answeredCount}/${totalQuestions}`}

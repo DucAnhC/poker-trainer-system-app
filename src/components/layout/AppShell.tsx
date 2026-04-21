@@ -12,7 +12,7 @@ export function AppShell({ children }: AppShellProps) {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(16,185,129,0.16),transparent_28%),radial-gradient(circle_at_top_right,rgba(6,182,212,0.12),transparent_24%),radial-gradient(circle_at_bottom_left,rgba(15,118,110,0.12),transparent_26%)]" />
       <div className="relative">
         <SiteHeader />
-        <main className="mx-auto flex w-full max-w-7xl flex-col gap-8 px-5 py-8 lg:px-8 lg:py-10">
+        <main className="mx-auto flex w-full max-w-[1540px] flex-col gap-8 px-5 py-8 lg:px-8 lg:py-10">
           {children}
         </main>
       </div>

@@ -406,6 +406,10 @@ function getPlayerTypeScene(
   return themes[playerTypeId] ?? fallback;
 }
 
+function joinSpotParts(parts: Array<string | null | undefined>) {
+  return parts.filter((part): part is string => Boolean(part)).join(" / ");
+}
+
 function getSpotTiles(
   scenario: TrainingScenario,
   language: TacticalUiLanguage,
@@ -414,21 +418,29 @@ function getSpotTiles(
 
   if (scenario.module === "pot-odds") {
     const tiles: SpotTile[] = [];
+    const priceValue = joinSpotParts([
+      typeof scenario.potSizeBb === "number" ? `${copy.potLabel}: ${scenario.potSizeBb}bb` : null,
+      typeof scenario.betToCallBb === "number" ? `${copy.callLabel}: ${scenario.betToCallBb}bb` : null,
+    ]);
+    const equityValue = joinSpotParts([
+      typeof scenario.outsCount === "number" ? `${copy.outsLabel}: ${scenario.outsCount}` : null,
+      scenario.equityHint,
+    ]);
 
-    if (typeof scenario.potSizeBb === "number") {
-      tiles.push({ label: copy.potLabel, value: `${scenario.potSizeBb}bb` });
+    if (priceValue) {
+      tiles.push({
+        label: language === "vi" ? "Gia call" : "Price",
+        value: priceValue,
+        wide: true,
+      });
     }
 
-    if (typeof scenario.betToCallBb === "number") {
-      tiles.push({ label: copy.callLabel, value: `${scenario.betToCallBb}bb` });
-    }
-
-    if (typeof scenario.outsCount === "number") {
-      tiles.push({ label: copy.outsLabel, value: `${scenario.outsCount}` });
-    }
-
-    if (scenario.equityHint) {
-      tiles.push({ label: language === "vi" ? "Equity cue" : "Equity cue", value: scenario.equityHint, wide: true });
+    if (equityValue) {
+      tiles.push({
+        label: language === "vi" ? "Equity cue" : "Equity cue",
+        value: equityValue,
+        wide: true,
+      });
     }
 
     return tiles;
@@ -440,17 +452,19 @@ function getSpotTiles(
 
   if (scenario.module === "postflop") {
     const tiles: SpotTile[] = [];
+    const seatValue = joinSpotParts([
+      scenario.heroPosition || scenario.villainPosition
+        ? `${scenario.heroPosition ?? copy.heroLabel} vs ${scenario.villainPosition ?? copy.villainLabel}`
+        : null,
+      typeof scenario.effectiveStackBb === "number" ? `${copy.stackLabel}: ${scenario.effectiveStackBb}bb` : null,
+    ]);
 
-    if (scenario.heroPosition) {
-      tiles.push({ label: copy.heroLabel, value: scenario.heroPosition });
-    }
-
-    if (scenario.villainPosition) {
-      tiles.push({ label: copy.villainLabel, value: scenario.villainPosition });
-    }
-
-    if (typeof scenario.effectiveStackBb === "number") {
-      tiles.push({ label: copy.stackLabel, value: `${scenario.effectiveStackBb}bb` });
+    if (seatValue) {
+      tiles.push({
+        label: language === "vi" ? "Spot context" : "Spot context",
+        value: seatValue,
+        wide: true,
+      });
     }
 
     if (scenario.board) {
@@ -468,9 +482,17 @@ function getSpotTiles(
     const tiles: SpotTile[] = [];
 
     if (scenario.board) {
-      getTextureStateChips(scenario.board, language).forEach((chip) => {
-        tiles.push({ label: chip.label, value: chip.value });
-      });
+      const textureValue = getTextureStateChips(scenario.board, language)
+        .map((chip) => `${chip.label}: ${chip.value}`)
+        .join(" / ");
+
+      if (textureValue) {
+        tiles.push({
+          label: language === "vi" ? "Board state" : "Board state",
+          value: textureValue,
+          wide: true,
+        });
+      }
     }
 
     if (scenario.board?.notes[0]) {
@@ -487,22 +509,18 @@ function getSpotTiles(
   if (scenario.module === "player-types") {
     const tiles: SpotTile[] = [];
     const playerScene = getPlayerTypeScene(scenario.playerArchetypeId, language);
-
-    if (scenario.playerArchetypeId) {
-      tiles.push({
-        label: copy.playerTypeLabel,
-        value: getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language),
-      });
-    }
+    const playerTypeValue = scenario.playerArchetypeId
+      ? getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)
+      : playerScene.eyebrow;
 
     tiles.push({
-      label: language === "vi" ? "Read" : "Read",
-      value: playerScene.read,
+      label: copy.playerTypeLabel,
+      value: `${playerTypeValue} / ${playerScene.read}`,
       wide: true,
     });
 
     tiles.push({
-      label: language === "vi" ? "Exploit" : "Exploit",
+      label: language === "vi" ? "Exploit frame" : "Exploit frame",
       value: playerScene.exploit,
       wide: true,
     });
@@ -510,38 +528,36 @@ function getSpotTiles(
     return tiles;
   }
 
-  const tiles: SpotTile[] = [{ label: copy.streetLabel, value: scenario.street.toUpperCase() }];
+  const tiles: SpotTile[] = [];
+  const contextValue = joinSpotParts([
+    `${copy.streetLabel}: ${scenario.street.toUpperCase()}`,
+    scenario.heroPosition || scenario.villainPosition
+      ? `${scenario.heroPosition ?? copy.heroLabel} vs ${scenario.villainPosition ?? copy.villainLabel}`
+      : null,
+    typeof scenario.effectiveStackBb === "number" ? `${copy.stackLabel}: ${scenario.effectiveStackBb}bb` : null,
+    scenario.playerArchetypeId
+      ? `${copy.playerTypeLabel}: ${getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language)}`
+      : null,
+  ]);
+  const cardValue = joinSpotParts([
+    scenario.heroHand ? `${copy.handLabel}: ${scenario.heroHand}` : null,
+    scenario.board
+      ? `${copy.textureLabel}: ${getTacticalBoardLabels(scenario.board, language).join(" / ")}`
+      : null,
+  ]);
 
-  if (scenario.heroPosition) {
-    tiles.push({ label: copy.heroLabel, value: scenario.heroPosition });
-  }
-
-  if (scenario.villainPosition) {
-    tiles.push({ label: copy.villainLabel, value: scenario.villainPosition });
-  }
-
-  if (scenario.heroHand) {
-    tiles.push({ label: copy.handLabel, value: scenario.heroHand });
-  }
-
-  if (typeof scenario.effectiveStackBb === "number") {
+  if (contextValue) {
     tiles.push({
-      label: copy.stackLabel,
-      value: `${scenario.effectiveStackBb}bb`,
+      label: language === "vi" ? "Spot context" : "Spot context",
+      value: contextValue,
+      wide: true,
     });
   }
 
-  if (scenario.playerArchetypeId) {
+  if (cardValue) {
     tiles.push({
-      label: copy.playerTypeLabel,
-      value: getTacticalPlayerTypeLabel(scenario.playerArchetypeId, language),
-    });
-  }
-
-  if (scenario.board) {
-    tiles.push({
-      label: copy.textureLabel,
-      value: getTacticalBoardLabels(scenario.board, language).join(" / "),
+      label: language === "vi" ? "Cards and board" : "Cards and board",
+      value: cardValue,
       wide: true,
     });
   }
@@ -658,7 +674,7 @@ function TacticalSessionStrip({
 
   return (
     <section className="rounded-[32px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-4 text-white shadow-panel sm:p-5">
-      <div className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)]">
+      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] 2xl:items-start">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
@@ -717,7 +733,7 @@ function TacticalSessionStrip({
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1 2xl:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3 2xl:grid-cols-1">
           <SessionStat
             label={copy.sessionProgressLabel}
             value={`${answeredCount}/${totalQuestions}`}
@@ -1149,7 +1165,7 @@ function PlayerTypeHeroObject({
               </>
             )}
 
-          <div className="mt-5 grid gap-4 sm:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
+          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,0.72fr)_minmax(0,1.28fr)]">
             {heroHandCards.length > 0 ? (
               <div className="min-w-0">
                 <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
@@ -1316,7 +1332,7 @@ function TacticalSpotPanel({
             </>
           }
           aside={
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
               <StatPill
                 label={copy.sessionLabel}
                 value={`${questionNumber}/${totalQuestions}`}
@@ -1333,7 +1349,7 @@ function TacticalSpotPanel({
       }
       rail={
         showSupportRail ? (
-          <div className="min-w-0 grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="min-w-0 grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
             {spotTiles.map((tile) => (
               <SpotTileCard key={`${tile.label}-${tile.value}`} {...tile} />
             ))}
@@ -1965,7 +1981,7 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
         persistenceError={session.persistenceError}
       />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(390px,0.92fr)]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] xl:items-start">
         <TacticalSpotPanel
           language={language}
           moduleId={moduleId}

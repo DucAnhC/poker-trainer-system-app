@@ -15,7 +15,7 @@ export function SiteHeader() {
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-900/70 bg-[linear-gradient(180deg,rgba(7,16,28,0.96),rgba(8,23,32,0.94))] text-white backdrop-blur">
-      <div className="mx-auto flex max-w-7xl flex-col gap-4 px-5 py-4 lg:px-8">
+      <div className="mx-auto flex max-w-[1540px] flex-col gap-4 px-5 py-4 lg:px-8">
         <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
           <Link
             href="/"

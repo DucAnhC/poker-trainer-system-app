@@ -157,7 +157,7 @@ export function SceneStatCard({
     <div
       className={cn(
         "min-w-0 rounded-[22px] border border-white/12 bg-black/14 px-4 py-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.05)]",
-        wide && "sm:col-span-2",
+        wide && "sm:col-span-2 2xl:col-span-1",
         className,
       )}
     >
@@ -185,7 +185,7 @@ export function SceneHeader({
   return (
     <div
       className={cn(
-        "grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] xl:items-start 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,440px)]",
+        "grid gap-5 2xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] 2xl:items-start",
         className,
       )}
     >
@@ -196,7 +196,7 @@ export function SceneHeader({
           <h1 className="text-3xl font-semibold tracking-tight text-white text-pretty sm:text-[2.15rem]">
             {title}
           </h1>
-          {description ? <p className={cn("max-w-3xl", bodyTextClassName)}>{description}</p> : null}
+          {description ? <p className={cn("max-w-4xl", bodyTextClassName)}>{description}</p> : null}
         </div>
       </div>
 
@@ -225,7 +225,7 @@ export function TableSceneShell({
   return (
     <section
       className={cn(
-        "rounded-[36px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-5 text-white shadow-panel sm:p-6",
+        "rounded-[36px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-5 text-white shadow-panel sm:p-6 xl:p-7",
         className,
       )}
     >
@@ -237,7 +237,7 @@ export function TableSceneShell({
             className={cn(
               "grid gap-4",
               rail
-                ? "xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)] 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,440px)]"
+                ? "2xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)]"
                 : "",
             )}
           >
@@ -603,7 +603,7 @@ export function CoachAnchor({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2 2xl:grid-cols-3">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {actions.map((action) => (
           <div
             key={action.label}

@@ -108,7 +108,7 @@ export function PreflopTableStatePanel({
             </>
           }
           aside={
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
               <StatPill label={copy.handLabel} value={scenario.handLabel} />
               <StatPill
                 label={copy.stackLabel}
@@ -119,19 +119,14 @@ export function PreflopTableStatePanel({
         />
       }
       rail={
-        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
-          <SceneStatCard label={copy.heroLabel} value={scenario.heroPosition} />
+        <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
           <SceneStatCard
-            label={copy.villainLabel}
-            value={scenario.villainPosition ?? copy.noVillainLabel}
+            label={copy.positionLabel}
+            value={`${scenario.heroPosition} vs ${scenario.villainPosition ?? copy.noVillainLabel}`}
           />
           <SceneStatCard
             label={copy.spotLabel}
-            value={getPreflopPotTypeLabel(scenario.potType, language)}
-          />
-          <SceneStatCard
-            label={copy.focusLabel}
-            value={conceptLabels.join(" / ")}
+            value={`${getPreflopPotTypeLabel(scenario.potType, language)} / ${conceptLabels.join(" / ")}`}
             wide
           />
         </div>

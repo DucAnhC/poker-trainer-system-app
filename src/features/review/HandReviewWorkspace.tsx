@@ -235,7 +235,7 @@ export function HandReviewWorkspace() {
               </>
             }
             aside={
-              <div className="grid gap-3 md:grid-cols-3 xl:grid-cols-1">
+              <div className="grid gap-3 md:grid-cols-3 2xl:grid-cols-1">
                 <WorkspaceStat
                   label={copy.savedReviews}
                   value={`${notes.length}`}
@@ -256,7 +256,7 @@ export function HandReviewWorkspace() {
           />
         }
         rail={
-          <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+          <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
             <StatPill label={copy.savedReviews} value={`${notes.length}`} />
             <StatPill
               label={copy.lastUpdated}
@@ -373,7 +373,7 @@ export function HandReviewWorkspace() {
         )}
       </TableSceneShell>
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(390px,0.92fr)]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] xl:items-start">
         <ReviewForm
           onSave={handleSaveReview}
           isSubmitting={isSaving}

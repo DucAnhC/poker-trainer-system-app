@@ -148,7 +148,7 @@ export function PreflopTrainer() {
         persistenceError={session.persistenceError}
       />
 
-      <div className="grid gap-5 xl:grid-cols-[minmax(0,1.08fr)_minmax(390px,0.92fr)]">
+      <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] xl:items-start">
         <PreflopTableStatePanel
           language={language}
           scenario={session.currentScenario}
