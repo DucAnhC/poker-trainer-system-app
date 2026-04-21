@@ -2,7 +2,6 @@ import {
   ActionHistory,
   CoachAnchor,
   SceneHeader,
-  SceneStatCard,
   SeatBadge,
   SpotTag,
   StatPill,
@@ -118,19 +117,6 @@ export function PreflopTableStatePanel({
           }
         />
       }
-      rail={
-        <div className="grid gap-3 sm:grid-cols-2 2xl:grid-cols-1">
-          <SceneStatCard
-            label={copy.positionLabel}
-            value={`${scenario.heroPosition} vs ${scenario.villainPosition ?? copy.noVillainLabel}`}
-          />
-          <SceneStatCard
-            label={copy.spotLabel}
-            value={`${getPreflopPotTypeLabel(scenario.potType, language)} / ${conceptLabels.join(" / ")}`}
-            wide
-          />
-        </div>
-      }
       footer={
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
           <ActionHistory label={copy.actionLaneLabel} steps={formattedHistory} />
@@ -182,15 +168,39 @@ export function PreflopTableStatePanel({
           />
         </div>
 
-        <div className="grid gap-5 xl:grid-cols-[minmax(0,320px)_minmax(0,1fr)] xl:items-center">
+        <div className="rounded-[30px] border border-white/10 bg-black/14 p-4 sm:p-5">
           <PreflopHandVisual handLabel={scenario.handLabel} language={language} />
+        </div>
 
-          <div className="rounded-[26px] border border-white/12 bg-black/18 p-5">
+        <div className="rounded-[26px] border border-white/12 bg-black/18 p-5">
+          <div className="flex flex-wrap items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
+                {copy.spotLabel}
+              </p>
+              <p className="mt-2 break-words text-xl font-semibold leading-7 text-white text-pretty">
+                {getPreflopPotTypeLabel(scenario.potType, language)}
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <SpotTag tone="cyan" className="text-sm tracking-[0.08em] normal-case">
+                {scenario.handLabel}
+              </SpotTag>
+              {conceptLabels.map((conceptLabel) => (
+                <SpotTag key={`${scenario.id}-${conceptLabel}`} tone="slate">
+                  {conceptLabel}
+                </SpotTag>
+              ))}
+            </div>
+          </div>
+
+          <div className="mt-5 grid gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
                 {copy.positionLabel}
               </p>
-              <div className="mt-4 flex flex-wrap gap-3">
+              <div className="mt-3 flex flex-wrap gap-3">
                 <SeatBadge
                   role={copy.heroValueLabel}
                   position={scenario.heroPosition}
@@ -203,23 +213,11 @@ export function PreflopTableStatePanel({
               </div>
             </div>
 
-            <div className="my-5 h-px bg-white/10" />
-
             <div>
               <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
-                {copy.handLabel}
+                {copy.focusLabel}
               </p>
-              <div className="mt-3 flex flex-wrap gap-2">
-                <SpotTag tone="cyan" className="text-sm tracking-[0.08em] normal-case">
-                  {scenario.handLabel}
-                </SpotTag>
-                {conceptLabels.map((conceptLabel) => (
-                  <SpotTag key={`${scenario.id}-${conceptLabel}`} tone="slate">
-                    {conceptLabel}
-                  </SpotTag>
-                ))}
-              </div>
-              <p className="mt-4 text-sm leading-6 text-slate-300">
+              <p className="mt-3 max-w-3xl break-words text-sm leading-6 text-slate-300 text-pretty">
                 {language === "vi"
                   ? "Hero hand la protagonist cua scene nay. Chot line dua tren vi tri, lich su action, va stack depth truoc khi reveal bai hoc."
                   : "Hero hand is the protagonist of this scene. Lock the line using seat, action history, and stack depth before the lesson reveals."}

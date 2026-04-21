@@ -417,33 +417,7 @@ function getSpotTiles(
   const copy = getTacticalDrillCopy(language);
 
   if (scenario.module === "pot-odds") {
-    const tiles: SpotTile[] = [];
-    const priceValue = joinSpotParts([
-      typeof scenario.potSizeBb === "number" ? `${copy.potLabel}: ${scenario.potSizeBb}bb` : null,
-      typeof scenario.betToCallBb === "number" ? `${copy.callLabel}: ${scenario.betToCallBb}bb` : null,
-    ]);
-    const equityValue = joinSpotParts([
-      typeof scenario.outsCount === "number" ? `${copy.outsLabel}: ${scenario.outsCount}` : null,
-      scenario.equityHint,
-    ]);
-
-    if (priceValue) {
-      tiles.push({
-        label: language === "vi" ? "Gia call" : "Price",
-        value: priceValue,
-        wide: true,
-      });
-    }
-
-    if (equityValue) {
-      tiles.push({
-        label: language === "vi" ? "Equity cue" : "Equity cue",
-        value: equityValue,
-        wide: true,
-      });
-    }
-
-    return tiles;
+    return [];
   }
 
   if (scenario.module === "preflop") {
@@ -823,21 +797,20 @@ function PotOddsHeroObject({
     getBreakEvenPercent(scenario.potSizeBb, scenario.betToCallBb) ?? "-";
   const finalPotBb = getFinalPotBb(scenario.potSizeBb, scenario.betToCallBb);
   const mathLineLabel = language === "vi" ? "Dòng tính nhanh" : "Math line";
+  const intuitionLabel = language === "vi" ? "Trực giác call" : "Call intuition";
   const priceLabel = language === "vi" ? "Facing bet" : "Facing bet";
   const spotLabel = language === "vi" ? "Pot odds spot" : "Pot odds spot";
+  const equityLine = joinSpotParts([
+    typeof scenario.outsCount === "number" ? `${copy.outsLabel}: ${scenario.outsCount}` : null,
+    scenario.equityHint,
+  ]);
 
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap gap-2">
-          <SpotTag tone="cyan">{scenario.street.toUpperCase()}</SpotTag>
-          <SpotTag>{spotLabel}</SpotTag>
-          {scenario.equityHint ? <SpotTag tone="emerald">{scenario.equityHint}</SpotTag> : null}
-        </div>
-
-        {typeof scenario.outsCount === "number" ? (
-          <StatPill label={copy.outsLabel} value={`${scenario.outsCount}`} />
-        ) : null}
+      <div className="flex flex-wrap gap-2">
+        <SpotTag tone="cyan">{scenario.street.toUpperCase()}</SpotTag>
+        <SpotTag>{spotLabel}</SpotTag>
+        {scenario.equityHint ? <SpotTag tone="emerald">{scenario.equityHint}</SpotTag> : null}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -855,20 +828,35 @@ function PotOddsHeroObject({
         footer={finalPotBb ? `${scenario.betToCallBb ?? "-"}bb -> ${finalPotBb}bb` : copy.callLabel}
       />
 
-      <div className="rounded-[26px] border border-white/10 bg-black/14 p-4">
-        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
-          {mathLineLabel}
-        </p>
-        <p className="mt-2 break-words text-lg font-semibold leading-7 text-white text-pretty">
-          {finalPotBb
-            ? language === "vi"
-              ? `${scenario.betToCallBb}bb de tranh ${finalPotBb}bb`
-              : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`
-            : "-"}
-        </p>
-        <p className="mt-3 max-w-3xl break-words text-sm leading-6 text-slate-300 text-pretty">
-          {scenario.learningGoal}
-        </p>
+      <div className="rounded-[26px] border border-white/10 bg-black/14 p-5">
+        <div className="grid gap-5 lg:grid-cols-[minmax(0,0.88fr)_minmax(0,1.12fr)]">
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
+              {mathLineLabel}
+            </p>
+            <p className="mt-2 break-words text-lg font-semibold leading-7 text-white text-pretty">
+              {finalPotBb
+                ? language === "vi"
+                  ? `${scenario.betToCallBb}bb de tranh ${finalPotBb}bb`
+                  : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`
+                : "-"}
+            </p>
+          </div>
+
+          <div>
+            <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100/80">
+              {intuitionLabel}
+            </p>
+            <p className="mt-2 max-w-3xl break-words text-sm leading-6 text-slate-300 text-pretty">
+              {scenario.learningGoal}
+            </p>
+            {equityLine ? (
+              <p className="mt-3 break-words text-sm font-semibold leading-6 text-emerald-100 text-pretty">
+                {equityLine}
+              </p>
+            ) : null}
+          </div>
+        </div>
       </div>
     </div>
   );
