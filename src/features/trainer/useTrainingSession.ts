@@ -528,6 +528,16 @@ export function useTrainingSession<T extends TrainingScenario>(
     setFeedback(null);
   }
 
+  function handleRetryCurrentScenario() {
+    if (!currentScenario || !feedback || isComplete) {
+      return;
+    }
+
+    setSelectedActionId(null);
+    setAnswerPhase("idle");
+    setFeedback(null);
+  }
+
   function handleRestartSession() {
     const nextSession = createTrainingSession(
       module,
@@ -574,6 +584,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     isLastScenario: currentIndex === activeScenarios.length - 1,
     canSubmit: answerPhase === "selected" && Boolean(selectedActionId),
     canAdvance: answerPhase === "next-ready" && Boolean(feedback),
+    canRetryCurrentScenario: Boolean(currentScenario && feedback && !isComplete),
     completionTimestamp,
     storageMode,
     isPersisting: storageMode === "account" && isSaveIndicatorVisible,
@@ -583,6 +594,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     handleSelectAction,
     handleSubmitAnswer,
     handleNextScenario,
+    handleRetryCurrentScenario,
     handleRestartSession,
   };
 }

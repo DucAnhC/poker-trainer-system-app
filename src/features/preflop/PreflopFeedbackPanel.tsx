@@ -6,6 +6,10 @@ import {
   SpotTag,
 } from "@/components/poker-room/PokerRoom";
 import { leakTags } from "@/data/leak-tags";
+import {
+  buildNudgeCoachNote,
+  buildSilentCoachNote,
+} from "@/lib/training/coach-notes";
 import { cn } from "@/lib/utils";
 import type { PreflopScenario, SubmittedAnswerFeedback } from "@/types/training";
 
@@ -48,6 +52,7 @@ export function PreflopFeedbackPanel({
   feedback,
 }: PreflopFeedbackPanelProps) {
   const copy = getPreflopDrillCopy(language);
+  const nudgeCoachNote = buildNudgeCoachNote({ scenario, language });
   const coachActions =
     language === "vi"
       ? [
@@ -98,13 +103,9 @@ export function PreflopFeedbackPanel({
         ]}
         coach={
           <CoachAnchor
-            title={language === "vi" ? "Coach doi sau khi ban chot line" : "Coach waits until you lock the line"}
-            body={
-              language === "vi"
-                ? "Future AI tutor co the feedback ngan ngay sau hand, hoac mo rong ly do khi nguoi hoc can them context."
-                : "The future AI tutor can give a short post-hand nudge here, then expand the why when the learner wants more context."
-            }
-            modeLabel={language === "vi" ? "Silent coach" : "Silent coach"}
+            title={nudgeCoachNote.title}
+            body={nudgeCoachNote.body}
+            modeLabel={nudgeCoachNote.modeLabel}
             actions={coachActions}
           />
         }
@@ -138,6 +139,7 @@ export function PreflopFeedbackPanel({
     weakerLineBlock?.body ??
     surfacedLeakTags[0] ??
     getPreflopConceptLabel(scenario.keyConcepts[0] ?? "preflop", language);
+  const coachNote = buildSilentCoachNote({ scenario, feedback, language });
 
   return (
     <RevealStatePanel
@@ -152,13 +154,9 @@ export function PreflopFeedbackPanel({
       placeholderLabels={[]}
       coach={
         <CoachAnchor
-          title={language === "vi" ? "Coach seat cho feedback theo hand" : "Coach seat for post-hand feedback"}
-          body={
-            language === "vi"
-              ? "Foundation nay san sang cho silent coach, nudge coach, va sparring tutor o vong tiep theo."
-              : "This foundation is ready for silent coach, nudge coach, and sparring tutor modes in the next pass."
-          }
-          modeLabel={language === "vi" ? "Coach ready" : "Coach ready"}
+          title={coachNote.title}
+          body={coachNote.body}
+          modeLabel={coachNote.modeLabel}
           actions={coachActions}
         />
       }

@@ -35,6 +35,10 @@ import {
   getTacticalUiLanguage,
   type TacticalUiLanguage,
 } from "@/features/trainer/tactical-trainer-copy";
+import {
+  buildNudgeCoachNote,
+  buildSilentCoachNote,
+} from "@/lib/training/coach-notes";
 import { getScenarioFollowUpSuggestions } from "@/lib/training/follow-up-suggestions";
 import { cn, formatDateTimeLabel, formatPercent } from "@/lib/utils";
 import type { BoardTextureProfile, PlayerArchetypeId } from "@/types/poker";
@@ -1281,6 +1285,7 @@ function TacticalSpotPanel({
     actionLane.length > 0;
   const showSupportRail = spotTiles.length > 0;
   const coachActions = getCoachActions(language);
+  const coachNote = buildNudgeCoachNote({ scenario, language });
 
   return (
     <TableSceneShell
@@ -1357,13 +1362,9 @@ function TacticalSpotPanel({
       }
       coach={
         <CoachAnchor
-          title={language === "vi" ? "Table coach anchor cho tactical modules" : "Table coach anchor for tactical modules"}
-          body={
-            language === "vi"
-              ? "Nhung module nay da co vi tri ro rang de AI tutor cho feedback ngan, explain them, hoac dua tinh huong tuong tu ma khong pha vo nhac choi."
-              : "These modules now have a dedicated table-coach seat for short feedback, deeper explanation, or similar spots without breaking the play rhythm."
-          }
-          modeLabel={language === "vi" ? "Coach anchor" : "Coach anchor"}
+          title={coachNote.title}
+          body={coachNote.body}
+          modeLabel={coachNote.modeLabel}
           actions={coachActions}
         />
       }
@@ -1431,11 +1432,13 @@ function TacticalDecisionPanel({
   answerPhase,
   canSubmit,
   canAdvance,
+  canRetryCurrentScenario,
   hasSubmitted,
   isLastScenario,
   onSelectAction,
   onSubmit,
   onNext,
+  onRetryCurrent,
   onRestart,
 }: {
   language: TacticalUiLanguage;
@@ -1446,11 +1449,13 @@ function TacticalDecisionPanel({
   answerPhase: TrainingAnswerPhase;
   canSubmit: boolean;
   canAdvance: boolean;
+  canRetryCurrentScenario: boolean;
   hasSubmitted: boolean;
   isLastScenario: boolean;
   onSelectAction: (actionId: string) => void;
   onSubmit: () => void;
   onNext: () => void;
+  onRetryCurrent: () => void;
   onRestart: () => void;
 }) {
   const copy = getTacticalDrillCopy(language);
@@ -1470,6 +1475,7 @@ function TacticalDecisionPanel({
     : selectedAction
       ? `${copy.lockLabel} ${selectedAction.label}`
       : copy.lockLabel;
+  const coachNote = buildNudgeCoachNote({ scenario, language });
   const coachActions = getCoachActions(language);
   const stateLabel = hasSubmitted
     ? language === "vi"
@@ -1512,36 +1518,35 @@ function TacticalDecisionPanel({
       primaryDisabled={hasSubmitted ? !canAdvance : !canSubmit}
       secondaryLabel={copy.restartLabel}
       onSecondary={onRestart}
+      tertiaryLabel={hasSubmitted ? copy.retrySpotLabel : undefined}
+      onTertiary={hasSubmitted ? onRetryCurrent : undefined}
+      tertiaryDisabled={!canRetryCurrentScenario}
       coach={
         <CoachAnchor
-          title={language === "vi" ? "Coach seat san sang cho tactical table" : "Coach seat ready for the tactical table"}
-          body={
-            language === "vi"
-              ? "Action tray nay da duoc chua cho AI coach de nudge truoc khi tra loi, hoac reveal them context sau khi hand ket thuc."
-              : "This action tray already reserves a seat for an AI coach to nudge before the answer or add context after the hand resolves."
-          }
-          modeLabel={language === "vi" ? "Nudge coach" : "Nudge coach"}
+          title={coachNote.title}
+          body={coachNote.body}
+          modeLabel={coachNote.modeLabel}
           actions={coachActions}
         />
       }
       highTension={highTension}
     >
-        {scenario.candidateActions.map((action, index) => (
-          <TacticalActionButton
-            key={action.id}
-            action={action}
-            index={index}
-            language={language}
-            highTension={highTension}
-            selectedTag={copy.selectedLineLabel}
-            bestTag={copy.bestLineLabel}
-            isSelected={selectedActionId === action.id}
-            isLocked={hasSubmitted}
-            isRecommended={feedback?.recommendedAction.id === action.id}
-            isSubmittedChoice={feedback?.selectedAction.id === action.id}
-            onSelect={() => onSelectAction(action.id)}
-          />
-        ))}
+      {scenario.candidateActions.map((action, index) => (
+        <TacticalActionButton
+          key={action.id}
+          action={action}
+          index={index}
+          language={language}
+          highTension={highTension}
+          selectedTag={copy.selectedLineLabel}
+          bestTag={copy.bestLineLabel}
+          isSelected={selectedActionId === action.id}
+          isLocked={hasSubmitted}
+          isRecommended={feedback?.recommendedAction.id === action.id}
+          isSubmittedChoice={feedback?.selectedAction.id === action.id}
+          onSelect={() => onSelectAction(action.id)}
+        />
+      ))}
     </ActionTray>
   );
 }
@@ -1578,6 +1583,7 @@ function TacticalFeedbackPanel({
 }) {
   const copy = getTacticalDrillCopy(language);
   const coachActions = getCoachActions(language);
+  const nudgeCoachNote = buildNudgeCoachNote({ scenario, language });
 
   if (!feedback) {
     return (
@@ -1598,13 +1604,9 @@ function TacticalFeedbackPanel({
         ]}
         coach={
           <CoachAnchor
-            title={language === "vi" ? "Coach cho sau khi hand ket thuc" : "Coach waits for the hand to resolve"}
-            body={
-              language === "vi"
-                ? "Foundation nay cho phep tactical modules nhan feedback ngan sau hand ma khong day action tray thanh text wall."
-                : "This foundation lets the tactical modules deliver short post-hand feedback without turning the action tray into a text wall."
-            }
-            modeLabel={language === "vi" ? "Silent coach" : "Silent coach"}
+            title={nudgeCoachNote.title}
+            body={nudgeCoachNote.body}
+            modeLabel={nudgeCoachNote.modeLabel}
             actions={coachActions}
           />
         }
@@ -1636,6 +1638,7 @@ function TacticalFeedbackPanel({
     isCorrect,
     progressSummary,
   }).slice(0, 2);
+  const coachNote = buildSilentCoachNote({ scenario, feedback, language });
 
   return (
     <RevealStatePanel
@@ -1650,13 +1653,9 @@ function TacticalFeedbackPanel({
       placeholderLabels={[]}
       coach={
         <CoachAnchor
-          title={language === "vi" ? "Coach seat cho post-hand feedback" : "Coach seat for post-hand feedback"}
-          body={
-            language === "vi"
-              ? "Reveal layer nay la noi hop ly de AI tutor tom tat sai lech, goi y explain them, hoac dua ra hand tuong tu."
-              : "This reveal layer is the right place for an AI tutor to summarize the miss, expand the why, or suggest a similar hand."
-          }
-          modeLabel={language === "vi" ? "Coach ready" : "Coach ready"}
+          title={coachNote.title}
+          body={coachNote.body}
+          modeLabel={coachNote.modeLabel}
           actions={coachActions}
         />
       }
@@ -1967,11 +1966,13 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
           answerPhase={session.answerPhase}
           canSubmit={session.canSubmit}
           canAdvance={session.canAdvance}
+          canRetryCurrentScenario={session.canRetryCurrentScenario}
           hasSubmitted={session.hasSubmitted}
           isLastScenario={session.isLastScenario}
           onSelectAction={session.handleSelectAction}
           onSubmit={session.handleSubmitAnswer}
           onNext={session.handleNextScenario}
+          onRetryCurrent={session.handleRetryCurrentScenario}
           onRestart={session.handleRestartSession}
         />
       </div>

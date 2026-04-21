@@ -142,13 +142,13 @@ export function PreflopTableStatePanel({
       }
       coach={
         <CoachAnchor
-          title={language === "vi" ? "Coach ngoi canh ban" : "Coach seat by the table"}
+          title={language === "vi" ? "Cue nhanh truoc khi chot" : "Quick cue before you lock"}
           body={
             language === "vi"
-              ? "Cho nay duoc de san cho AI tutor dang nudge, reveal feedback, va compare spot ma van giu scene poker la trung tam."
-              : "This reserves the table-coach slot for nudges, reveal feedback, and similar spots while keeping the poker scene in the center."
+              ? "Doc vi tri, stack va action history truoc khi khoa line. Coach se khong lo dap an truoc reveal."
+              : "Read position, stack depth, and prior action before locking the line. The coach stays short and does not reveal the answer before commit."
           }
-          modeLabel={language === "vi" ? "Silent coach" : "Silent coach"}
+          modeLabel={language === "vi" ? "Nudge coach" : "Nudge coach"}
           actions={coachActions}
         />
       }

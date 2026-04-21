@@ -10,6 +10,8 @@
 ---
 
 ## Những thay đổi lớn gần đây
+- Thêm nhịp `retry current spot` sau reveal cho Preflop và các tactical modules, giữ `next spot` và `restart set` tách bạch hơn.
+- Coach seat trong decision/reveal flow chuyển từ placeholder chung sang nudge / silent coach note ngắn, bám vào module cue, rationale, feedback hint và mistake tag.
 - Kéo toàn app gần hơn về shared visual direction
 - Tăng cảm giác poker client / training room
 - Refactor Preflop thành module tham chiếu

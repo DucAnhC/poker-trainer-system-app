@@ -2,6 +2,7 @@ import {
   ActionTray,
   CoachAnchor,
 } from "@/components/poker-room/PokerRoom";
+import { buildNudgeCoachNote } from "@/lib/training/coach-notes";
 import type {
   SubmittedAnswerFeedback,
   TrainingAnswerPhase,
@@ -24,11 +25,13 @@ type PreflopDecisionPanelProps = {
   feedback: SubmittedAnswerFeedback | null;
   canSubmit: boolean;
   canAdvance: boolean;
+  canRetryCurrentScenario: boolean;
   hasSubmitted: boolean;
   isLastScenario: boolean;
   onSelectAction: (actionId: string) => void;
   onSubmit: () => void;
   onNext: () => void;
+  onRetryCurrent: () => void;
   onRestart: () => void;
 };
 
@@ -40,11 +43,13 @@ export function PreflopDecisionPanel({
   feedback,
   canSubmit,
   canAdvance,
+  canRetryCurrentScenario,
   hasSubmitted,
   isLastScenario,
   onSelectAction,
   onSubmit,
   onNext,
+  onRetryCurrent,
   onRestart,
 }: PreflopDecisionPanelProps) {
   const copy = getPreflopDrillCopy(language);
@@ -61,6 +66,7 @@ export function PreflopDecisionPanel({
     : selectedActionLabel
       ? `${copy.submitLabel} ${selectedActionLabel}`
       : copy.submitLabel;
+  const coachNote = buildNudgeCoachNote({ scenario, language });
 
   const coachActions =
     language === "vi"
@@ -92,12 +98,6 @@ export function PreflopDecisionPanel({
             helper: "Pull a close follow-up hand from the same node.",
           },
         ];
-  const coachTitle =
-    language === "vi" ? "Coach seat da san sang cho vong sau" : "Coach seat is ready for the next pass";
-  const coachBody =
-    language === "vi"
-      ? "Anchor nay giu cho cho AI tutor de nudges, short feedback, va compare spot ma khong day trainer thanh chat sidebar."
-      : "This anchor reserves the table-coach slot for nudges, short feedback, and similar-spot prompts without turning the trainer into a sidebar chat.";
   const stateLabel = hasSubmitted
     ? language === "vi"
       ? "Line da khoa"
@@ -136,29 +136,32 @@ export function PreflopDecisionPanel({
       primaryDisabled={hasSubmitted ? !canAdvance : !canSubmit}
       secondaryLabel={copy.restartLabel}
       onSecondary={onRestart}
+      tertiaryLabel={hasSubmitted ? copy.retrySpotLabel : undefined}
+      onTertiary={hasSubmitted ? onRetryCurrent : undefined}
+      tertiaryDisabled={!canRetryCurrentScenario}
       coach={
         <CoachAnchor
-          title={coachTitle}
-          body={coachBody}
-          modeLabel={language === "vi" ? "Coach anchor" : "Coach anchor"}
+          title={coachNote.title}
+          body={coachNote.body}
+          modeLabel={coachNote.modeLabel}
           actions={coachActions}
         />
       }
     >
-        {scenario.candidateActions.map((action, index) => (
-          <PreflopActionButton
-            key={action.id}
-            action={action}
-            index={index}
-            isSelected={selectedActionId === action.id}
-            isLocked={hasSubmitted}
-            isRecommended={feedback?.recommendedAction.id === action.id}
-            isSubmittedChoice={feedback?.selectedAction.id === action.id}
-            selectedTag={copy.selectedTag}
-            bestTag={copy.bestTag}
-            onSelect={() => onSelectAction(action.id)}
-          />
-        ))}
+      {scenario.candidateActions.map((action, index) => (
+        <PreflopActionButton
+          key={action.id}
+          action={action}
+          index={index}
+          isSelected={selectedActionId === action.id}
+          isLocked={hasSubmitted}
+          isRecommended={feedback?.recommendedAction.id === action.id}
+          isSubmittedChoice={feedback?.selectedAction.id === action.id}
+          selectedTag={copy.selectedTag}
+          bestTag={copy.bestTag}
+          onSelect={() => onSelectAction(action.id)}
+        />
+      ))}
     </ActionTray>
   );
 }

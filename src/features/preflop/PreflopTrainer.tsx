@@ -166,11 +166,13 @@ export function PreflopTrainer() {
           feedback={session.feedback}
           canSubmit={session.canSubmit}
           canAdvance={session.canAdvance}
+          canRetryCurrentScenario={session.canRetryCurrentScenario}
           hasSubmitted={session.hasSubmitted}
           isLastScenario={session.isLastScenario}
           onSelectAction={session.handleSelectAction}
           onSubmit={session.handleSubmitAnswer}
           onNext={session.handleNextScenario}
+          onRetryCurrent={session.handleRetryCurrentScenario}
           onRestart={session.handleRestartSession}
         />
       </div>

@@ -28,6 +28,7 @@ type TacticalCopy = {
   nextSpotLabel: string;
   finishSetLabel: string;
   restartLabel: string;
+  retrySpotLabel: string;
   selectedHint: string;
   decisionReviewHint: string;
   sessionProgressLabel: string;
@@ -106,6 +107,7 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     nextSpotLabel: "Next spot",
     finishSetLabel: "Finish set",
     restartLabel: "Restart",
+    retrySpotLabel: "Retry this spot",
     selectedHint: "The line is ready. Lock it to open the correction.",
     decisionReviewHint: "Result is open. Review, then move when ready.",
     sessionProgressLabel: "Progress",
@@ -267,6 +269,7 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     nextSpotLabel: "Tình huống tiếp",
     finishSetLabel: "Kết thúc set",
     restartLabel: "Làm lại",
+    retrySpotLabel: "Làm lại spot này",
     selectedHint: "Line đã sẵn. Bấm chốt để mở sửa nhanh.",
     decisionReviewHint: "Kết quả đã mở. Xem nhanh rồi tự bấm tình huống tiếp.",
     sessionProgressLabel: "Tiến độ",

@@ -274,6 +274,7 @@ type PreflopDrillCopy = {
   nextSpotLabel: string;
   finishSessionLabel: string;
   restartLabel: string;
+  retrySpotLabel: string;
   reviewEyebrow: string;
   reviewPlaceholder: string;
   resultLabel: string;
@@ -334,6 +335,7 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     nextSpotLabel: "Tình huống tiếp",
     finishSessionLabel: "Kết thúc loạt",
     restartLabel: "Làm lại loạt",
+    retrySpotLabel: "Làm lại spot này",
     reviewEyebrow: "Sửa nhanh",
     reviewPlaceholder: "Chốt line để mở kết quả ngắn.",
     resultLabel: "Kết quả",
@@ -392,6 +394,7 @@ const preflopDrillCopy: Record<PreflopUiLanguage, PreflopDrillCopy> = {
     nextSpotLabel: "Next spot",
     finishSessionLabel: "Finish set",
     restartLabel: "Restart set",
+    retrySpotLabel: "Retry this spot",
     reviewEyebrow: "Review",
     reviewPlaceholder: "Lock a line to open the short result and best line.",
     resultLabel: "Result",

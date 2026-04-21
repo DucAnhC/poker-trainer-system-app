@@ -758,6 +758,9 @@ export function ActionTray({
   primaryDisabled,
   secondaryLabel,
   onSecondary,
+  tertiaryLabel,
+  onTertiary,
+  tertiaryDisabled = false,
   coach,
   highTension = false,
   className,
@@ -777,6 +780,9 @@ export function ActionTray({
   primaryDisabled: boolean;
   secondaryLabel: string;
   onSecondary: () => void;
+  tertiaryLabel?: string;
+  onTertiary?: () => void;
+  tertiaryDisabled?: boolean;
   coach?: ReactNode;
   highTension?: boolean;
   className?: string;
@@ -856,6 +862,21 @@ export function ActionTray({
           >
             {secondaryLabel}
           </button>
+
+          {tertiaryLabel && onTertiary ? (
+            <button
+              type="button"
+              onClick={onTertiary}
+              disabled={tertiaryDisabled}
+              className={cn(
+                "w-full rounded-full border border-amber-200/18 bg-amber-300/[0.07] px-5 py-3 text-amber-100 transition hover:border-amber-200/30 hover:bg-amber-300/[0.12]",
+                buttonTextClassName,
+                tertiaryDisabled && "cursor-not-allowed opacity-55 hover:border-amber-200/18 hover:bg-amber-300/[0.07]",
+              )}
+            >
+              {tertiaryLabel}
+            </button>
+          ) : null}
         </div>
       </div>
 
