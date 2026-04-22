@@ -31,7 +31,7 @@ export default function DashboardPage() {
       <div className="grid gap-6 xl:grid-cols-3">
         {dashboardHighlights.map((highlight) => (
           <SurfaceCard key={highlight.label} className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-muted-foreground">
+            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-slate-500">
               {highlight.label}
             </p>
             <p className="text-2xl font-semibold text-foreground">
@@ -46,10 +46,10 @@ export default function DashboardPage() {
 
       <section className="space-y-4">
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200/90">
             Progress
           </p>
-          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h2 className="text-3xl font-semibold tracking-tight text-white">
             Persisted training summary
           </h2>
         </div>
@@ -58,10 +58,10 @@ export default function DashboardPage() {
 
       <section className="space-y-4">
         <div className="space-y-2">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200/90">
             Modules
           </p>
-          <h2 className="text-3xl font-semibold tracking-tight text-foreground">
+          <h2 className="text-3xl font-semibold tracking-tight text-white">
             Navigation and scaffold coverage
           </h2>
         </div>
@@ -74,7 +74,7 @@ export default function DashboardPage() {
 
       <section className="grid gap-6 lg:grid-cols-[minmax(0,1.15fr)_minmax(280px,0.85fr)]">
         <div className="space-y-4">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200/90">
             Scenario previews
           </p>
           <div className="grid gap-6 xl:grid-cols-2">

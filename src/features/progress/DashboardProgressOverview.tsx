@@ -547,12 +547,12 @@ export function DashboardProgressOverview() {
 
       <div className="space-y-2">
         <div className="flex flex-wrap items-center gap-3">
-          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-accent-strong">
+          <p className="text-sm font-semibold uppercase tracking-[0.18em] text-cyan-200/90">
             Module status
           </p>
           <StatusPill tone="accent">{getLensLabel(focusLens)}</StatusPill>
         </div>
-        <h2 className="text-2xl font-semibold text-foreground">
+        <h2 className="text-2xl font-semibold text-white">
           Active modules and study utilities
         </h2>
       </div>

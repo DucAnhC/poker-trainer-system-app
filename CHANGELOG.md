@@ -10,6 +10,8 @@
 ---
 
 ## Những thay đổi lớn gần đây
+- Ổn định shared trainer session plan: adaptive retry/progress rehydrate không còn tự sắp lại thứ tự câu trong lúc người học đang chọn hoặc vừa reveal, và bỏ timer chuyển `revealed -> next-ready` gây flicker trạng thái.
+- Tăng contrast cho Dashboard và Settings: page header, section heading, card surface, badge, muted text và support blocks đọc rõ hơn trên nền tactical dark.
 - Thêm nhịp `retry current spot` sau reveal cho Preflop và các tactical modules, giữ `next spot` và `restart set` tách bạch hơn.
 - Coach seat trong decision/reveal flow chuyển từ placeholder chung sang nudge / silent coach note ngắn, bám vào module cue, rationale, feedback hint và mistake tag.
 - Kéo toàn app gần hơn về shared visual direction

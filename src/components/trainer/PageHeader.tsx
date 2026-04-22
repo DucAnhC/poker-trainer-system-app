@@ -17,14 +17,14 @@ export function PageHeader({
     <div className="grid gap-4 lg:grid-cols-[minmax(0,1fr)_auto] lg:items-end">
       <div className="space-y-2">
         {eyebrow ? (
-          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-accent-strong">
+          <p className="text-xs font-semibold uppercase tracking-[0.22em] text-cyan-200/90">
             {eyebrow}
           </p>
         ) : null}
-        <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
+        <h1 className="max-w-3xl text-3xl font-semibold tracking-tight text-white sm:text-4xl">
           {title}
         </h1>
-        <p className="max-w-2xl text-sm leading-6 text-muted-foreground sm:text-base">
+        <p className="max-w-2xl text-sm leading-6 text-slate-300 sm:text-base">
           {description}
         </p>
       </div>

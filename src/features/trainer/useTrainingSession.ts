@@ -21,8 +21,14 @@ import {
 import {
   getModuleRetryQueueItems,
   getRetryItemForScenario,
-  orderScenariosByRetryPriority,
 } from "@/lib/training/retry-queue";
+import {
+  buildRetryQueueSignature,
+  buildTrainerSessionConfigSignature,
+  buildTrainerSessionPlan,
+  shouldRefreshTrainerSessionPlan,
+  type TrainerSessionPlan,
+} from "@/lib/training/session-plan";
 import { createTrainingSession } from "@/lib/training/session-state";
 import type {
   Difficulty,
@@ -50,10 +56,6 @@ function getInitialProgressSummary() {
   }
 
   return getProgressSummary();
-}
-
-function buildScenarioSignature(scenarios: TrainingScenario[]) {
-  return scenarios.map((scenario) => scenario.id).join("|");
 }
 
 function sortDifficulties(left: Difficulty, right: Difficulty) {
@@ -97,7 +99,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     [difficultyFilter, scenarios],
   );
 
-  const retryQueueItems = useMemo(
+  const liveRetryQueueItems = useMemo(
     () =>
       getModuleRetryQueueItems(
         overallProgressSummary.retryQueue,
@@ -107,25 +109,30 @@ export function useTrainingSession<T extends TrainingScenario>(
     [difficultyFilter, module, overallProgressSummary.retryQueue],
   );
 
-  const activeScenarios = useMemo(
+  const sessionConfigSignature = useMemo(
     () =>
-      queueMode === "adaptive"
-        ? orderScenariosByRetryPriority(filteredScenarios, retryQueueItems)
-        : filteredScenarios,
-    [filteredScenarios, queueMode, retryQueueItems],
+      buildTrainerSessionConfigSignature({
+        moduleId: module,
+        difficultyFilter,
+        queueMode,
+        scenarios: filteredScenarios,
+      }),
+    [difficultyFilter, filteredScenarios, module, queueMode],
   );
-
-  const scenarioSignature = useMemo(
-    () => buildScenarioSignature(activeScenarios),
-    [activeScenarios],
+  const retryQueueSignature = useMemo(
+    () => buildRetryQueueSignature(liveRetryQueueItems),
+    [liveRetryQueueItems],
   );
-  const activeScenarioIds = useMemo(
-    () => activeScenarios.map((scenario) => scenario.id),
-    [activeScenarios],
+  const [sessionPlan, setSessionPlan] = useState<TrainerSessionPlan<T>>(() =>
+    buildTrainerSessionPlan({
+      scenarios: filteredScenarios,
+      retryQueueItems: liveRetryQueueItems,
+      queueMode,
+    }),
   );
 
   const [session, setSession] = useState<TrainingSession>(() =>
-    createTrainingSession(module, activeScenarioIds),
+    createTrainingSession(module, sessionPlan.scenarioIds),
   );
   const [currentIndex, setCurrentIndex] = useState(0);
   const [selectedActionId, setSelectedActionId] = useState<string | null>(null);
@@ -134,13 +141,17 @@ export function useTrainingSession<T extends TrainingScenario>(
   const [attemptIds, setAttemptIds] = useState<string[]>([]);
   const [correctCount, setCorrectCount] = useState(0);
   const [surfacedLeakTags, setSurfacedLeakTags] = useState<string[]>([]);
-  const [isComplete, setIsComplete] = useState(activeScenarios.length === 0);
+  const [isComplete, setIsComplete] = useState(
+    sessionPlan.scenarioIds.length === 0,
+  );
   const [completionTimestamp, setCompletionTimestamp] = useState<string | null>(
     null,
   );
   const [isSaveIndicatorVisible, setIsSaveIndicatorVisible] = useState(false);
   const [persistenceError, setPersistenceError] = useState<string | null>(null);
-  const hasMountedForScenarioSignature = useRef(false);
+  const sessionConfigSignatureRef = useRef(sessionConfigSignature);
+  const retryQueueSignatureRef = useRef(retryQueueSignature);
+  const hasSubmittedCurrentScenarioRef = useRef(false);
   const isSaveIndicatorVisibleRef = useRef(false);
   const pendingVisibleSaveCountRef = useRef(0);
   const saveIndicatorDelayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -251,6 +262,8 @@ export function useTrainingSession<T extends TrainingScenario>(
     }
   }, [authStatus, storageMode]);
 
+  const activeScenarios = sessionPlan.scenarios;
+  const retryQueueItems = sessionPlan.retryQueueItems;
   const currentScenario = activeScenarios[currentIndex] ?? null;
   const currentRetryHint = getRetryItemForScenario(
     retryQueueItems,
@@ -352,17 +365,40 @@ export function useTrainingSession<T extends TrainingScenario>(
     authSession?.user?.id,
   ]);
 
+  const isSessionPristine =
+    currentIndex === 0 &&
+    answerPhase === "idle" &&
+    !feedback &&
+    attemptIds.length === 0 &&
+    !completionTimestamp;
+
   useEffect(() => {
-    if (!hasMountedForScenarioSignature.current) {
-      hasMountedForScenarioSignature.current = true;
+    if (
+      !shouldRefreshTrainerSessionPlan({
+        currentConfigSignature: sessionConfigSignatureRef.current,
+        nextConfigSignature: sessionConfigSignature,
+        currentRetryQueueSignature: retryQueueSignatureRef.current,
+        nextRetryQueueSignature: retryQueueSignature,
+        isSessionPristine,
+      })
+    ) {
       return;
     }
 
+    const nextPlan = buildTrainerSessionPlan({
+      scenarios: filteredScenarios,
+      retryQueueItems: liveRetryQueueItems,
+      queueMode,
+    });
     const nextSession = createTrainingSession(
       module,
-      activeScenarioIds,
+      nextPlan.scenarioIds,
     );
 
+    sessionConfigSignatureRef.current = sessionConfigSignature;
+    retryQueueSignatureRef.current = retryQueueSignature;
+    hasSubmittedCurrentScenarioRef.current = false;
+    setSessionPlan(nextPlan);
     setSession(nextSession);
     setCurrentIndex(0);
     setSelectedActionId(null);
@@ -372,33 +408,36 @@ export function useTrainingSession<T extends TrainingScenario>(
     setCorrectCount(0);
     setSurfacedLeakTags([]);
     setCompletionTimestamp(null);
-    setIsComplete(activeScenarioIds.length === 0);
+    setIsComplete(nextPlan.scenarioIds.length === 0);
     setPersistenceError(null);
     pendingVisibleSaveCountRef.current = 0;
     shouldShowNextSessionSaveRef.current = false;
     clearSaveIndicatorTimers();
     saveIndicatorShownAtRef.current = null;
     setSaveIndicatorVisibility(false);
-  }, [activeScenarioIds, module, scenarioSignature]);
-
-  useEffect(() => {
-    if (!feedback || answerPhase !== "revealed") {
-      return;
-    }
-
-    const nextReadyTimer = setTimeout(() => {
-      setAnswerPhase((currentPhase) =>
-        currentPhase === "revealed" ? "next-ready" : currentPhase,
-      );
-    }, 0);
-
-    return () => {
-      clearTimeout(nextReadyTimer);
-    };
-  }, [answerPhase, feedback]);
+  }, [
+    answerPhase,
+    attemptIds.length,
+    clearSaveIndicatorTimers,
+    completionTimestamp,
+    feedback,
+    filteredScenarios,
+    isSessionPristine,
+    liveRetryQueueItems,
+    module,
+    queueMode,
+    retryQueueSignature,
+    sessionConfigSignature,
+    setSaveIndicatorVisibility,
+  ]);
 
   function handleSelectAction(actionId: string) {
-    if (feedback || isComplete || answerPhase === "revealed") {
+    if (
+      feedback ||
+      isComplete ||
+      answerPhase === "revealed" ||
+      answerPhase === "next-ready"
+    ) {
       return;
     }
 
@@ -407,7 +446,13 @@ export function useTrainingSession<T extends TrainingScenario>(
   }
 
   function handleSubmitAnswer() {
-    if (!currentScenario || !selectedActionId || feedback || answerPhase !== "selected") {
+    if (
+      !currentScenario ||
+      !selectedActionId ||
+      feedback ||
+      answerPhase !== "selected" ||
+      hasSubmittedCurrentScenarioRef.current
+    ) {
       return;
     }
 
@@ -422,6 +467,8 @@ export function useTrainingSession<T extends TrainingScenario>(
     if (!selectedAction || !recommendedAction) {
       return;
     }
+
+    hasSubmittedCurrentScenarioRef.current = true;
 
     const createdAt = new Date().toISOString();
     const isCorrect = selectedAction.id === recommendedAction.id;
@@ -500,7 +547,7 @@ export function useTrainingSession<T extends TrainingScenario>(
   }
 
   function handleNextScenario() {
-    if (!feedback || answerPhase !== "next-ready") {
+    if (!feedback || (answerPhase !== "revealed" && answerPhase !== "next-ready")) {
       return;
     }
 
@@ -522,6 +569,7 @@ export function useTrainingSession<T extends TrainingScenario>(
       return;
     }
 
+    hasSubmittedCurrentScenarioRef.current = false;
     setCurrentIndex((index) => index + 1);
     setSelectedActionId(null);
     setAnswerPhase("idle");
@@ -533,17 +581,27 @@ export function useTrainingSession<T extends TrainingScenario>(
       return;
     }
 
+    hasSubmittedCurrentScenarioRef.current = false;
     setSelectedActionId(null);
     setAnswerPhase("idle");
     setFeedback(null);
   }
 
   function handleRestartSession() {
+    const nextPlan = buildTrainerSessionPlan({
+      scenarios: filteredScenarios,
+      retryQueueItems: liveRetryQueueItems,
+      queueMode,
+    });
     const nextSession = createTrainingSession(
       module,
-      activeScenarioIds,
+      nextPlan.scenarioIds,
     );
 
+    sessionConfigSignatureRef.current = sessionConfigSignature;
+    retryQueueSignatureRef.current = retryQueueSignature;
+    hasSubmittedCurrentScenarioRef.current = false;
+    setSessionPlan(nextPlan);
     setSession(nextSession);
     setCurrentIndex(0);
     setSelectedActionId(null);
@@ -553,7 +611,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     setCorrectCount(0);
     setSurfacedLeakTags([]);
     setCompletionTimestamp(null);
-    setIsComplete(activeScenarioIds.length === 0);
+    setIsComplete(nextPlan.scenarioIds.length === 0);
     setPersistenceError(null);
     pendingVisibleSaveCountRef.current = 0;
     shouldShowNextSessionSaveRef.current = false;
@@ -582,8 +640,13 @@ export function useTrainingSession<T extends TrainingScenario>(
     hasSubmitted:
       answerPhase === "revealed" || answerPhase === "next-ready",
     isLastScenario: currentIndex === activeScenarios.length - 1,
-    canSubmit: answerPhase === "selected" && Boolean(selectedActionId),
-    canAdvance: answerPhase === "next-ready" && Boolean(feedback),
+    canSubmit:
+      answerPhase === "selected" &&
+      Boolean(selectedActionId) &&
+      !hasSubmittedCurrentScenarioRef.current,
+    canAdvance:
+      (answerPhase === "revealed" || answerPhase === "next-ready") &&
+      Boolean(feedback),
     canRetryCurrentScenario: Boolean(currentScenario && feedback && !isComplete),
     completionTimestamp,
     storageMode,
