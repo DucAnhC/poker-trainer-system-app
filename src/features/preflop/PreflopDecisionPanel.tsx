@@ -72,16 +72,16 @@ export function PreflopDecisionPanel({
     language === "vi"
       ? [
           {
-            label: "Goi y ngan",
-            helper: "Mot cue ngan truoc khi ban khoa line.",
+            label: "Gợi ý ngắn",
+            helper: "Một cue ngắn trước khi bạn khóa line.",
           },
           {
-            label: "Giai thich them",
-            helper: "Tom tat vi sao line tot hon sau reveal.",
+            label: "Giải thích thêm",
+            helper: "Tóm tắt vì sao line tốt hơn sau reveal.",
           },
           {
-            label: "Tinh huong tuong tu",
-            helper: "Mo them mot spot gan voi hand hien tai.",
+            label: "Tình huống tương tự",
+            helper: "Mở thêm một spot gần với hand hiện tại.",
           },
         ]
       : [
@@ -100,25 +100,25 @@ export function PreflopDecisionPanel({
         ];
   const stateLabel = hasSubmitted
     ? language === "vi"
-      ? "Line da khoa"
+      ? "Line đã khóa"
       : "Line locked"
     : selectedActionLabel
       ? language === "vi"
-        ? "Da chon line"
+        ? "Đã chọn line"
         : "Line selected"
       : language === "vi"
-        ? "Cho quyet dinh"
+        ? "Chờ quyết định"
         : "Awaiting decision";
   const stateHint = hasSubmitted
     ? language === "vi"
-      ? "Reveal panel dang san sang dua correction, takeaway, va next hand."
+      ? "Reveal panel đang sẵn sàng đưa correction, takeaway và next hand."
       : "The reveal panel is ready to show the correction, takeaway, and next hand."
     : selectedActionLabel
       ? language === "vi"
-        ? "Ban da chon line. Khoa no lai de mo reveal."
+        ? "Bạn đã chọn line. Khóa lại để mở reveal."
         : "You have a line selected. Lock it to open the reveal."
       : language === "vi"
-        ? "Chon mot line truoc. Coach seat se chi can thiep bang nudges ngan."
+        ? "Chọn một line trước. Coach seat chỉ can thiệp bằng nudge ngắn."
         : "Pick a line first. The coach seat stays limited to short nudges.";
 
   return (

@@ -48,22 +48,22 @@ function getFirstLeakLabel(scenario: TrainingScenario) {
 function getModuleNudge(scenario: TrainingScenario, language: CoachNoteLanguage) {
   if (language === "vi") {
     if (scenario.module === "pot-odds") {
-      return "Nhin gia call va equity can truoc khi chon line.";
+      return "Nhìn giá call và equity cần trước khi chọn line.";
     }
 
     if (scenario.module === "board-texture") {
-      return "Doc board kho, dong, paired hay monotone truoc khi chon takeaway.";
+      return "Đọc board khô, động, paired hay monotone trước khi chọn takeaway.";
     }
 
     if (scenario.module === "player-types") {
-      return "Tach baseline khoi exploit, roi kiem tra read co du manh chua.";
+      return "Tách baseline khỏi exploit, rồi kiểm tra read có đủ mạnh chưa.";
     }
 
     if (scenario.module === "postflop") {
-      return "Doc board, vi tri, muc dich action roi moi khoa line.";
+      return "Đọc board, vị trí và mục đích action rồi mới khóa line.";
     }
 
-    return "Doc vi tri, stack va action history truoc khi khoa line.";
+    return "Đọc vị trí, stack và action history trước khi khóa line.";
   }
 
   if (scenario.module === "pot-odds") {
@@ -95,12 +95,12 @@ export function buildNudgeCoachNote({
   const moduleNudge = getModuleNudge(scenario, language);
   const body =
     language === "vi"
-      ? `${moduleNudge} Coach se khong lo dap an truoc reveal.`
+      ? `${moduleNudge} Coach sẽ không lộ đáp án trước reveal.`
       : `${moduleNudge} The coach stays short and does not reveal the answer before commit.`;
 
   return {
     modeLabel: language === "vi" ? "Nudge coach" : "Nudge coach",
-    title: language === "vi" ? "Cue nhanh truoc khi chot" : "Quick cue before you lock",
+    title: language === "vi" ? "Cue nhanh trước khi chốt" : "Quick cue before you lock",
     body: compactText(body),
   };
 }
@@ -127,11 +127,11 @@ export function buildSilentCoachNote({
   if (language === "vi") {
     return {
       modeLabel: "Silent coach",
-      title: isCorrect ? "Line nay sach" : "Sua lech chinh",
+      title: isCorrect ? "Line này sạch" : "Sửa lệch chính",
       body: compactText(
         isCorrect
-          ? `Giu nhip nay: ${reason}`
-          : `Diem lech chinh: ${missCorrection}`,
+          ? `Giữ nhịp này: ${reason}`
+          : `Điểm lệch chính: ${missCorrection}`,
       ),
     };
   }

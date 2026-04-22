@@ -57,16 +57,16 @@ export function PreflopFeedbackPanel({
     language === "vi"
       ? [
           {
-            label: "Goi y ngan",
-            helper: "Feedback ngan neu nguoi hoc muon giu nhip nhanh.",
+            label: "Gợi ý ngắn",
+            helper: "Feedback ngắn nếu người học muốn giữ nhịp nhanh.",
           },
           {
-            label: "Giai thich them",
-            helper: "Dao sau vi sao line nay tot hon trong node nay.",
+            label: "Giải thích thêm",
+            helper: "Đào sâu vì sao line này tốt hơn trong node này.",
           },
           {
-            label: "Tinh huong tuong tu",
-            helper: "Mo them mot hand gan de lap lai bai hoc.",
+            label: "Tình huống tương tự",
+            helper: "Mở thêm một hand gần để lặp lại bài học.",
           },
         ]
       : [
@@ -91,7 +91,7 @@ export function PreflopFeedbackPanel({
         title={copy.reviewPlaceholder}
         description={
           language === "vi"
-            ? "Reveal panel se mo sau khi ban da chot line. Luc nay scene van uu tien quyet dinh tren ban."
+            ? "Reveal panel sẽ mở sau khi bạn đã chốt line. Lúc này scene vẫn ưu tiên quyết định trên bàn."
             : "The reveal panel opens after the line is locked. Until then, the scene keeps the decision in the spotlight."
         }
         revealed={false}
@@ -144,10 +144,10 @@ export function PreflopFeedbackPanel({
   return (
     <RevealStatePanel
       eyebrow={copy.reviewEyebrow}
-      title={language === "vi" ? "Reveal va lesson sau hand" : "Reveal and lesson after the hand"}
+      title={language === "vi" ? "Reveal và lesson sau hand" : "Reveal and lesson after the hand"}
       description={
         language === "vi"
-          ? "Ban da chot line. Bay gio he thong moi reveal line tot hon, ly do, va diem hoc can giu lai."
+          ? "Bạn đã chốt line. Bây giờ hệ thống mới reveal line tốt hơn, lý do và điểm học cần giữ lại."
           : "The line is locked. Now the system reveals the cleaner option, the why, and the main learning point to keep."
       }
       revealed

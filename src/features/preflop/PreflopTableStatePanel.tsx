@@ -61,16 +61,16 @@ export function PreflopTableStatePanel({
     language === "vi"
       ? [
           {
-            label: "Goi y ngan",
-            helper: "Nudge ngan dua tren vi tri va action history.",
+            label: "Gợi ý ngắn",
+            helper: "Nudge ngắn dựa trên vị trí và action history.",
           },
           {
-            label: "Vi sao line nay",
-            helper: "Reveal giai thich tiep theo se bam vao concept chinh.",
+            label: "Vì sao line này",
+            helper: "Reveal giải thích tiếp theo sẽ bám vào concept chính.",
           },
           {
-            label: "Tinh huong tuong tu",
-            helper: "Chuan bi cho compare spot o cung family hand.",
+            label: "Tình huống tương tự",
+            helper: "Chuẩn bị cho compare spot ở cùng family hand.",
           },
         ]
       : [
@@ -142,10 +142,10 @@ export function PreflopTableStatePanel({
       }
       coach={
         <CoachAnchor
-          title={language === "vi" ? "Cue nhanh truoc khi chot" : "Quick cue before you lock"}
+          title={language === "vi" ? "Cue nhanh trước khi chốt" : "Quick cue before you lock"}
           body={
             language === "vi"
-              ? "Doc vi tri, stack va action history truoc khi khoa line. Coach se khong lo dap an truoc reveal."
+              ? "Đọc vị trí, stack và action history trước khi khóa line. Coach sẽ không lộ đáp án trước reveal."
               : "Read position, stack depth, and prior action before locking the line. The coach stays short and does not reveal the answer before commit."
           }
           modeLabel={language === "vi" ? "Nudge coach" : "Nudge coach"}
@@ -219,7 +219,7 @@ export function PreflopTableStatePanel({
               </p>
               <p className="mt-3 max-w-3xl break-words text-sm leading-6 text-slate-300 text-pretty">
                 {language === "vi"
-                  ? "Hero hand la protagonist cua scene nay. Chot line dua tren vi tri, lich su action, va stack depth truoc khi reveal bai hoc."
+                  ? "Hero hand là protagonist của scene này. Chốt line dựa trên vị trí, lịch sử action và stack depth trước khi reveal bài học."
                   : "Hero hand is the protagonist of this scene. Lock the line using seat, action history, and stack depth before the lesson reveals."}
               </p>
             </div>

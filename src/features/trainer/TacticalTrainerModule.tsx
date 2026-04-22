@@ -167,16 +167,16 @@ function getCoachActions(language: TacticalUiLanguage) {
   return language === "vi"
     ? [
         {
-          label: "Goi y ngan",
-          helper: "Nudge ngan, dung van tay trong nhac choi.",
+          label: "Gợi ý ngắn",
+          helper: "Nudge ngắn, đúng vai trò trong nhịp chơi.",
         },
         {
-          label: "Giai thich them",
-          helper: "Tom tat vi sao line nay tot hon trong node nay.",
+          label: "Giải thích thêm",
+          helper: "Tóm tắt vì sao line này tốt hơn trong node này.",
         },
         {
-          label: "Tinh huong tuong tu",
-          helper: "Du phong cho follow-up hand cung family.",
+          label: "Tình huống tương tự",
+          helper: "Dự phòng cho follow-up hand cùng family.",
         },
       ]
     : [
@@ -841,7 +841,7 @@ function PotOddsHeroObject({
             <p className="mt-2 break-words text-lg font-semibold leading-7 text-white text-pretty">
               {finalPotBb
                 ? language === "vi"
-                  ? `${scenario.betToCallBb}bb de tranh ${finalPotBb}bb`
+                  ? `${scenario.betToCallBb}bb để tranh ${finalPotBb}bb`
                   : `${scenario.betToCallBb}bb to play for ${finalPotBb}bb`
                 : "-"}
             </p>
@@ -1479,25 +1479,25 @@ function TacticalDecisionPanel({
   const coachActions = getCoachActions(language);
   const stateLabel = hasSubmitted
     ? language === "vi"
-      ? "Line da khoa"
+      ? "Line đã khóa"
       : "Line locked"
     : selectedAction
       ? language === "vi"
-        ? "Da chon line"
+        ? "Đã chọn line"
         : "Line selected"
       : language === "vi"
-        ? "Cho quyet dinh"
+        ? "Chờ quyết định"
         : "Awaiting decision";
   const stateHint = hasSubmitted
     ? language === "vi"
-      ? "Reveal panel tiep theo se dua correction, coach recap, va next spot."
+      ? "Reveal panel tiếp theo sẽ đưa correction, coach recap và next spot."
       : "The reveal panel now carries the correction, coach recap, and next spot."
     : selectedAction
       ? language === "vi"
-        ? "Line da duoc chon. Khoa no lai de mo reveal."
+        ? "Line đã được chọn. Khóa lại để mở reveal."
         : "A line is selected. Lock it to open the reveal."
       : language === "vi"
-        ? "Chon mot action truoc. Coach seat chi giu vai tro nudge ngan."
+        ? "Chọn một action trước. Coach seat chỉ giữ vai trò nudge ngắn."
         : "Choose an action first. The coach seat stays limited to short nudges.";
 
   return (
@@ -1592,7 +1592,7 @@ function TacticalFeedbackPanel({
         title={copy.reviewPlaceholder}
         description={
           language === "vi"
-            ? "Scene van uu tien quyet dinh. Reveal chi mo sau khi nguoi hoc da commit line."
+            ? "Scene vẫn ưu tiên quyết định. Reveal chỉ mở sau khi người học đã commit line."
             : "The scene still prioritizes the decision. The reveal opens only after the learner commits to a line."
         }
         revealed={false}
@@ -1643,10 +1643,10 @@ function TacticalFeedbackPanel({
   return (
     <RevealStatePanel
       eyebrow={copy.nextLabel}
-      title={language === "vi" ? "Reveal va correction sau spot" : "Reveal and correction after the spot"}
+      title={language === "vi" ? "Reveal và correction sau spot" : "Reveal and correction after the spot"}
       description={
         language === "vi"
-          ? "Sau khi line da bi khoa, panel nay moi dua ket qua, line tot hon, va next lesson theo dung nhip choi."
+          ? "Sau khi line đã bị khóa, panel này mới đưa kết quả, line tốt hơn và next lesson theo đúng nhịp chơi."
           : "Once the line is locked, this panel reveals the result, the cleaner line, and the next lesson without breaking the play rhythm."
       }
       revealed

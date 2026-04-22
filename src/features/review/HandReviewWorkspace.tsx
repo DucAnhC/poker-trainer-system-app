@@ -191,16 +191,16 @@ export function HandReviewWorkspace() {
     language === "vi"
       ? [
           {
-            label: "Goi y ngan",
-            helper: "Tom tat leak hoac next review point rat ngan.",
+            label: "Gợi ý ngắn",
+            helper: "Tóm tắt leak hoặc next review point thật ngắn.",
           },
           {
-            label: "Giai thich them",
-            helper: "Mo rong vi sao note nay dang quan trong.",
+            label: "Giải thích thêm",
+            helper: "Mở rộng vì sao note này đang quan trọng.",
           },
           {
-            label: "Tinh huong tuong tu",
-            helper: "Goi y mot hand tiep theo de replay.",
+            label: "Tình huống tương tự",
+            helper: "Gợi ý một hand tiếp theo để replay.",
           },
         ]
       : [
@@ -274,7 +274,7 @@ export function HandReviewWorkspace() {
             title={copy.pageEyebrow}
             body={
               language === "vi"
-                ? "Review module nay da duoc to chuc nhu mot replay station, va coach seat nay duoc de san cho next hand suggestions, leak recap, va explain follow-up."
+                ? "Review module này đã được tổ chức như một replay station, và coach seat này được để sẵn cho next-hand suggestions, leak recap và explain follow-up."
                 : "This review module is now framed as a replay station, and this coach seat is reserved for next-hand suggestions, leak recaps, and follow-up explanations."
             }
             modeLabel={language === "vi" ? "Study coach" : "Study coach"}
