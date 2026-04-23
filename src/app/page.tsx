@@ -11,13 +11,7 @@ import {
   getShellLanguage,
 } from "@/features/home/home-shell-copy";
 
-function SnapshotStat({
-  label,
-  value,
-}: {
-  label: string;
-  value: string;
-}) {
+function SnapshotStat({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-[22px] border border-white/10 bg-black/[0.14] px-4 py-4">
       <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-emerald-100/[0.55]">
@@ -66,6 +60,7 @@ export default function HomePage() {
           <div className="mt-6 flex flex-wrap gap-3">
             <Link
               href="/trainer/preflop"
+              data-testid="home-start-preflop"
               className="rounded-full bg-[linear-gradient(135deg,rgba(34,197,94,0.98),rgba(6,182,212,0.96))] px-5 py-3 text-sm font-semibold text-white transition hover:brightness-105"
             >
               {copy.primaryCta}

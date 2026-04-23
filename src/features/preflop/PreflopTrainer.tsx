@@ -1,5 +1,7 @@
 "use client";
 
+import { useEffect, useRef } from "react";
+
 import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import { scenarioCountByContentPack } from "@/data/scenarios";
 import { preflopScenarios } from "@/data/scenarios/preflop-scenarios";
@@ -41,6 +43,7 @@ export function PreflopTrainer() {
   const copy = useUiCopy();
   const language = getPreflopUiLanguage(copy.locale);
   const drillCopy = getPreflopDrillCopy(language);
+  const feedbackRegionRef = useRef<HTMLDivElement>(null);
   const {
     activeContentPack,
     availableContentPacks,
@@ -54,6 +57,19 @@ export function PreflopTrainer() {
     setQueueMode,
     setSelectedDifficulty,
   } = useTrainerModuleSession("preflop", preflopScenarios);
+
+  useEffect(() => {
+    if (!session.feedback || window.matchMedia("(min-width: 1024px)").matches) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      feedbackRegionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [session.feedback?.attempt.id, session.feedback]);
 
   if (session.isComplete) {
     return (
@@ -177,11 +193,13 @@ export function PreflopTrainer() {
         />
       </div>
 
-      <PreflopFeedbackPanel
-        language={language}
-        scenario={session.currentScenario}
-        feedback={session.feedback}
-      />
+      <div ref={feedbackRegionRef} className="scroll-mt-24">
+        <PreflopFeedbackPanel
+          language={language}
+          scenario={session.currentScenario}
+          feedback={session.feedback}
+        />
+      </div>
     </div>
   );
 }

@@ -1,7 +1,4 @@
-import {
-  ActionTray,
-  CoachAnchor,
-} from "@/components/poker-room/PokerRoom";
+import { ActionTray, CoachAnchor } from "@/components/poker-room/PokerRoom";
 import { buildNudgeCoachNote } from "@/lib/training/coach-notes";
 import type {
   SubmittedAnswerFeedback,
@@ -54,7 +51,9 @@ export function PreflopDecisionPanel({
 }: PreflopDecisionPanelProps) {
   const copy = getPreflopDrillCopy(language);
   const selectedAction =
-    scenario.candidateActions.find((action) => action.id === selectedActionId) ?? null;
+    scenario.candidateActions.find(
+      (action) => action.id === selectedActionId,
+    ) ?? null;
   const selectedActionLabel = selectedAction
     ? getPreflopActionSummaryLabel(selectedAction)
     : null;
@@ -123,6 +122,7 @@ export function PreflopDecisionPanel({
 
   return (
     <ActionTray
+      testId="preflop-decision-panel"
       eyebrow={copy.decisionEyebrow}
       title={copy.decisionTitle}
       hint={decisionHint}
@@ -130,7 +130,9 @@ export function PreflopDecisionPanel({
       selectedValue={selectedActionLabel ?? copy.noLineSelected}
       stateLabel={stateLabel}
       stateHint={stateHint}
-      stateTone={hasSubmitted ? "emerald" : selectedActionLabel ? "cyan" : "slate"}
+      stateTone={
+        hasSubmitted ? "emerald" : selectedActionLabel ? "cyan" : "slate"
+      }
       primaryLabel={primaryButtonLabel}
       onPrimary={hasSubmitted ? onNext : onSubmit}
       primaryDisabled={hasSubmitted ? !canAdvance : !canSubmit}

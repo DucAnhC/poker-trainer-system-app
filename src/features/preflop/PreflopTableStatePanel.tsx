@@ -80,7 +80,8 @@ export function PreflopTableStatePanel({
           },
           {
             label: "Why this line",
-            helper: "The reveal explanation will stay tied to the main concept.",
+            helper:
+              "The reveal explanation will stay tied to the main concept.",
           },
           {
             label: "Similar spot",
@@ -90,20 +91,30 @@ export function PreflopTableStatePanel({
 
   return (
     <TableSceneShell
+      testId="preflop-question-card"
       header={
         <SceneHeader
           eyebrow={copy.tableStateEyebrow}
           title={scenario.title}
+          titleTestId="preflop-question-title"
           description={scenario.learningGoal}
           tags={
             <>
-              <SpotTag tone="cyan">{questionNumber}/{totalQuestions}</SpotTag>
-              <SpotTag>{getPreflopSourceTypeLabel(scenario.sourceType, language)}</SpotTag>
-              <SpotTag>{getPreflopPackLabel(activeContentPack.id, language)}</SpotTag>
+              <SpotTag tone="cyan">
+                {questionNumber}/{totalQuestions}
+              </SpotTag>
+              <SpotTag>
+                {getPreflopSourceTypeLabel(scenario.sourceType, language)}
+              </SpotTag>
+              <SpotTag>
+                {getPreflopPackLabel(activeContentPack.id, language)}
+              </SpotTag>
               <SpotTag tone="emerald">
                 {getPreflopPotTypeLabel(scenario.potType, language)}
               </SpotTag>
-              {retryHint ? <SpotTag tone="amber">{copy.retryLabel}</SpotTag> : null}
+              {retryHint ? (
+                <SpotTag tone="amber">{copy.retryLabel}</SpotTag>
+              ) : null}
             </>
           }
           aside={
@@ -119,7 +130,10 @@ export function PreflopTableStatePanel({
       }
       footer={
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.12fr)_minmax(0,0.88fr)]">
-          <ActionHistory label={copy.actionLaneLabel} steps={formattedHistory} />
+          <ActionHistory
+            label={copy.actionLaneLabel}
+            steps={formattedHistory}
+          />
           <div className="rounded-[24px] border border-white/12 bg-black/14 p-4">
             <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
               {copy.focusLabel}
@@ -142,7 +156,11 @@ export function PreflopTableStatePanel({
       }
       coach={
         <CoachAnchor
-          title={language === "vi" ? "Cue nhanh trước khi chốt" : "Quick cue before you lock"}
+          title={
+            language === "vi"
+              ? "Cue nhanh trước khi chốt"
+              : "Quick cue before you lock"
+          }
           body={
             language === "vi"
               ? "Đọc vị trí, stack và action history trước khi khóa line. Coach sẽ không lộ đáp án trước reveal."
@@ -169,7 +187,10 @@ export function PreflopTableStatePanel({
         </div>
 
         <div className="rounded-[30px] border border-white/10 bg-black/14 p-4 sm:p-5">
-          <PreflopHandVisual handLabel={scenario.handLabel} language={language} />
+          <PreflopHandVisual
+            handLabel={scenario.handLabel}
+            language={language}
+          />
         </div>
 
         <div className="rounded-[26px] border border-white/12 bg-black/18 p-5">
@@ -184,7 +205,10 @@ export function PreflopTableStatePanel({
             </div>
 
             <div className="flex flex-wrap gap-2">
-              <SpotTag tone="cyan" className="text-sm tracking-[0.08em] normal-case">
+              <SpotTag
+                tone="cyan"
+                className="text-sm tracking-[0.08em] normal-case"
+              >
                 {scenario.handLabel}
               </SpotTag>
               {conceptLabels.map((conceptLabel) => (

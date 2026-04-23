@@ -6,12 +6,12 @@ import {
   SpotTag,
 } from "@/components/poker-room/PokerRoom";
 import { leakTags } from "@/data/leak-tags";
-import {
-  buildNudgeCoachNote,
-  buildSilentCoachNote,
-} from "@/lib/training/coach-notes";
+import { buildSilentCoachNote } from "@/lib/training/coach-notes";
 import { cn } from "@/lib/utils";
-import type { PreflopScenario, SubmittedAnswerFeedback } from "@/types/training";
+import type {
+  PreflopScenario,
+  SubmittedAnswerFeedback,
+} from "@/types/training";
 
 import {
   getPreflopActionSummaryLabel,
@@ -52,7 +52,6 @@ export function PreflopFeedbackPanel({
   feedback,
 }: PreflopFeedbackPanelProps) {
   const copy = getPreflopDrillCopy(language);
-  const nudgeCoachNote = buildNudgeCoachNote({ scenario, language });
   const coachActions =
     language === "vi"
       ? [
@@ -87,6 +86,8 @@ export function PreflopFeedbackPanel({
   if (!feedback) {
     return (
       <RevealStatePanel
+        testId="preflop-feedback-panel"
+        dataState="waiting"
         eyebrow={copy.reviewEyebrow}
         title={copy.reviewPlaceholder}
         description={
@@ -101,14 +102,6 @@ export function PreflopFeedbackPanel({
           copy.whyLabel,
           copy.learnLabel,
         ]}
-        coach={
-          <CoachAnchor
-            title={nudgeCoachNote.title}
-            body={nudgeCoachNote.body}
-            modeLabel={nudgeCoachNote.modeLabel}
-            actions={coachActions}
-          />
-        }
       >
         <div />
       </RevealStatePanel>
@@ -119,22 +112,31 @@ export function PreflopFeedbackPanel({
   const answerBlock =
     scenario.rationaleBlocks.find((block) => block.kind === "answer") ?? null;
   const whyBlocks = scenario.rationaleBlocks
-    .filter((block) => block.kind === "core-reason" || block.kind === "context-factor")
+    .filter(
+      (block) =>
+        block.kind === "core-reason" || block.kind === "context-factor",
+    )
     .slice(0, 2);
   const weakerLineBlock =
     scenario.rationaleBlocks.find(
       (block) =>
-        block.kind === "alternative-action" || block.kind === "mistake-correction",
+        block.kind === "alternative-action" ||
+        block.kind === "mistake-correction",
     ) ?? null;
   const firstAssumption =
     scenario.assumptions[0] ??
-    scenario.rationaleBlocks.find((block) => block.kind === "assumption")?.body ??
+    scenario.rationaleBlocks.find((block) => block.kind === "assumption")
+      ?.body ??
     null;
   const surfacedLeakTags = scenario.mistakeTags
-    .map((leakTagId) => leakTags.find((leakTag) => leakTag.id === leakTagId)?.label ?? null)
+    .map(
+      (leakTagId) =>
+        leakTags.find((leakTag) => leakTag.id === leakTagId)?.label ?? null,
+    )
     .filter((value): value is string => value !== null)
     .slice(0, 2);
-  const shortWhy = whyBlocks[0]?.body ?? answerBlock?.body ?? scenario.learningGoal;
+  const shortWhy =
+    whyBlocks[0]?.body ?? answerBlock?.body ?? scenario.learningGoal;
   const lessonText =
     weakerLineBlock?.body ??
     surfacedLeakTags[0] ??
@@ -143,8 +145,14 @@ export function PreflopFeedbackPanel({
 
   return (
     <RevealStatePanel
+      testId="preflop-feedback-panel"
+      dataState="revealed"
       eyebrow={copy.reviewEyebrow}
-      title={language === "vi" ? "Reveal và lesson sau hand" : "Reveal and lesson after the hand"}
+      title={
+        language === "vi"
+          ? "Reveal và lesson sau hand"
+          : "Reveal and lesson after the hand"
+      }
       description={
         language === "vi"
           ? "Bạn đã chốt line. Bây giờ hệ thống mới reveal line tốt hơn, lý do và điểm học cần giữ lại."
@@ -166,10 +174,12 @@ export function PreflopFeedbackPanel({
           {isCorrect ? copy.correctLabel : copy.incorrectLabel}
         </SpotTag>
         <SpotTag tone="slate">
-          {copy.selectedTag}: {getPreflopActionSummaryLabel(feedback.selectedAction)}
+          {copy.selectedTag}:{" "}
+          {getPreflopActionSummaryLabel(feedback.selectedAction)}
         </SpotTag>
         <SpotTag tone="cyan">
-          {copy.bestTag}: {getPreflopActionSummaryLabel(feedback.recommendedAction)}
+          {copy.bestTag}:{" "}
+          {getPreflopActionSummaryLabel(feedback.recommendedAction)}
         </SpotTag>
         <SpotTag tone="amber">
           {getPreflopSourceTypeLabel(scenario.sourceType, language)}
@@ -210,11 +220,17 @@ export function PreflopFeedbackPanel({
           </p>
         </ReviewCard>
 
-        <ReviewCard label={copy.whyLabel} className="border-white/12 bg-black/14">
+        <ReviewCard
+          label={copy.whyLabel}
+          className="border-white/12 bg-black/14"
+        >
           <p className="text-sm leading-6 text-slate-200/90">{shortWhy}</p>
         </ReviewCard>
 
-        <ReviewCard label={copy.learnLabel} className="border-white/12 bg-black/14">
+        <ReviewCard
+          label={copy.learnLabel}
+          className="border-white/12 bg-black/14"
+        >
           <div className="flex flex-wrap gap-2">
             {scenario.keyConcepts.map((conceptId) => (
               <SpotTag key={`${scenario.id}-${conceptId}`} tone="slate">
@@ -252,7 +268,9 @@ export function PreflopFeedbackPanel({
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-amber-100">
             {copy.assumptionLabel}
           </p>
-          <p className="mt-2 text-sm leading-6 text-slate-200/90">{firstAssumption}</p>
+          <p className="mt-2 text-sm leading-6 text-slate-200/90">
+            {firstAssumption}
+          </p>
         </div>
       ) : null}
     </RevealStatePanel>

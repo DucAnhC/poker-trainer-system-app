@@ -36,6 +36,18 @@ function normalizeDifficultyFilter(
   return null;
 }
 
+function normalizeQueueMode(value: string | null): TrainerQueueMode | null {
+  if (value === "adaptive" || value === "default") {
+    return value;
+  }
+
+  if (value === "ordered" || value === "sequential") {
+    return "default";
+  }
+
+  return null;
+}
+
 export function useTrainerModuleSession<T extends TrainingScenario>(
   moduleId: InteractiveTrainingModuleId,
   scenarios: T[],
@@ -48,6 +60,7 @@ export function useTrainerModuleSession<T extends TrainingScenario>(
   const requestedDifficulty = normalizeDifficultyFilter(
     searchParams.get("difficulty"),
   );
+  const requestedQueueMode = normalizeQueueMode(searchParams.get("order"));
   const defaultPackId = availableContentPacks[0]?.id ?? null;
   const requestedPackIsValid = availableContentPacks.some(
     (contentPack) => contentPack.id === requestedPackId,
@@ -61,7 +74,9 @@ export function useTrainerModuleSession<T extends TrainingScenario>(
   );
   const [selectedDifficulty, setSelectedDifficulty] =
     useState<TrainingDifficultyFilter>(requestedDifficulty ?? "all");
-  const [queueMode, setQueueMode] = useState<TrainerQueueMode>("adaptive");
+  const [queueMode, setQueueMode] = useState<TrainerQueueMode>(
+    requestedQueueMode ?? "adaptive",
+  );
 
   useEffect(() => {
     setSelectedContentPackId((currentPackId) =>
@@ -78,6 +93,14 @@ export function useTrainerModuleSession<T extends TrainingScenario>(
       currentDifficulty === nextDifficulty ? currentDifficulty : nextDifficulty,
     );
   }, [requestedDifficulty]);
+
+  useEffect(() => {
+    const nextQueueMode = requestedQueueMode ?? "adaptive";
+
+    setQueueMode((currentQueueMode) =>
+      currentQueueMode === nextQueueMode ? currentQueueMode : nextQueueMode,
+    );
+  }, [requestedQueueMode]);
 
   const filteredScenarios = useMemo(
     () =>
@@ -120,6 +143,12 @@ export function useTrainerModuleSession<T extends TrainingScenario>(
       nextParams.delete("difficulty");
     }
 
+    if (queueMode !== "adaptive") {
+      nextParams.set("order", queueMode);
+    } else {
+      nextParams.delete("order");
+    }
+
     const nextQuery = nextParams.toString();
 
     if (nextQuery === currentQuery) {
@@ -133,6 +162,7 @@ export function useTrainerModuleSession<T extends TrainingScenario>(
     pathname,
     router,
     searchParams,
+    queueMode,
     selectedContentPackId,
     selectedDifficulty,
   ]);

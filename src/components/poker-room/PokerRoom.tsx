@@ -21,7 +21,8 @@ const toneClasses: Record<Tone, string> = {
 
 const microLabelClassName =
   "text-[11px] font-semibold uppercase tracking-[0.1em]";
-const labelTextClassName = "text-[10px] font-semibold uppercase tracking-[0.12em]";
+const labelTextClassName =
+  "text-[10px] font-semibold uppercase tracking-[0.12em]";
 const panelTitleClassName =
   "text-2xl font-semibold tracking-tight text-white text-pretty sm:text-[2rem]";
 const bodyTextClassName = "text-sm leading-6 text-slate-300 text-pretty";
@@ -173,6 +174,7 @@ export function SceneHeader({
   description,
   tags,
   aside,
+  titleTestId,
   className,
 }: {
   eyebrow: string;
@@ -180,6 +182,7 @@ export function SceneHeader({
   description?: string;
   tags?: ReactNode;
   aside?: ReactNode;
+  titleTestId?: string;
   className?: string;
 }) {
   return (
@@ -192,11 +195,18 @@ export function SceneHeader({
       <div className="min-w-0 space-y-3">
         <div className="flex flex-wrap items-center gap-2">{tags}</div>
         <div className="space-y-2">
-          <p className={cn(microLabelClassName, "text-cyan-200/75")}>{eyebrow}</p>
-          <h1 className="text-3xl font-semibold tracking-tight text-white text-pretty sm:text-[2.15rem]">
+          <p className={cn(microLabelClassName, "text-cyan-200/75")}>
+            {eyebrow}
+          </p>
+          <h1
+            data-testid={titleTestId}
+            className="text-3xl font-semibold tracking-tight text-white text-pretty sm:text-[2.15rem]"
+          >
             {title}
           </h1>
-          {description ? <p className={cn("max-w-4xl", bodyTextClassName)}>{description}</p> : null}
+          {description ? (
+            <p className={cn("max-w-4xl", bodyTextClassName)}>{description}</p>
+          ) : null}
         </div>
       </div>
 
@@ -211,6 +221,7 @@ export function TableSceneShell({
   rail,
   footer,
   coach,
+  testId,
   feltClassName,
   className,
 }: {
@@ -219,11 +230,13 @@ export function TableSceneShell({
   rail?: ReactNode;
   footer?: ReactNode;
   coach?: ReactNode;
+  testId?: string;
   feltClassName?: string;
   className?: string;
 }) {
   return (
     <section
+      data-testid={testId}
       className={cn(
         "rounded-[36px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-5 text-white shadow-panel sm:p-6 xl:p-7",
         className,
@@ -236,9 +249,7 @@ export function TableSceneShell({
           <div
             className={cn(
               "grid gap-4",
-              rail
-                ? "2xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)]"
-                : "",
+              rail ? "2xl:grid-cols-[minmax(0,1fr)_minmax(340px,400px)]" : "",
             )}
           >
             <div
@@ -285,7 +296,11 @@ export function PokerCard({
       <div>
         <p
           className={cn(
-            size === "xl" ? "text-[1.9rem]" : size === "lg" ? "text-[1.55rem]" : "text-xl",
+            size === "xl"
+              ? "text-[1.9rem]"
+              : size === "lg"
+                ? "text-[1.55rem]"
+                : "text-xl",
             "font-black leading-none tracking-[0.02em]",
             parsedCard.toneClassName,
           )}
@@ -307,7 +322,11 @@ export function PokerCard({
         <div className="rotate-180">
           <p
             className={cn(
-              size === "xl" ? "text-[1.9rem]" : size === "lg" ? "text-[1.55rem]" : "text-xl",
+              size === "xl"
+                ? "text-[1.9rem]"
+                : size === "lg"
+                  ? "text-[1.55rem]"
+                  : "text-xl",
               "font-black leading-none tracking-[0.02em]",
               parsedCard.toneClassName,
             )}
@@ -316,7 +335,11 @@ export function PokerCard({
           </p>
           <p
             className={cn(
-              size === "xl" ? "text-xl" : size === "lg" ? "text-lg" : "text-base",
+              size === "xl"
+                ? "text-xl"
+                : size === "lg"
+                  ? "text-lg"
+                  : "text-base",
               "mt-1 leading-none",
               parsedCard.toneClassName,
             )}
@@ -345,7 +368,9 @@ export function BoardCards({
           key={`${card}-${index}`}
           card={card}
           size={size}
-          className={cn(index % 2 === 0 ? "-rotate-[1.5deg]" : "rotate-[1.5deg]")}
+          className={cn(
+            index % 2 === 0 ? "-rotate-[1.5deg]" : "rotate-[1.5deg]",
+          )}
         />
       ))}
     </div>
@@ -374,7 +399,11 @@ export function HeroHand({
     >
       <div className="relative mx-auto flex h-44 w-[13.75rem] items-center justify-center">
         {firstCard ? (
-          <PokerCard card={firstCard} size="xl" className="-rotate-6 translate-x-4" />
+          <PokerCard
+            card={firstCard}
+            size="xl"
+            className="-rotate-6 translate-x-4"
+          />
         ) : null}
         {secondCard ? (
           <PokerCard
@@ -474,7 +503,9 @@ export function ChipStack({
           />
         ))}
       </div>
-      <p className={cn("mt-4", microLabelClassName, "text-emerald-100/55")}>{label}</p>
+      <p className={cn("mt-4", microLabelClassName, "text-emerald-100/55")}>
+        {label}
+      </p>
       <p className="mt-2 break-words text-3xl font-semibold tracking-tight text-white text-pretty">
         {value}
       </p>
@@ -512,8 +543,12 @@ export function PotDisplay({
 
       <div className="mx-auto flex h-[220px] w-[220px] items-center justify-center rounded-full border border-cyan-200/22 bg-[radial-gradient(circle,rgba(6,182,212,0.24),rgba(15,23,42,0.4)_56%,rgba(3,7,18,0.96)_100%)] shadow-[0_28px_64px_-36px_rgba(6,182,212,0.75)]">
         <div className="flex h-[172px] w-[172px] flex-col items-center justify-center rounded-full border border-white/10 bg-black/25 px-3 text-center shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
-          <p className={cn(microLabelClassName, "text-cyan-100/80")}>{centerLabel}</p>
-          <p className="mt-2 text-5xl font-semibold tracking-tight text-white">{centerValue}</p>
+          <p className={cn(microLabelClassName, "text-cyan-100/80")}>
+            {centerLabel}
+          </p>
+          <p className="mt-2 text-5xl font-semibold tracking-tight text-white">
+            {centerValue}
+          </p>
           {footer ? (
             <p className="mt-2 break-words text-[11px] font-semibold leading-5 text-slate-300 text-pretty">
               {footer}
@@ -541,11 +576,19 @@ export function ActionHistory({
   }
 
   return (
-    <div className={cn("min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4", className)}>
+    <div
+      className={cn(
+        "min-w-0 rounded-[24px] border border-white/12 bg-black/14 p-4",
+        className,
+      )}
+    >
       <p className={cn(microLabelClassName, "text-emerald-100/55")}>{label}</p>
       <div className="mt-3 flex flex-wrap items-center gap-2">
         {steps.map((step, index) => (
-          <div key={`${step}-${index}`} className="flex min-w-0 items-center gap-2">
+          <div
+            key={`${step}-${index}`}
+            className="flex min-w-0 items-center gap-2"
+          >
             {index > 0 ? (
               <span className="hidden h-px w-5 rounded-full bg-gradient-to-r from-cyan-300/45 to-emerald-300/25 sm:block" />
             ) : null}
@@ -598,7 +641,9 @@ export function CoachAnchor({
             <SpotTag tone={tone}>{modeLabel}</SpotTag>
             <SpotTag tone="slate">Coach seat</SpotTag>
           </div>
-          <p className="text-lg font-semibold text-white text-pretty">{title}</p>
+          <p className="text-lg font-semibold text-white text-pretty">
+            {title}
+          </p>
           <p className={bodyTextClassName}>{body}</p>
         </div>
       </div>
@@ -664,6 +709,9 @@ export function ActionOptionCard({
       onClick={onSelect}
       disabled={isLocked}
       aria-pressed={isSelected}
+      data-testid="trainer-action-option"
+      data-action-index={index}
+      data-action-label={label}
       className={cn(
         "group w-full min-w-0 rounded-[28px] border px-4 text-left transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-300/70 active:scale-[0.99]",
         highTension ? "min-h-[118px] py-5" : "min-h-[96px] py-4",
@@ -679,7 +727,10 @@ export function ActionOptionCard({
           "border-emerald-300/65 bg-[linear-gradient(135deg,rgba(6,78,59,0.95),rgba(52,211,153,0.26))] shadow-[0_20px_46px_-24px_rgba(52,211,153,0.55)]",
         isIncorrectSubmitted &&
           "border-rose-300/60 bg-[linear-gradient(135deg,rgba(76,5,25,0.96),rgba(251,113,133,0.18))] shadow-[0_18px_44px_-24px_rgba(251,113,133,0.45)]",
-        isLocked && !isRecommended && !isSubmittedChoice && "border-white/10 opacity-75",
+        isLocked &&
+          !isRecommended &&
+          !isSubmittedChoice &&
+          "border-white/10 opacity-75",
         className,
       )}
     >
@@ -731,11 +782,6 @@ export function ActionOptionCard({
               {bestTag}
             </SpotTag>
           ) : null}
-          {!isRecommended && !isSubmittedChoice && !isLocked ? (
-            <SpotTag tone="slate" className="text-[10px]">
-              Lock
-            </SpotTag>
-          ) : null}
         </div>
       </div>
     </button>
@@ -762,6 +808,7 @@ export function ActionTray({
   onTertiary,
   tertiaryDisabled = false,
   coach,
+  testId,
   highTension = false,
   className,
 }: {
@@ -784,11 +831,13 @@ export function ActionTray({
   onTertiary?: () => void;
   tertiaryDisabled?: boolean;
   coach?: ReactNode;
+  testId?: string;
   highTension?: boolean;
   className?: string;
 }) {
   return (
     <aside
+      data-testid={testId}
       className={cn(
         "min-w-0 rounded-[32px] border border-slate-900/70 bg-[linear-gradient(180deg,rgba(15,23,42,0.98),rgba(8,15,28,0.96))] p-5 text-white shadow-panel xl:sticky xl:top-6",
         className,
@@ -807,13 +856,16 @@ export function ActionTray({
           <div className="flex flex-wrap items-center gap-2">
             <SpotTag tone={stateTone}>{stateLabel}</SpotTag>
           </div>
-          {stateHint ? <p className={cn("mt-2", bodyTextClassName)}>{stateHint}</p> : null}
+          {stateHint ? (
+            <p className={cn("mt-2", bodyTextClassName)}>{stateHint}</p>
+          ) : null}
         </div>
       ) : null}
 
       <div className="mt-5 space-y-3">{children}</div>
 
       <div
+        data-testid="selected-line-summary"
         className={cn(
           "mt-5 rounded-[28px] border p-4",
           selectedValue
@@ -822,13 +874,18 @@ export function ActionTray({
         )}
       >
         <div className="space-y-2">
-          <p className={cn(microLabelClassName, "text-slate-300")}>{selectedLabel}</p>
+          <p className={cn(microLabelClassName, "text-slate-300")}>
+            {selectedLabel}
+          </p>
           <p className="break-words text-xl font-semibold leading-7 text-white text-pretty">
             {selectedValue}
           </p>
           {selectedMeta ? (
             <div className="pt-1">
-              <SpotTag tone="cyan" className="bg-black/18 text-[10px] text-cyan-100/90">
+              <SpotTag
+                tone="cyan"
+                className="bg-black/18 text-[10px] text-cyan-100/90"
+              >
                 {selectedMeta}
               </SpotTag>
             </div>
@@ -838,8 +895,15 @@ export function ActionTray({
         <div className="mt-4 grid gap-3">
           <button
             type="button"
-            onClick={onPrimary}
+            onClick={(event) => {
+              if (event.detail > 1) {
+                return;
+              }
+
+              onPrimary();
+            }}
             disabled={primaryDisabled}
+            data-testid="trainer-primary-action"
             className={cn(
               "w-full rounded-full px-5 transition active:scale-[0.99]",
               buttonTextClassName,
@@ -855,6 +919,7 @@ export function ActionTray({
           <button
             type="button"
             onClick={onSecondary}
+            data-testid="trainer-secondary-action"
             className={cn(
               "w-full rounded-full border border-white/12 bg-transparent px-5 py-3 text-slate-200 transition hover:border-white/22 hover:bg-white/[0.06]",
               buttonTextClassName,
@@ -868,10 +933,12 @@ export function ActionTray({
               type="button"
               onClick={onTertiary}
               disabled={tertiaryDisabled}
+              data-testid="trainer-tertiary-action"
               className={cn(
                 "w-full rounded-full border border-amber-200/18 bg-amber-300/[0.07] px-5 py-3 text-amber-100 transition hover:border-amber-200/30 hover:bg-amber-300/[0.12]",
                 buttonTextClassName,
-                tertiaryDisabled && "cursor-not-allowed opacity-55 hover:border-amber-200/18 hover:bg-amber-300/[0.07]",
+                tertiaryDisabled &&
+                  "cursor-not-allowed opacity-55 hover:border-amber-200/18 hover:bg-amber-300/[0.07]",
               )}
             >
               {tertiaryLabel}
@@ -892,6 +959,8 @@ export function RevealStatePanel({
   revealed,
   placeholderLabels,
   coach,
+  testId,
+  dataState,
   children,
   className,
 }: {
@@ -901,19 +970,25 @@ export function RevealStatePanel({
   revealed: boolean;
   placeholderLabels: string[];
   coach?: ReactNode;
+  testId?: string;
+  dataState?: string;
   children: ReactNode;
   className?: string;
 }) {
   if (!revealed) {
     return (
       <section
+        data-testid={testId}
+        data-state={dataState}
         className={cn(
           "rounded-[32px] border border-white/12 bg-[linear-gradient(180deg,rgba(8,20,35,0.98),rgba(3,10,24,0.96))] p-5 text-white shadow-panel sm:p-6",
           className,
         )}
       >
         <div className="space-y-2">
-          <p className={cn(microLabelClassName, "text-cyan-200/80")}>{eyebrow}</p>
+          <p className={cn(microLabelClassName, "text-cyan-200/80")}>
+            {eyebrow}
+          </p>
           <h2 className={panelTitleClassName}>{title}</h2>
           <p className={bodyTextClassName}>{description}</p>
         </div>
@@ -937,6 +1012,8 @@ export function RevealStatePanel({
 
   return (
     <section
+      data-testid={testId}
+      data-state={dataState}
       className={cn(
         "rounded-[32px] border border-white/12 bg-[linear-gradient(180deg,rgba(8,20,35,0.98),rgba(3,10,24,0.96))] p-5 text-white shadow-panel sm:p-6",
         className,

@@ -51,11 +51,7 @@ function createAttemptId(sessionId: string, scenarioId: string) {
 }
 
 function getInitialProgressSummary() {
-  if (typeof window === "undefined") {
-    return createEmptyProgressSummary();
-  }
-
-  return getProgressSummary();
+  return createEmptyProgressSummary();
 }
 
 function sortDifficulties(left: Difficulty, right: Difficulty) {
@@ -139,6 +135,9 @@ export function useTrainingSession<T extends TrainingScenario>(
   const [answerPhase, setAnswerPhase] = useState<TrainingAnswerPhase>("idle");
   const [feedback, setFeedback] = useState<SubmittedAnswerFeedback | null>(null);
   const [attemptIds, setAttemptIds] = useState<string[]>([]);
+  const [scenarioResults, setScenarioResults] = useState<Record<string, boolean>>(
+    {},
+  );
   const [correctCount, setCorrectCount] = useState(0);
   const [surfacedLeakTags, setSurfacedLeakTags] = useState<string[]>([]);
   const [isComplete, setIsComplete] = useState(
@@ -152,6 +151,7 @@ export function useTrainingSession<T extends TrainingScenario>(
   const sessionConfigSignatureRef = useRef(sessionConfigSignature);
   const retryQueueSignatureRef = useRef(retryQueueSignature);
   const hasSubmittedCurrentScenarioRef = useRef(false);
+  const isAdvancingScenarioRef = useRef(false);
   const isSaveIndicatorVisibleRef = useRef(false);
   const pendingVisibleSaveCountRef = useRef(0);
   const saveIndicatorDelayTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(
@@ -269,6 +269,18 @@ export function useTrainingSession<T extends TrainingScenario>(
     retryQueueItems,
     currentScenario?.id,
   );
+  const answeredCount = activeScenarios.filter((scenario) =>
+    Object.prototype.hasOwnProperty.call(scenarioResults, scenario.id),
+  ).length;
+  const completedCorrectCount = activeScenarios.reduce(
+    (totalCorrect, scenario) =>
+      scenarioResults[scenario.id] ? totalCorrect + 1 : totalCorrect,
+    0,
+  );
+  const completedAccuracy = calculateAccuracy(
+    completedCorrectCount,
+    answeredCount,
+  );
   const currentSessionSummary: TrainingSessionSummary =
     buildLiveTrainingSessionSummary({
       moduleId: module,
@@ -286,6 +298,10 @@ export function useTrainingSession<T extends TrainingScenario>(
     },
     [clearSaveIndicatorTimers],
   );
+
+  useEffect(() => {
+    isAdvancingScenarioRef.current = false;
+  }, [answerPhase, currentIndex, feedback, isComplete]);
 
   useEffect(() => {
     if (authStatus === "loading") {
@@ -370,6 +386,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     answerPhase === "idle" &&
     !feedback &&
     attemptIds.length === 0 &&
+    answeredCount === 0 &&
     !completionTimestamp;
 
   useEffect(() => {
@@ -405,6 +422,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     setAnswerPhase("idle");
     setFeedback(null);
     setAttemptIds([]);
+    setScenarioResults({});
     setCorrectCount(0);
     setSurfacedLeakTags([]);
     setCompletionTimestamp(null);
@@ -412,6 +430,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     setPersistenceError(null);
     pendingVisibleSaveCountRef.current = 0;
     shouldShowNextSessionSaveRef.current = false;
+    isAdvancingScenarioRef.current = false;
     clearSaveIndicatorTimers();
     saveIndicatorShownAtRef.current = null;
     setSaveIndicatorVisibility(false);
@@ -536,6 +555,10 @@ export function useTrainingSession<T extends TrainingScenario>(
 
     setSession(nextSession);
     setAttemptIds(nextAttemptIds);
+    setScenarioResults((currentResults) => ({
+      ...currentResults,
+      [currentScenario.id]: isCorrect,
+    }));
     setCorrectCount(nextCorrectCount);
     setSurfacedLeakTags(nextSurfacedLeakTags);
     setAnswerPhase("revealed");
@@ -547,9 +570,15 @@ export function useTrainingSession<T extends TrainingScenario>(
   }
 
   function handleNextScenario() {
-    if (!feedback || (answerPhase !== "revealed" && answerPhase !== "next-ready")) {
+    if (
+      !feedback ||
+      (answerPhase !== "revealed" && answerPhase !== "next-ready") ||
+      isAdvancingScenarioRef.current
+    ) {
       return;
     }
+
+    isAdvancingScenarioRef.current = true;
 
     if (currentIndex === activeScenarios.length - 1) {
       const completedAt = new Date().toISOString();
@@ -608,6 +637,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     setAnswerPhase("idle");
     setFeedback(null);
     setAttemptIds([]);
+    setScenarioResults({});
     setCorrectCount(0);
     setSurfacedLeakTags([]);
     setCompletionTimestamp(null);
@@ -615,6 +645,7 @@ export function useTrainingSession<T extends TrainingScenario>(
     setPersistenceError(null);
     pendingVisibleSaveCountRef.current = 0;
     shouldShowNextSessionSaveRef.current = false;
+    isAdvancingScenarioRef.current = false;
     clearSaveIndicatorTimers();
     saveIndicatorShownAtRef.current = null;
     setSaveIndicatorVisibility(false);
@@ -633,10 +664,9 @@ export function useTrainingSession<T extends TrainingScenario>(
     isComplete,
     questionNumber: currentIndex + 1,
     totalQuestions: activeScenarios.length,
-    answeredCount: attemptIds.length,
-    correctCount,
-    accuracy:
-      calculateAccuracy(correctCount, attemptIds.length),
+    answeredCount,
+    correctCount: completedCorrectCount,
+    accuracy: completedAccuracy,
     hasSubmitted:
       answerPhase === "revealed" || answerPhase === "next-ready",
     isLastScenario: currentIndex === activeScenarios.length - 1,

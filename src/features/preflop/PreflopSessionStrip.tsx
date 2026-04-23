@@ -85,12 +85,17 @@ function StripButton({
 function StatBlock({
   label,
   value,
+  testId,
 }: {
   label: string;
   value: string;
+  testId?: string;
 }) {
   return (
-    <div className="min-w-0 rounded-[20px] border border-white/10 bg-black/14 px-3 py-3">
+    <div
+      data-testid={testId}
+      className="min-w-0 rounded-[20px] border border-white/10 bg-black/14 px-3 py-3"
+    >
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/55">
         {label}
       </p>
@@ -125,7 +130,10 @@ export function PreflopSessionStrip({
   const copy = getPreflopDrillCopy(language);
 
   return (
-    <section className="rounded-[32px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-4 text-white shadow-panel sm:p-5">
+    <section
+      data-testid="preflop-session-strip"
+      className="rounded-[32px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-4 text-white shadow-panel sm:p-5"
+    >
       <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] 2xl:items-start">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
@@ -163,9 +171,18 @@ export function PreflopSessionStrip({
           <StatBlock
             label={copy.sessionProgress}
             value={`${answeredCount}/${totalQuestions}`}
+            testId="preflop-session-progress"
           />
-          <StatBlock label={copy.sessionAccuracy} value={formatPercent(accuracy)} />
-          <StatBlock label={copy.allTimeAttempts} value={`${attempts}`} />
+          <StatBlock
+            label={copy.sessionAccuracy}
+            value={formatPercent(accuracy)}
+            testId="preflop-session-accuracy"
+          />
+          <StatBlock
+            label={copy.allTimeAttempts}
+            value={`${attempts}`}
+            testId="preflop-session-attempts"
+          />
         </div>
 
         <div className="rounded-[22px] border border-white/10 bg-black/10 p-3">
@@ -174,13 +191,15 @@ export function PreflopSessionStrip({
           </p>
           <div className="mt-2 flex flex-wrap gap-2">
             <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
-              {copy.packLabel}: {getPreflopPackLabel(activeContentPack.id, language)}
+              {copy.packLabel}:{" "}
+              {getPreflopPackLabel(activeContentPack.id, language)}
             </span>
             <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
               {copy.queueLabel}: {getPreflopQueueModeLabel(queueMode, language)}
             </span>
             <span className="max-w-full break-words rounded-full border border-white/10 bg-black/14 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-slate-200 text-pretty">
-              {copy.difficultyLabel}: {getPreflopDifficultyLabel(selectedDifficulty, language)}
+              {copy.difficultyLabel}:{" "}
+              {getPreflopDifficultyLabel(selectedDifficulty, language)}
             </span>
           </div>
         </div>
@@ -242,7 +261,9 @@ export function PreflopSessionStrip({
       </div>
 
       {persistenceError ? (
-        <p className="mt-4 text-sm leading-6 text-rose-100/90">{persistenceError}</p>
+        <p className="mt-4 text-sm leading-6 text-rose-100/90">
+          {persistenceError}
+        </p>
       ) : null}
     </section>
   );

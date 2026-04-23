@@ -12,23 +12,46 @@ import { cn } from "@/lib/utils";
 export function SiteHeader() {
   const copy = useUiCopy();
   const pathname = usePathname();
+  const isTrainerRoute = pathname.startsWith("/trainer");
 
   return (
     <header className="sticky top-0 z-30 border-b border-slate-900/70 bg-[linear-gradient(180deg,rgba(7,16,28,0.96),rgba(8,23,32,0.94))] text-white backdrop-blur">
-      <div className="mx-auto flex max-w-[1540px] flex-col gap-4 px-5 py-4 lg:px-8">
-        <div className="flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between">
+      <div
+        className={cn(
+          "mx-auto flex max-w-[1540px] flex-col gap-4 px-5 py-4 lg:px-8",
+          isTrainerRoute && "gap-2 py-3",
+        )}
+      >
+        <div
+          className={cn(
+            "flex flex-col gap-4 xl:flex-row xl:items-center xl:justify-between",
+            isTrainerRoute && "gap-2",
+          )}
+        >
           <Link
             href="/"
             className="inline-flex items-center gap-3"
           >
-            <span className="inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-[linear-gradient(135deg,rgba(34,197,94,0.96),rgba(6,182,212,0.96))] text-sm font-black uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-18px_rgba(34,197,94,0.7)]">
+            <span
+              className={cn(
+                "inline-flex h-12 w-12 items-center justify-center rounded-[18px] bg-[linear-gradient(135deg,rgba(34,197,94,0.96),rgba(6,182,212,0.96))] text-sm font-black uppercase tracking-[0.18em] text-white shadow-[0_18px_36px_-18px_rgba(34,197,94,0.7)]",
+                isTrainerRoute && "h-10 w-10 rounded-[14px]",
+              )}
+            >
               PT
             </span>
             <span className="space-y-1">
               <span className="block text-sm font-semibold uppercase tracking-[0.24em] text-cyan-100">
                 {copy.appName}
               </span>
-              <span className="block text-sm text-slate-300">{copy.header.tagline}</span>
+              <span
+                className={cn(
+                  "block text-sm text-slate-300",
+                  isTrainerRoute && "hidden sm:block",
+                )}
+              >
+                {copy.header.tagline}
+              </span>
             </span>
           </Link>
 
@@ -40,7 +63,10 @@ export function SiteHeader() {
 
         <nav
           aria-label="Primary"
-          className="flex flex-wrap gap-2 rounded-[24px] border border-white/10 bg-black/[0.12] p-2"
+          className={cn(
+            "flex flex-wrap gap-2 rounded-[24px] border border-white/10 bg-black/[0.12] p-2",
+            isTrainerRoute && "hidden md:flex",
+          )}
         >
           {siteNavigation.map((item) => {
             const isActive =

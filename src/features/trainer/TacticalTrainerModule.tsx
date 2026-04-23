@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, type ReactNode } from "react";
+import { useEffect, useMemo, useRef, type ReactNode } from "react";
 
 import { useUiCopy } from "@/components/i18n/UiLanguageProvider";
 import {
@@ -1583,7 +1583,6 @@ function TacticalFeedbackPanel({
 }) {
   const copy = getTacticalDrillCopy(language);
   const coachActions = getCoachActions(language);
-  const nudgeCoachNote = buildNudgeCoachNote({ scenario, language });
 
   if (!feedback) {
     return (
@@ -1602,14 +1601,6 @@ function TacticalFeedbackPanel({
           copy.whyLabel,
           copy.learnLabel,
         ]}
-        coach={
-          <CoachAnchor
-            title={nudgeCoachNote.title}
-            body={nudgeCoachNote.body}
-            modeLabel={nudgeCoachNote.modeLabel}
-            actions={coachActions}
-          />
-        }
       >
         <div />
       </RevealStatePanel>
@@ -1870,6 +1861,7 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
   const language = getTacticalUiLanguage(copy.locale);
   const moduleCopy = copy.trainer.modules[moduleId];
   const moduleMeta = getTacticalModuleMeta(moduleId, language);
+  const feedbackRegionRef = useRef<HTMLDivElement>(null);
   const scenarioCountByPackId = useMemo(() => countScenariosByPack(scenarios), [scenarios]);
   const {
     activeContentPack,
@@ -1883,6 +1875,19 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
     setSelectedContentPackId,
     setSelectedDifficulty,
   } = useTrainerModuleSession(moduleId, scenarios);
+
+  useEffect(() => {
+    if (!session.feedback || window.matchMedia("(min-width: 1024px)").matches) {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      feedbackRegionRef.current?.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    });
+  }, [session.feedback?.attempt.id, session.feedback]);
 
   if (session.isComplete) {
     return (
@@ -1977,12 +1982,14 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
         />
       </div>
 
-      <TacticalFeedbackPanel
-        language={language}
-        scenario={session.currentScenario}
-        feedback={session.feedback}
-        progressSummary={session.overallProgressSummary}
-      />
+      <div ref={feedbackRegionRef} className="scroll-mt-24">
+        <TacticalFeedbackPanel
+          language={language}
+          scenario={session.currentScenario}
+          feedback={session.feedback}
+          progressSummary={session.overallProgressSummary}
+        />
+      </div>
     </div>
   );
 }
