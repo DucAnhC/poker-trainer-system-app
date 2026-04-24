@@ -218,7 +218,7 @@ export function TrainerSessionSetupCard({
         description={copy.trainer.shared.orderSectionHint}
       >
         <div className="flex flex-wrap gap-2">
-          {(["adaptive", "default"] as const).map((mode) => (
+          {(["adaptive", "mistakes", "default"] as const).map((mode) => (
             <button
               key={mode}
               type="button"

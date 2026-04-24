@@ -808,6 +808,7 @@ export function ActionTray({
   onTertiary,
   tertiaryDisabled = false,
   coach,
+  feedbackSummary,
   testId,
   highTension = false,
   className,
@@ -831,6 +832,7 @@ export function ActionTray({
   onTertiary?: () => void;
   tertiaryDisabled?: boolean;
   coach?: ReactNode;
+  feedbackSummary?: ReactNode;
   testId?: string;
   highTension?: boolean;
   className?: string;
@@ -891,6 +893,8 @@ export function ActionTray({
             </div>
           ) : null}
         </div>
+
+        {feedbackSummary ? <div className="mt-4">{feedbackSummary}</div> : null}
 
         <div className="mt-4 grid gap-3">
           <button

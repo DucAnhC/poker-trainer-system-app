@@ -62,11 +62,13 @@ const sourceTypeLabelsEn: Record<SourceType, string> = {
 const queueModeLabelsVi: Record<TrainerQueueMode, string> = {
   adaptive: "Thích ứng",
   default: "Tuần tự",
+  mistakes: "Câu sai",
 };
 
 const queueModeLabelsEn: Record<TrainerQueueMode, string> = {
   adaptive: "Adaptive",
   default: "Ordered",
+  mistakes: "Mistakes",
 };
 
 const potTypeLabelsVi: Record<PreflopScenario["potType"], string> = {

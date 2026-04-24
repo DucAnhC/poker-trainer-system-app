@@ -37,7 +37,7 @@ function normalizeDifficultyFilter(
 }
 
 function normalizeQueueMode(value: string | null): TrainerQueueMode | null {
-  if (value === "adaptive" || value === "default") {
+  if (value === "adaptive" || value === "default" || value === "mistakes") {
     return value;
   }
 

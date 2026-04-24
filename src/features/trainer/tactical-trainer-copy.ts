@@ -25,10 +25,15 @@ type TacticalModuleMeta = {
 
 type TacticalCopy = {
   lockLabel: string;
+  submitLineLabel: string;
   nextSpotLabel: string;
   finishSetLabel: string;
   restartLabel: string;
   retrySpotLabel: string;
+  mistakeReviewLabel: string;
+  patternNoteLabel: string;
+  repeatInsightLabel: string;
+  repeatInsightHelper: string;
   selectedHint: string;
   decisionReviewHint: string;
   sessionProgressLabel: string;
@@ -104,11 +109,16 @@ const tacticalPackLabelsVi: Record<string, string> = {
 const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
   en: {
     lockLabel: "Lock",
+    submitLineLabel: "Submit line",
     nextSpotLabel: "Next spot",
     finishSetLabel: "Finish set",
     restartLabel: "Restart",
     retrySpotLabel: "Retry this spot",
-    selectedHint: "The line is ready. Lock it to open the correction.",
+    mistakeReviewLabel: "Review mistakes",
+    patternNoteLabel: "Pattern note",
+    repeatInsightLabel: "Patterns showing up",
+    repeatInsightHelper: "Based on repeated wrong answers in this trainer.",
+    selectedHint: "The line is ready. Submit it to open the correction.",
     decisionReviewHint: "Result is open. Review, then move when ready.",
     sessionProgressLabel: "Answered",
     accuracyLabel: "Accuracy",
@@ -130,7 +140,7 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     driftLabel: "Line drift",
     assumptionsLabel: "Assumption",
     nextLabel: "Study next",
-    reviewPlaceholder: "Lock a line to open the short correction.",
+    reviewPlaceholder: "Submit a line to open the short correction.",
     correctLabel: "Correct",
     incorrectLabel: "Review",
     heroLabel: "Hero",
@@ -223,6 +233,7 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     queueModeLabels: {
       adaptive: "Adaptive",
       default: "Original",
+      mistakes: "Mistakes",
     },
     storageModeLabels: {
       account: "Cloud save",
@@ -266,11 +277,16 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
   },
   vi: {
     lockLabel: "Chốt",
+    submitLineLabel: "Nộp line",
     nextSpotLabel: "Tình huống tiếp",
     finishSetLabel: "Kết thúc set",
     restartLabel: "Làm lại",
     retrySpotLabel: "Làm lại spot này",
-    selectedHint: "Line đã sẵn. Bấm chốt để mở sửa nhanh.",
+    mistakeReviewLabel: "Ôn câu sai",
+    patternNoteLabel: "Ghi nhớ pattern",
+    repeatInsightLabel: "Bạn hay gặp lỗi",
+    repeatInsightHelper: "Dựa trên các câu bạn đã làm sai lặp lại trong bài luyện này.",
+    selectedHint: "Line đã sẵn. Bấm nộp để mở sửa nhanh.",
     decisionReviewHint: "Kết quả đã mở. Xem nhanh rồi tự bấm tình huống tiếp.",
     sessionProgressLabel: "Đã trả lời",
     accuracyLabel: "Độ chính xác",
@@ -292,7 +308,7 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     driftLabel: "Lệch ở đâu",
     assumptionsLabel: "Giả định",
     nextLabel: "Học tiếp",
-    reviewPlaceholder: "Chốt line để mở sửa nhanh.",
+    reviewPlaceholder: "Nộp line để mở sửa nhanh.",
     correctLabel: "Đúng",
     incorrectLabel: "Sai",
     heroLabel: "Hero",
@@ -385,6 +401,7 @@ const tacticalCopy: Record<TacticalUiLanguage, TacticalCopy> = {
     queueModeLabels: {
       adaptive: "Thích ứng",
       default: "Tuần tự",
+      mistakes: "Câu sai",
     },
     storageModeLabels: {
       account: "Đồng bộ đám mây",

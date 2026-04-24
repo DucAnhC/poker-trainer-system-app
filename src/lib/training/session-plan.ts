@@ -44,6 +44,22 @@ export function buildTrainerSessionPlan<T extends TrainingScenarioBase>(input: {
   retryQueueItems: RetryQueueItem[];
   queueMode: TrainerQueueMode;
 }): TrainerSessionPlan<T> {
+  if (input.queueMode === "mistakes") {
+    const retryScenarioIds = new Set(
+      input.retryQueueItems.map((retryItem) => retryItem.scenarioId),
+    );
+    const reviewScenarios = orderScenariosByRetryPriority(
+      input.scenarios.filter((scenario) => retryScenarioIds.has(scenario.id)),
+      input.retryQueueItems,
+    );
+
+    return {
+      scenarios: reviewScenarios,
+      scenarioIds: reviewScenarios.map((scenario) => scenario.id),
+      retryQueueItems: input.retryQueueItems,
+    };
+  }
+
   const orderedScenarios =
     input.queueMode === "adaptive"
       ? orderScenariosByRetryPriority(input.scenarios, input.retryQueueItems)

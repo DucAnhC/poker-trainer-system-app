@@ -3,6 +3,8 @@ import { describe, expect, it } from "vitest";
 import {
   buildLiveTrainingSessionSummary,
   getProgressSummary,
+  getRecurringMistakeInsights,
+  getTopLeakTagDefinitions,
 } from "@/lib/progress/progress-insights";
 import type { HandReviewNote } from "@/types/training";
 
@@ -159,5 +161,103 @@ describe("progress insights", () => {
     expect(summary.accuracy).toBe(75);
     expect(summary.strengthNotes.length).toBeGreaterThan(0);
     expect(summary.weaknessNotes.length).toBeGreaterThan(0);
+  });
+
+  it("surfaces recurring mistake tags from repeated wrong answers", () => {
+    const summary = getProgressSummary(
+      {
+        attempts: [
+          {
+            id: "attempt-pot-odds-wrong-1",
+            sessionId: "session-pot-odds",
+            scenarioId: "pot-odds-gutshot-turn-overbet",
+            module: "pot-odds",
+            selectedActionId: "call",
+            recommendedActionId: "fold",
+            isCorrect: false,
+            sourceType: "simplification",
+            difficulty: "advanced-lite",
+            mistakeTags: ["poor-pot-odds-intuition", "chased-bad-draw"],
+            conceptTags: ["pot-odds", "turn-play"],
+            createdAt: "2026-04-07T09:00:00.000Z",
+          },
+          {
+            id: "attempt-pot-odds-wrong-2",
+            sessionId: "session-pot-odds",
+            scenarioId: "pot-odds-gutshot-turn-overbet",
+            module: "pot-odds",
+            selectedActionId: "call",
+            recommendedActionId: "fold",
+            isCorrect: false,
+            sourceType: "simplification",
+            difficulty: "advanced-lite",
+            mistakeTags: ["poor-pot-odds-intuition"],
+            conceptTags: ["pot-odds", "turn-play"],
+            createdAt: "2026-04-07T09:02:00.000Z",
+          },
+          {
+            id: "attempt-pot-odds-correct",
+            sessionId: "session-pot-odds",
+            scenarioId: "pot-odds-open-ender-small-bet",
+            module: "pot-odds",
+            selectedActionId: "call",
+            recommendedActionId: "call",
+            isCorrect: true,
+            sourceType: "baseline",
+            difficulty: "beginner",
+            mistakeTags: [],
+            conceptTags: ["pot-odds"],
+            createdAt: "2026-04-07T09:04:00.000Z",
+          },
+        ],
+        sessions: [],
+        updatedAt: "2026-04-07T09:04:00.000Z",
+      },
+      [],
+    );
+
+    const potOddsLeak = summary.leakTagStats.find(
+      (leakTagStat) => leakTagStat.leakTagId === "poor-pot-odds-intuition",
+    );
+    const chasedDrawLeak = summary.leakTagStats.find(
+      (leakTagStat) => leakTagStat.leakTagId === "chased-bad-draw",
+    );
+
+    expect(potOddsLeak).toMatchObject({
+      totalCount: 2,
+      trainingCount: 2,
+      reviewCount: 0,
+    });
+    expect(chasedDrawLeak).toMatchObject({
+      totalCount: 1,
+      trainingCount: 1,
+      reviewCount: 0,
+    });
+    expect(summary.leakTagStats[0]?.leakTagId).toBe("poor-pot-odds-intuition");
+
+    const retryItem = summary.retryQueue.find(
+      (item) => item.scenarioId === "pot-odds-gutshot-turn-overbet",
+    );
+
+    expect(retryItem?.supportingLeakTagIds).toContain(
+      "poor-pot-odds-intuition",
+    );
+    expect(retryItem?.reason).toContain("hơn một lần");
+
+    const topLeakDefinitions = getTopLeakTagDefinitions(summary.leakTagStats, 1);
+    const recurringInsights = getRecurringMistakeInsights(summary.leakTagStats, {
+      matchingLeakTagIds: ["poor-pot-odds-intuition", "chased-bad-draw"],
+    });
+
+    expect(topLeakDefinitions[0]).toMatchObject({
+      leakTagId: "poor-pot-odds-intuition",
+      totalCount: 2,
+    });
+    expect(topLeakDefinitions[0]?.leakTag.label).toBeTruthy();
+    expect(recurringInsights).toHaveLength(1);
+    expect(recurringInsights[0]).toMatchObject({
+      leakTagId: "poor-pot-odds-intuition",
+      trainingCount: 2,
+    });
   });
 });

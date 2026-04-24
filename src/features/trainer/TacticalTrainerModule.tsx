@@ -39,6 +39,7 @@ import {
   buildNudgeCoachNote,
   buildSilentCoachNote,
 } from "@/lib/training/coach-notes";
+import { getRecurringMistakeInsights } from "@/lib/progress/progress-insights";
 import { getScenarioFollowUpSuggestions } from "@/lib/training/follow-up-suggestions";
 import { cn, formatDateTimeLabel, formatPercent } from "@/lib/utils";
 import type { BoardTextureProfile, PlayerArchetypeId } from "@/types/poker";
@@ -266,6 +267,43 @@ function getTextureSceneTone(board: BoardTextureProfile | undefined) {
   }
 
   return "bg-[radial-gradient(circle_at_top,rgba(52,211,153,0.2),rgba(8,23,42,0.08)_42%,rgba(3,7,18,0.2)_100%)]";
+}
+
+function getScenarioAnswerBlock(scenario: TrainingScenario) {
+  return scenario.rationaleBlocks.find((block) => block.kind === "answer") ?? null;
+}
+
+function getScenarioReasonBlock(scenario: TrainingScenario) {
+  return (
+    scenario.rationaleBlocks.find(
+      (block) => block.kind === "core-reason" || block.kind === "context-factor",
+    ) ?? getScenarioAnswerBlock(scenario)
+  );
+}
+
+function getScenarioTakeawayBlock(scenario: TrainingScenario) {
+  return (
+    scenario.rationaleBlocks.find(
+      (block) =>
+        block.kind === "mistake-correction" ||
+        block.kind === "alternative-action",
+    ) ?? getScenarioReasonBlock(scenario)
+  );
+}
+
+function getPatternTakeaway(scenario: TrainingScenario) {
+  return getScenarioTakeawayBlock(scenario)?.body ?? scenario.learningGoal;
+}
+
+function getScenarioRecurringInsights(
+  scenario: TrainingScenario,
+  progressSummary: ProgressSummary,
+) {
+  return getRecurringMistakeInsights(progressSummary.leakTagStats, {
+    limit: 2,
+    minimumTrainingCount: 2,
+    matchingLeakTagIds: scenario.mistakeTags,
+  });
 }
 
 function getPlayerTypeScene(
@@ -576,11 +614,11 @@ function SessionStat({
   value: string;
 }) {
   return (
-    <div className="min-w-0 rounded-[20px] border border-white/10 bg-black/14 px-4 py-4">
+    <div className="min-w-0 rounded-[18px] border border-white/10 bg-black/14 px-3 py-3 sm:rounded-[20px] sm:px-4 sm:py-4">
       <p className="text-[10px] font-semibold uppercase tracking-[0.14em] text-emerald-100/55">
         {label}
       </p>
-      <p className="mt-2 break-words text-xl font-semibold leading-7 text-white text-pretty sm:text-2xl">
+      <p className="mt-1 break-words text-base font-semibold leading-6 text-white text-pretty sm:mt-2 sm:text-2xl sm:leading-7">
         {value}
       </p>
     </div>
@@ -651,8 +689,8 @@ function TacticalSessionStrip({
   const moduleMeta = getTacticalModuleMeta(moduleId, language);
 
   return (
-    <section className="rounded-[32px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-4 text-white shadow-panel sm:p-5">
-      <div className="grid gap-4 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] 2xl:items-start">
+    <section className="rounded-[28px] border border-emerald-950/18 bg-[linear-gradient(180deg,rgba(4,24,22,0.98),rgba(8,23,32,0.98))] p-3 text-white shadow-panel sm:rounded-[32px] sm:p-5">
+      <div className="grid gap-3 2xl:grid-cols-[minmax(0,1fr)_minmax(360px,420px)] 2xl:items-start">
         <div className="space-y-3">
           <div className="flex flex-wrap items-center gap-2">
             <span className="max-w-full break-words rounded-full border border-cyan-200/20 bg-cyan-300/10 px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100 text-pretty">
@@ -661,14 +699,14 @@ function TacticalSessionStrip({
             <span className="max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty">
               {moduleMeta.title}
             </span>
-            <span className="max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty">
+            <span className="hidden max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty sm:inline-flex">
               {getTacticalPackLabel(
                 activeContentPack.id,
                 activeContentPack.focusLabel,
                 language,
               )}
             </span>
-            <span className="max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty">
+            <span className="hidden max-w-full break-words rounded-full border border-white/12 bg-white/[0.06] px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.12em] text-white/85 text-pretty sm:inline-flex">
               {getTacticalStorageLabel(storageMode, language)}
             </span>
             {retryItemCount > 0 ? (
@@ -688,7 +726,7 @@ function TacticalSessionStrip({
             ) : null}
           </div>
 
-          <div className="rounded-[22px] border border-white/10 bg-black/12 p-3">
+          <div className="hidden rounded-[22px] border border-white/10 bg-black/12 p-3 sm:block">
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
               {copy.sessionLabel}
             </p>
@@ -711,7 +749,7 @@ function TacticalSessionStrip({
           </div>
         </div>
 
-        <div className="grid gap-3 md:grid-cols-3 2xl:grid-cols-1">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3 2xl:grid-cols-1">
           <SessionStat
             label={copy.sessionProgressLabel}
             value={`${answeredCount}/${totalQuestions}`}
@@ -721,7 +759,20 @@ function TacticalSessionStrip({
         </div>
       </div>
 
-      <div className="mt-4 grid gap-3 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,0.9fr)]">
+      <div className="mt-3 rounded-[20px] border border-white/10 bg-black/12 p-3 sm:hidden">
+        <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-emerald-100/55">
+          {copy.sessionLabel}
+        </p>
+        <p className="mt-1 break-words text-sm font-semibold leading-5 text-white">
+          {getTacticalPackLabel(activeContentPack.id, activeContentPack.focusLabel, language)}
+        </p>
+        <p className="mt-1 text-xs font-semibold text-slate-300">
+          {getTacticalDifficultyLabel(selectedDifficulty, language)} /{" "}
+          {getTacticalQueueModeLabel(queueMode, language)}
+        </p>
+      </div>
+
+      <div className="mt-4 hidden gap-3 md:grid lg:grid-cols-[minmax(0,1.35fr)_minmax(0,1fr)_minmax(0,0.9fr)]">
         <SessionFilterGroup label={copy.packLabel}>
           {availableContentPacks.map((contentPack) => (
             <SessionFilterButton
@@ -756,7 +807,7 @@ function TacticalSessionStrip({
         </SessionFilterGroup>
 
         <SessionFilterGroup label={copy.orderLabel}>
-          {(["adaptive", "default"] as const).map((mode) => (
+          {(["adaptive", "mistakes", "default"] as const).map((mode) => (
             <SessionFilterButton
               key={mode}
               isActive={queueMode === mode}
@@ -1266,6 +1317,7 @@ function TacticalSpotPanel({
   questionNumber,
   totalQuestions,
   retryHint,
+  hasSubmitted,
 }: {
   language: TacticalUiLanguage;
   moduleId: InteractiveTrainingModuleId;
@@ -1274,6 +1326,7 @@ function TacticalSpotPanel({
   questionNumber: number;
   totalQuestions: number;
   retryHint?: RetryQueueItem | null;
+  hasSubmitted: boolean;
 }) {
   const copy = getTacticalDrillCopy(language);
   const moduleMeta = getTacticalModuleMeta(moduleId, language);
@@ -1361,12 +1414,14 @@ function TacticalSpotPanel({
         </div>
       }
       coach={
-        <CoachAnchor
-          title={coachNote.title}
-          body={coachNote.body}
-          modeLabel={coachNote.modeLabel}
-          actions={coachActions}
-        />
+        hasSubmitted ? (
+          <CoachAnchor
+            title={coachNote.title}
+            body={coachNote.body}
+            modeLabel={coachNote.modeLabel}
+            actions={coachActions}
+          />
+        ) : undefined
       }
     >
       <ScenarioPrimaryVisual language={language} scenario={scenario} />
@@ -1433,6 +1488,7 @@ function TacticalDecisionPanel({
   canSubmit,
   canAdvance,
   canRetryCurrentScenario,
+  progressSummary,
   hasSubmitted,
   isLastScenario,
   onSelectAction,
@@ -1450,6 +1506,7 @@ function TacticalDecisionPanel({
   canSubmit: boolean;
   canAdvance: boolean;
   canRetryCurrentScenario: boolean;
+  progressSummary: ProgressSummary;
   hasSubmitted: boolean;
   isLastScenario: boolean;
   onSelectAction: (actionId: string) => void;
@@ -1473,10 +1530,13 @@ function TacticalDecisionPanel({
       ? copy.finishSetLabel
       : copy.nextSpotLabel
     : selectedAction
-      ? `${copy.lockLabel} ${selectedAction.label}`
-      : copy.lockLabel;
+      ? `${copy.submitLineLabel}: ${selectedAction.label}`
+      : copy.submitLineLabel;
   const coachNote = buildNudgeCoachNote({ scenario, language });
   const coachActions = getCoachActions(language);
+  const quickReason = getScenarioAnswerBlock(scenario)?.body ?? scenario.learningGoal;
+  const patternTakeaway = getPatternTakeaway(scenario);
+  const recurringInsights = getScenarioRecurringInsights(scenario, progressSummary);
   const stateLabel = hasSubmitted
     ? language === "vi"
       ? "Line đã khóa"
@@ -1494,8 +1554,8 @@ function TacticalDecisionPanel({
       : "The reveal panel now carries the correction, coach recap, and next spot."
     : selectedAction
       ? language === "vi"
-        ? "Line đã được chọn. Khóa lại để mở reveal."
-        : "A line is selected. Lock it to open the reveal."
+        ? "Line đã được chọn. Bấm nộp để mở reveal."
+        : "A line is selected. Submit it to open the reveal."
       : language === "vi"
         ? "Chọn một action trước. Coach seat chỉ giữ vai trò nudge ngắn."
         : "Choose an action first. The coach seat stays limited to short nudges.";
@@ -1521,13 +1581,57 @@ function TacticalDecisionPanel({
       tertiaryLabel={hasSubmitted ? copy.retrySpotLabel : undefined}
       onTertiary={hasSubmitted ? onRetryCurrent : undefined}
       tertiaryDisabled={!canRetryCurrentScenario}
+      feedbackSummary={
+        feedback ? (
+          <div
+            className={cn(
+              "rounded-[22px] border p-4",
+              feedback.attempt.isCorrect
+                ? "border-emerald-300/28 bg-emerald-300/10"
+                : "border-rose-300/28 bg-rose-300/10",
+            )}
+          >
+            <div className="flex flex-wrap items-center gap-2">
+              <SpotTag tone={feedback.attempt.isCorrect ? "emerald" : "rose"}>
+                {feedback.attempt.isCorrect ? copy.correctLabel : copy.incorrectLabel}
+              </SpotTag>
+              <SpotTag tone="cyan">
+                {copy.bestLineLabel}: {feedback.recommendedAction.label}
+              </SpotTag>
+            </div>
+            <p className="mt-3 break-words text-sm leading-6 text-slate-200">
+              {copy.selectedLineLabel}: {feedback.selectedAction.label}
+            </p>
+            <p className="mt-2 break-words text-sm leading-6 text-white/88">
+              {quickReason}
+            </p>
+            <div className="mt-3 rounded-[18px] border border-white/10 bg-black/14 p-3">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-cyan-100/75">
+                {copy.patternNoteLabel}
+              </p>
+              <p className="mt-1 break-words text-sm leading-6 text-white/88">
+                {patternTakeaway}
+              </p>
+            </div>
+            <div className="mt-3">
+              <RepeatMistakeInsightBlock
+                language={language}
+                insights={recurringInsights}
+                compact
+              />
+            </div>
+          </div>
+        ) : undefined
+      }
       coach={
-        <CoachAnchor
-          title={coachNote.title}
-          body={coachNote.body}
-          modeLabel={coachNote.modeLabel}
-          actions={coachActions}
-        />
+        hasSubmitted ? undefined : (
+          <CoachAnchor
+            title={coachNote.title}
+            body={coachNote.body}
+            modeLabel={coachNote.modeLabel}
+            actions={coachActions}
+          />
+        )
       }
       highTension={highTension}
     >
@@ -1570,6 +1674,48 @@ function ReviewBlock({
   );
 }
 
+function RepeatMistakeInsightBlock({
+  language,
+  insights,
+  compact = false,
+}: {
+  language: TacticalUiLanguage;
+  insights: ReturnType<typeof getScenarioRecurringInsights>;
+  compact?: boolean;
+}) {
+  if (insights.length === 0) {
+    return null;
+  }
+
+  const copy = getTacticalDrillCopy(language);
+
+  return (
+    <div
+      data-testid="repeat-mistake-insight"
+      className={cn(
+        "rounded-[22px] border border-amber-200/20 bg-amber-300/10",
+        compact ? "p-3" : "p-4",
+      )}
+    >
+      <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-amber-100">
+        {copy.repeatInsightLabel}
+      </p>
+      <div className="mt-2 flex flex-wrap gap-2">
+        {insights.map((insight) => (
+          <SpotTag key={insight.leakTagId} tone="amber">
+            {insight.leakTag.label} x{insight.trainingCount}
+          </SpotTag>
+        ))}
+      </div>
+      {!compact ? (
+        <p className="mt-2 break-words text-sm leading-6 text-amber-50/88">
+          {copy.repeatInsightHelper}
+        </p>
+      ) : null}
+    </div>
+  );
+}
+
 function TacticalFeedbackPanel({
   language,
   scenario,
@@ -1608,17 +1754,9 @@ function TacticalFeedbackPanel({
   }
 
   const isCorrect = feedback.attempt.isCorrect;
-  const answerBlock =
-    scenario.rationaleBlocks.find((block) => block.kind === "answer") ?? null;
-  const whyBlock =
-    scenario.rationaleBlocks.find(
-      (block) => block.kind === "core-reason" || block.kind === "context-factor",
-    ) ?? answerBlock;
-  const takeawayBlock =
-    scenario.rationaleBlocks.find(
-      (block) =>
-        block.kind === "alternative-action" || block.kind === "mistake-correction",
-    ) ?? whyBlock;
+  const answerBlock = getScenarioAnswerBlock(scenario);
+  const whyBlock = getScenarioReasonBlock(scenario);
+  const takeawayBlock = getScenarioTakeawayBlock(scenario);
   const surfacedLeakTags = scenario.mistakeTags
     .map((leakTagId) => leakTags.find((leakTag) => leakTag.id === leakTagId)?.label ?? null)
     .filter((value): value is string => value !== null)
@@ -1630,6 +1768,7 @@ function TacticalFeedbackPanel({
     progressSummary,
   }).slice(0, 2);
   const coachNote = buildSilentCoachNote({ scenario, feedback, language });
+  const recurringInsights = getScenarioRecurringInsights(scenario, progressSummary);
 
   return (
     <RevealStatePanel
@@ -1721,6 +1860,20 @@ function TacticalFeedbackPanel({
           ) : null}
         </ReviewBlock>
       </div>
+
+      <div className="rounded-[26px] border border-cyan-200/22 bg-cyan-300/10 p-4">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-cyan-100">
+          {copy.patternNoteLabel}
+        </p>
+        <p className="mt-2 break-words text-sm leading-6 text-white/88">
+          {getPatternTakeaway(scenario)}
+        </p>
+      </div>
+
+      <RepeatMistakeInsightBlock
+        language={language}
+        insights={recurringInsights}
+      />
 
       {!isCorrect && feedback.selectedAction.feedbackHint ? (
         <div className="rounded-[26px] border border-rose-200/30 bg-rose-300/10 p-4">
@@ -1907,16 +2060,26 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
   }
 
   if (!session.currentScenario) {
+    const isMistakeReviewEmpty = queueMode === "mistakes";
+
     return (
       <section className="rounded-[32px] border border-border/70 bg-surface/90 p-6 shadow-panel">
         <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-accent-strong">
           {moduleMeta.eyebrow}
         </p>
         <h1 className="mt-2 text-3xl font-semibold tracking-tight text-foreground">
-          {moduleMeta.emptyTitle}
+          {isMistakeReviewEmpty
+            ? language === "vi"
+              ? "Chưa có câu sai để ôn"
+              : "No missed spots to review"
+            : moduleMeta.emptyTitle}
         </h1>
         <p className="mt-3 max-w-xl text-sm leading-6 text-muted-foreground">
-          {selectedDifficulty === "all"
+          {isMistakeReviewEmpty
+            ? language === "vi"
+              ? "Mistake review sẽ tự mở khi bạn có câu sai hoặc leak lặp trong module này."
+              : "Mistake review opens once this module has missed spots or recurring leak signals."
+            : selectedDifficulty === "all"
             ? moduleMeta.emptyBody
             : moduleCopy.emptyByDifficulty(
                 copy.trainer.difficultyLabels[selectedDifficulty],
@@ -1960,6 +2123,7 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
           questionNumber={session.questionNumber}
           totalQuestions={session.totalQuestions}
           retryHint={session.currentRetryHint}
+          hasSubmitted={session.hasSubmitted}
         />
 
         <TacticalDecisionPanel
@@ -1972,6 +2136,7 @@ export function TacticalTrainerModule<T extends TrainingScenario>({
           canSubmit={session.canSubmit}
           canAdvance={session.canAdvance}
           canRetryCurrentScenario={session.canRetryCurrentScenario}
+          progressSummary={session.overallProgressSummary}
           hasSubmitted={session.hasSubmitted}
           isLastScenario={session.isLastScenario}
           onSelectAction={session.handleSelectAction}

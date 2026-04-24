@@ -68,6 +68,25 @@ describe("trainer session plan", () => {
     ]);
   });
 
+  it("builds mistake review sessions from retry scenarios only", () => {
+    const scenarios = [
+      createScenario("spot-a"),
+      createScenario("spot-b"),
+      createScenario("spot-c"),
+    ];
+
+    const plan = buildTrainerSessionPlan({
+      scenarios,
+      retryQueueItems: [
+        createRetryItem("spot-c", 7),
+        createRetryItem("spot-a", 12),
+      ],
+      queueMode: "mistakes",
+    });
+
+    expect(plan.scenarioIds).toEqual(["spot-a", "spot-c"]);
+  });
+
   it("keeps an in-progress session stable when persisted retry data changes", () => {
     expect(
       shouldRefreshTrainerSessionPlan({

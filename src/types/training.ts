@@ -49,7 +49,7 @@ export const difficultyLevels: Difficulty[] = [
 ];
 export type PersistenceMode = "local" | "account";
 export type TrainingDifficultyFilter = Difficulty | "all";
-export type TrainerQueueMode = "adaptive" | "default";
+export type TrainerQueueMode = "adaptive" | "default" | "mistakes";
 export type TrainingAnswerPhase =
   | "idle"
   | "selected"

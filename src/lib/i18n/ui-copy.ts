@@ -324,6 +324,7 @@ export const uiCopy = {
       queueModeLabels: {
         adaptive: "Adaptive",
         default: "Original",
+        mistakes: "Mistakes",
       } satisfies Record<TrainerQueueMode, string>,
       moduleNames: {
         preflop: "Preflop Trainer",
@@ -864,6 +865,7 @@ export const uiCopy = {
       queueModeLabels: {
         adaptive: "Adaptive",
         default: "Thứ tự gốc",
+        mistakes: "Câu sai",
       } satisfies Record<TrainerQueueMode, string>,
       moduleNames: {
         preflop: "Preflop Trainer",

@@ -1203,3 +1203,39 @@ export function getTopLeakTagDefinitions(
     })
     .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
 }
+
+export function getRecurringMistakeInsights(
+  leakTagStats: LeakTagStat[],
+  options?: {
+    limit?: number;
+    minimumTrainingCount?: number;
+    matchingLeakTagIds?: string[];
+  },
+) {
+  const limit = options?.limit ?? 3;
+  const minimumTrainingCount = options?.minimumTrainingCount ?? 2;
+  const matchingLeakTagIds = options?.matchingLeakTagIds
+    ? new Set(options.matchingLeakTagIds)
+    : null;
+
+  return leakTagStats
+    .filter(
+      (leakTagStat) =>
+        leakTagStat.trainingCount >= minimumTrainingCount &&
+        (!matchingLeakTagIds || matchingLeakTagIds.has(leakTagStat.leakTagId)),
+    )
+    .slice(0, limit)
+    .map((leakTagStat) => {
+      const leakTag = leakTagMap[leakTagStat.leakTagId];
+
+      if (!leakTag) {
+        return null;
+      }
+
+      return {
+        ...leakTagStat,
+        leakTag,
+      };
+    })
+    .filter((entry): entry is NonNullable<typeof entry> => entry !== null);
+}

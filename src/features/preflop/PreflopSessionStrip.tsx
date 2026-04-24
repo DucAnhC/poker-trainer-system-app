@@ -248,7 +248,7 @@ export function PreflopSessionStrip({
         </FilterGroup>
 
         <FilterGroup label={copy.queueLabel}>
-          {(["adaptive", "default"] as const).map((mode) => (
+          {(["adaptive", "mistakes", "default"] as const).map((mode) => (
             <StripButton
               key={mode}
               isActive={queueMode === mode}
